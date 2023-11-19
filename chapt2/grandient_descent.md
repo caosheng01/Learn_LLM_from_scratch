@@ -1,6 +1,6 @@
 # 手撕梯度下降算法
 
-在这一节里面，我们将用一个例子来详细解释梯度下降算法的工作原理，并用Python代码来实现该例子。
+在这一节里面，我们将用一个例子来详细解释梯度下降算法的工作原理，并用Python代码来实现该例子，原始例子来自抖音@教AI的陶老师，略作修改。
 
 ## 例子：网络示意图
 
@@ -62,7 +62,7 @@ w22 = torch.tensor(-1.0, requires_grad=True)
 wa1 = torch.tensor(1.0, requires_grad=True)
 wa2 = torch.tensor(-1.0, requires_grad=True)
 b11, b12, b21 = torch.tensor([1.0, 1.0, 1.0], requires_grad=True)
-learning_rate = 0.01
+learning_rate = 1e-2
 
 # Step 1/3: Forward propagation
 z1 = w11 * x1 + w12 * x2 + b11

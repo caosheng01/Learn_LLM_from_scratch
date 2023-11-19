@@ -33,19 +33,19 @@ Tips: 向量**点积**（dot product, 也称**内积**）后得到的已经不�
 
 我们先介绍几个概念，然后在推导出余弦定理。
 
-* $\begin{Vmatrix} a \end{Vmatrix}$表示向量的**长度**（也可以理解为**距离**）。
+* $\Vert a \Vert$表示向量的**长度**（也可以理解为**距离**）。
   
-  * 假如二维向量$\vec{a} = (a_1,a_2)$，那么 $\begin{Vmatrix} a \end{Vmatrix} = \sqrt{a_1^2 + a_2^2}$
+  * 假如二维向量$\vec{a} = (a_1,a_2)$，那么 $\Vert a \Vert = \sqrt{a_1^2 + a_2^2}$
 * 假设向量$\vec{a}$和$\vec{b}$之间的夹角为$\theta$, 如何计算$\vec{a} \cdot \vec{b}$呢？
   
   * 先做个方向的转换，我们把$\vec{b}$投影到$\vec{a}$上，这样$\vec{b}$在$\vec{a}$方向上的投影就变成了$\begin{Vmatrix} b \end{Vmatrix} \cos\theta$
-  * $\vec{a}$在自己方向上的投影就是$\begin{Vmatrix} a \end{Vmatrix}$
-  * 这样，$\vec{a} \cdot \vec{b}$ 就等价于 $\begin{Vmatrix} a \end{Vmatrix} \begin{Vmatrix} b \end{Vmatrix} \cos\theta$，即$  \vec{a} \cdot \vec{b} = \begin{Vmatrix} a \end{Vmatrix} \begin{Vmatrix} b \end{Vmatrix} \cos\theta  $
+  * $\vec{a}$在自己方向上的投影就是$\Vert a \Vert$
+  * 这样，$\vec{a} \cdot \vec{b}$ 就等价于 $\Vert a \Vert \Vert b \Vert \cos\theta$，即$  \vec{a} \cdot \vec{b} = \Vert a \Vert \Vert b \Vert \cos\theta  $
 
 简单做一个等式变化，我们就得到了二维向量的余弦定理。
 
 $$
-\cos\theta  = \frac{\vec{a} \cdot \vec{b}}{\begin{Vmatrix} a \end{Vmatrix} \begin{Vmatrix} b \end{Vmatrix}} = \frac{a_1b_1+a_2b_2}{\sqrt{a_1^2 + a_2^2}\sqrt{b_1^2 + b_2^2}}
+\cos\theta  = \frac{\vec{a} \cdot \vec{b}}{\Vert a \Vert \Vert b \Vert} = \frac{a_1b_1+a_2b_2}{\sqrt{a_1^2 + a_2^2}\sqrt{b_1^2 + b_2^2}}
 $$
 
 推广到N维向量空间，就得到公式
@@ -55,7 +55,7 @@ $$
 $$
 
 $$
-\cos\theta  = \frac{\vec{a} \cdot \vec{b}}{\begin{Vmatrix} a \end{Vmatrix} \begin{Vmatrix} b \end{Vmatrix}} = \frac{a_1b_1+a_2b_2+...+a_nb_n}{\sqrt{a_1^2+a_2^2+...+a_n^2}\sqrt{b_1^2+ b_2^2+...+b_n^2}}
+\cos\theta  = \frac{\vec{a} \cdot \vec{b}}{\Vert a \Vert \Vert b \Vert} = \frac{a_1b_1+a_2b_2+...+a_nb_n}{\sqrt{a_1^2+a_2^2+...+a_n^2}\sqrt{b_1^2+ b_2^2+...+b_n^2}}
 $$
 
 通常，我们用余弦定理来进行相似度的计算。
