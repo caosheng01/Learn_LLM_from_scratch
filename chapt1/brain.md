@@ -231,7 +231,7 @@ $$
 ![FP.svg](assets/FP.svg)
 
 接着，我们加入了损失函数，来衡量输出$y$和我们的目标之间的差值，如下图所示：
-![FP_n_Loss.png](assets/FP_n_Loss.svg)
+![FP_n_Loss.svg](assets/FP_n_Loss.svg)
 
 前文提到，机器学习最终目的就是调整权重。根据梯度算法的数学公式
 
