@@ -84,7 +84,7 @@
 
 ![neuron_flow.svg](assets/neuron_flow.svg?t=1700127147569)
 
-## 用数学来表示神经元
+### 用数学来表示神经元
 
 在开始这一章节前，先把时间拨回到2017年。
 
@@ -98,7 +98,7 @@
 
 言归正传，现在我们将上文终结出来的5个概念，即输入，处理，阈值，激活和输出，用数学表示出来。
 
-参考我们熟悉的一次函数，我们用$x_i$表示输入；用Y表示输出。因为有多路输入，所以我们还要引入权重（Weight）这个概念。对于输入的处理，就对应数学里的函数$f(x)$，我们一般用线性方程，比如求和$\sum$表示。阈值，我们用一个常量bias表示，简写为$b$。激活，也对应于数学中的函数，我们称之为激活函数（Activation Function）,我们用$\sigma$来表示，一般是非线性函数，比如ReLU，Sigmod等函数。
+参考我们熟悉的一次函数，我们用$x_i$表示输入；用$y$表示输出。因为有多路输入，所以我们还要引入权重（Weight）这个概念。对于输入的处理，就对应数学里的函数$f(x)$，我们一般用线性方程，比如求和$\sum$表示。阈值，我们用一个常量bias表示，简写为$b$。激活，也对应于数学中的函数，我们称之为激活函数（Activation Function）,我们用$\sigma$来表示，一般是非线性函数，比如ReLU，Sigmod等函数。
 
 那么，我们就得到了下图。
 
@@ -106,7 +106,7 @@
 其实这个图就是McCulloch和Pitts在1943年提出来的M-P神经元模型，并由此模型发展出了感知机（Preceptron）。而这个从左到右，即从输入到输出的过程，在机器学习里的专业术语叫**前向传播**（Forward Propagation）。整个过程，我们只用一个数学就可以表示出来：
 
 $$
-Y = \sigma(\sum_{i=1}^n w_ix_i + b)
+y = \sigma(\sum_{i=1}^n w_ix_i + b)
 $$
 
 ### 番外篇1：Bias与Activation Function的区别
@@ -139,18 +139,18 @@ $$
 
 ### 用数学来表示学习的过程
 
-先回顾一下感知机的构成，有输入$x_i$;权重$w_i$;函数$\sum$;阈值$b$;激活函数$\sigma$;输出$Y$。然后结合上文的5个过程，我们很容易就能想到用输入$x_i$对应数据采集。而数据编码即数据存储不是那么一目了然。但是，我们仔细看一下感知机，函数$\sum; \sigma$一旦选定就不变了，只有权重$w_i$和阈值$b$是可以随意改变，并可以保存。
+先回顾一下感知机的构成，有输入$x_i$;权重$w_i$;函数$\sum$;阈值$b$;激活函数$\sigma$;输出$y$。然后结合上文的5个过程，我们很容易就能想到用输入$x_i$对应数据采集。而数据编码即数据存储不是那么一目了然。但是，我们仔细看一下感知机，函数$\sum; \sigma$一旦选定就不变了，只有权重$w_i$和阈值$b$是可以随意改变，并可以保存。
 瞧，数学总是这么一目了然，至此我们找到了机器学习的本质：
 
-> 机器学习本质就是用各种各样的的数学手段，来调整权重(Weight)
+> 机器学习本质就是用各种各样的数学手段，来调整权重(Weight)
 
-Tips: 在实际应用中，我们把阈值$b$，直接写作$w_b$，也作为权重进行训练。本文不区分这两个概念，这里我们更加侧重学习原理。
+Tips: 在实际应用中，我们把阈值$b$，直接写作$w_b$，也作为权重进行训练。本文不区分这两个概念，统称为权重。
 
 #### 损失函数
 
 还有最后一个过程我们需要用数学来表示，多轮的学习和奖惩机制。
 回顾一下当你学习的时候，大脑会发生重要变化。即在神经元之间建立新连接——这种现象被称为神经可塑性(Neuroplasticity)。练习得越多，这些连接就会变得越牢固。当连接加强时，信息(神经冲动)的传输速度越来越快，也更有效率。这里，我们用权重来表示神经元的连接强度。
-谈到奖惩机制，我们首先要解决的就是输出$Y$是不是就是“正确答案”。对比输出$Y$是否接近“正确答案”这一过程，类似于人类学习中的考试，分数越高表示越接近正确答案。
+谈到奖惩机制，我们首先要解决的就是输出$y$是不是就是“正确答案”。对比输出$y$是否接近“正确答案”这一过程，类似于人类学习中的考试，分数越高表示越接近正确答案。
 举个例子，在满分为100分的考试中，得分98分的学生A，比得分为85分的学生B，更应该收到奖励。
 我们做一个等式变形，
 
@@ -213,7 +213,7 @@ $$
 \widehat \theta_n = \theta_n -\eta \frac{\partial J}{\partial \theta_n}
 $$
 
-额，n条公式... 显然不符合数学审美观，我们引入几个数学概念来简化上述公式。
+额，这么多条公式... 显然不符合数学审美观，我们引入几个数学概念来简化上述公式。
 
 * 向量$\vec{\theta} = \left[\begin{matrix}\theta_0 \\ \theta_1 \\ ... \\ \theta_n \end{matrix}\right]$ 表示：变量$\theta_0, \theta_1 ,...,\theta_n$.
 * $\theta_t$表示：第$t$次迭代后的模型参数
@@ -227,10 +227,38 @@ $$
 
 ##### 反向传播
 
+在开始讲反向传播之前，我们先复习一下感知机和正向传播过程。一个简单的感知机，如下图所示：
+![FP.svg](assets/FP.svg)
 
-反向传播算法的数学原理是，使用链式法则计算损失函数相对于每个模型参数的梯度。链式法则是一种计算复合函数导数的方法。在神经网络中，每个层都可以看作是一个函数，它将输入映射到输出。通过使用链式法则，可以计算出损失函数相对于每个层的输入和权重的梯度。这些梯度可以用于更新模型参数，以便最小化损失函数。
+接着，我们加入了损失函数，来衡量输出$y$和我们的目标之间的差值，如下图所示：
+![FP_n_Loss.png](assets/FP_n_Loss.svg)
 
-链式法则是微积分中的一种求导法则，用于求解复合函数的导数。当一个函数是由两个或多个函数组成时，链式法则可以帮助我们找到这个复合函数的导数。链式法则的正式表述如下：设 $y=f(u), u=g(x)$ ，则 $y$ 关于 $x$ 的导数为$\frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx}$。这个公式可以推广到多元函数的情况。例如，如果 $z=f(x,y), x=g(t), y=h(t)$，则$z$关于$t$的导数为$\frac{dz}{dt} = \frac{\partial z}{\partial x} \cdot \frac{dx}{dt} + \frac{\partial z}{\partial y} \cdot \frac{dy}{dt}$。这个公式被称为多元复合函数求导法则。
+前文提到，机器学习最终目的就是调整权重。根据梯度算法的数学公式
+
+$$
+\vec \theta_{t+1} = \vec \theta_t - \eta \nabla{J(\theta_t)}
+$$
+
+可知，我们需要求得$\frac{\partial J}{\partial w_1}; \frac{\partial J}{\partial w_2}$, 以便算出权重$\widehat w_1; \widehat w_2$，并更新。计算公式表示如下：
+
+$$
+\widehat w_1 = w_1 - \eta\frac{\partial J}{\partial w_1} \\
+\widehat w_2 = w_2 - \eta\frac{\partial J}{\partial w_2}
+$$
+
+由上图可知，$J(\theta)$ 和 $w_i$，还有两个函数：$\sum$和$\sigma$。为了解决这个问题，我们需要引入新的数学工具——链式法则。我们先看一下什么是链式法则。
+
+> 链式法则是微积分中的一种求导法则，用于求解复合函数的导数。当一个函数是由两个或多个函数组成时，链式法则可以帮助我们找到这个复合函数的导数。链式法则的正式表述如下：设 $y=f(u), u=g(x)$ ，则 $y$ 关于 $x$ 的导数为$\frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx}$。
+
+运用链式法则，我们就能求得$\widehat w_1; \widehat w_2$，计算公式如下：
+
+$$
+\vec w_{i+1} = \vec w_i - \eta\frac{\partial J}{\partial w_i} = \vec w_i - \eta \cdot \frac{\partial \sum}{\partial w_i} \cdot \frac{\partial \sigma}{\partial \sum} \cdot \frac{\partial J}{\partial \sigma}
+$$
+
+Tips: 数学上，这个公式不够严谨，请大家包涵。重点放在理解算法的运作过程。
+现在，我们把整个过程画出来，如下图所示：
+![FP_n_BP.svg](assets/FP_n_BP.svg)
 
 ### 番外篇2：记忆和预测的区别
 
@@ -241,6 +269,92 @@ $$
 预测是指根据已有的信息和经验，对未来事件或情况进行估计或猜测的能力。在认知心理学中，预测涉及对已有知识和模式的识别、提取和应用。通过将过去的经验与当前的环境进行比较，我们可以推测出可能发生的未来事件。这种能力使我们能够做出决策、规划行动和适应新的环境。
 
 尽管记忆和预测在某些方面存在相似之处，但也存在重要的差异。记忆主要关注过去事件和经验的存储和提取，而预测则侧重于基于已有信息推断未来可能发生的情况。记忆更多地涉及回溯和回顾，而预测则更侧重于前瞻和推断。
+
+## 例子：手撕梯度下降算法
+
+在这一节里面，我们将用一个例子来详细解释梯度下降算法的工作原理，并用Python代码来实现该例子，原始例子来自抖音@教AI的陶老师，略作修改。
+
+### 神经网络示意图
+
+![gradient_descent.svg](assets/gradient_descent.svg?t=1699850467166)
+
+#### 已知条件：
+
+1. 输入：$x_1=1; x_2=2$
+2. 初始权重：$w_{11}=1; w_{12}=1; w_{21}=1; w_{22}=-1; w_{a1}=1; w_{a2}=-1$
+3. 初始偏置量(Bias)：$b_{11}=1; b_{12}=2; b_{21}=1$
+4. 目标输出：$Y=2$
+5. 激活函数(Activate Function): Relu
+6. 学习率(Learning rate): $\eta=0.01$
+7. 损失函数(Loss Function)：$J(w,b) = \frac{1}{2}\cdot (y-Y)^2$
+
+### 解题步骤
+
+#### Step 1/3: 前向传播过程
+
+##### 计算$z_1; a_1; z_2; a_2; y$的值
+
+$ z_1 = w_{11}\cdot x_1 + w_{21}\cdot x_2 + b_{11} = 1\times1 + 1\times2 + 1 = 4 $
+$ a_1 = Relu(z_1) = 4$
+$ z_2 = w_{12}\cdot x_1 + w_{22}\cdot x_2 + b_{12} = 1\times1 + (-1)\times2 + 1 = 0 $
+$ a_2 = Relu(z_2) = 0$
+$ y = w_{a1}\cdot a_1 + w_{a2}\cdot a_2  + b_{21} = 1\times4 + (-1)\times0 + 1 = 5$
+
+#### Step 2/3: 反向传播过程
+
+##### 计算权重$w_{11}$梯度
+
+$w_{11-grad} = \frac{\partial(J)}{\partial(w_{11})} = \frac{\partial(J)}{\partial(y)} \cdot \frac{\partial(y)}{\partial(a_1)}\cdot \frac{\partial(a_1)}{\partial(z_1)}\cdot \frac{\partial(z_1)}{\partial(W_{11})} = (y-Y)\cdot w_{a1} \cdot 1 \cdot x_1 = (5-2)\times1\times1\times1 = 3$
+
+##### 计算$\widehat{w_{11}}$
+
+$\widehat{w_{11}} = w_{11} - \eta \cdot w_{11-grad} = 1 - 0.01 \times 3 = 0.97$
+同理，计算其他参数 $\widehat{w_{12}}; \widehat{w_{21}}; \widehat{w_{22}}; \widehat{w_{a1}}; \widehat{w_{a2}}$ 的值
+
+#### Step 3/3: 更新模型参数
+
+用新的参数值 $\widehat{w_{11}}; \widehat{w_{12}}; \widehat{w_{21}}; \widehat{w_{22}}; \widehat{w_{a1}}; \widehat{w_{a2}}$ 替换掉原来的参数 $w_{11}; w_{12}; w_{21}; w_{22}; w_{a1}; w_{a2} $，标志着一轮训练已经完成
+
+### 实现代码
+
+```python
+import torch
+import torch.nn.functional as F
+
+# Define sample tensor
+x1 = torch.tensor(1)
+x2 = torch.tensor(2)
+Y = torch.tensor(2)
+
+# Define weight, bias and learning rate
+w11 = torch.tensor(1.0, requires_grad=True)
+w12 = torch.tensor(1.0, requires_grad=True)
+w21 = torch.tensor(1.0, requires_grad=True)
+w22 = torch.tensor(-1.0, requires_grad=True)
+wa1 = torch.tensor(1.0, requires_grad=True)
+wa2 = torch.tensor(-1.0, requires_grad=True)
+b11, b12, b21 = torch.tensor([1.0, 1.0, 1.0], requires_grad=True)
+learning_rate = 1e-2
+
+# Step 1/3: Forward propagation
+z1 = w11 * x1 + w12 * x2 + b11
+a1 = F.relu(z1)
+z2 = w21 * x1 + w22 * x2 + b12
+a2 = F.relu(z2)
+y = wa1 * a1 + wa2 * a2 + b21
+
+# Calculate loss
+loss = ((y - Y)**2)/2
+
+# Step 2/3: Backward propagation
+# calculate gradients
+w11_grad = (y - Y) * wa1 * 1 * x1
+print(w11_grad)
+
+# Step 3/3: Update parameters
+w11 = w11 - learning_rate * w11_grad
+print(w11)
+```
 
 ## 小结
 
@@ -254,13 +368,16 @@ $$
 
 其中，$\theta_t$是第$t$次迭代后的模型参数，$\eta$是学习率，$\nabla{J(\theta_t)}$ 是损失函数 $J$相对于模型参数$\theta_t$的梯度。
 
+##### 反向传播
+
+反向传播算法的数学原理是，使用链式法则计算损失函数相对于每个模型参数的梯度。链式法则是一种计算复合函数导数的方法。在神经网络中，每个层都可以看作是一个函数，它将输入映射到输出。通过使用链式法则，可以计算出损失函数相对于每个层的输入和权重的梯度。这些梯度可以用于更新模型参数，以便最小化损失函数。
+
+链式法则是微积分中的一种求导法则，用于求解复合函数的导数。当一个函数是由两个或多个函数组成时，链式法则可以帮助我们找到这个复合函数的导数。链式法则的正式表述如下：设 $y=f(u), u=g(x)$ ，则 $y$ 关于 $x$ 的导数为$\frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx}$。这个公式可以推广到多元函数的情况。例如，如果 $z=f(x,y), x=g(t), y=h(t)$，则$z$关于$t$的导数为$\frac{dz}{dt} = \frac{\partial z}{\partial x} \cdot \frac{dx}{dt} + \frac{\partial z}{\partial y} \cdot \frac{dy}{dt}$。这个公式被称为多元复合函数求导法则。
+
 ## 参考文献
 
 1. [深度学习之学习笔记（三）——神经元的工作原理](https://blog.csdn.net/linxiaoyin/article/details/104082552)
 2. 《白话机器学习的数学》
 3. [人类智能：有关推理、逻辑、因果、预测、学习、算法、想法与一切](https://zhuanlan.zhihu.com/p/367521429)
 4. [智能的本质：人工智能与人类智能](https://zhuanlan.zhihu.com/p/269284598)
-
-
-
 

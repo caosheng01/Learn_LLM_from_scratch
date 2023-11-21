@@ -11,10 +11,10 @@
 1. 输入：$x_1=1; x_2=2$
 2. 初始权重：$w_{11}=1; w_{12}=1; w_{21}=1; w_{22}=-1; w_{a1}=1; w_{a2}=-1$
 3. 初始偏置量(Bias)：$b_{11}=1; b_{12}=2; b_{21}=1$
-4. 输出：$Y=2$
+4. 目标输出：$Y=2$
 5. 激活函数(Activate Function): Relu
 6. 学习率(Learning rate): $\eta=0.01$
-7. 损失函数(Loss Function)：$J(w,b)$: 采用最小二乘法(MSE), 即 $J(w,b) = \frac{1}{2}\cdot (y-Y)^2$
+7. 损失函数(Loss Function)：$J(w,b) = \frac{1}{2}\cdot (y-Y)^2$
 
 ## 解题步骤
 
