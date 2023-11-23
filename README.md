@@ -1,2 +1,5 @@
-# Learn_LLM_from_scratch
-Learn LLM from scratch
+# 从零开始学习大语言模型
+## 前言
+## 机器学习基础
+## 聚焦自然语言处理
+## 大语言模型：通往通用人工智能之路
