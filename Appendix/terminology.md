@@ -15,7 +15,7 @@
 #### 几何向量的表示法
 
 * 用几何方法来表示向量，如下图这样用箭头来表示的二位向量。
-  ![LLMVector.svg](assets/LLM-Vector.svg)
+  ![LLMVector.svg](../images/LLM-Vector.svg)
 * 用纵向排列方式表示向量，这样的向量被称为列向量。
   
   $\vec{a}=\left[\begin{matrix}3\\1 \end{matrix}\right], \vec{b}=\left[\begin{matrix}2\\3 \end{matrix}\right]$
