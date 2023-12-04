@@ -280,9 +280,23 @@ $$
 Output = \sum_{j=1}^mSoftmax(\frac {QK^\top}{\sqrt d})V
 $$
 
-### 多头注意力机制（Multiple Heads Attention）
+Tips: 我们经常用一个数学公式来表达注意力机制，公式如下：
+
+$$
+Attention(Q,K,V)=Softmax(\frac {QK^\top}{\sqrt d})V
+$$
+
+### 多头注意力机制（Multihead Attention）
+
+理解了注意力机制，学习多头注意力就比较容易了。只需要把多个Attention连起来就行了。
+我们拓展一下上面Attention的例子，多头注意力机制如下图表示：
+
+![MultiHeadsAttentio.svg](../images/MultiHeadsAttention.svg)
 
 ### 自注意力机制（Self-Attention）
+
+
+
 
 ## Transformer 模型
 
