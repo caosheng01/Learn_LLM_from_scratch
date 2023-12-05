@@ -252,7 +252,7 @@ $$
    其中，w_v \in \mathbb R^m; W_q \in \mathbb R^{m \times q}; W_k \in \mathbb R^{m \times k}
    $$
 2. 缩放点积注意力（scaling dot-production attention）
-   使用点积可以得到计算效率更高的评分函数， 但是点积操作要求查询和键具有相同的长度$d$。 假设查询和键的所有元素都是独立的随机变量，并且都满足零均值和单位方差，那么两个向量的点积的均值为0，方差为$d$。为确保无论向量长度如何，点积的方差在不考虑向量长度的情况下仍然是1，我们再将点积除以$\sqrt d$，则​缩放点积注意力评分函数为：
+   使用点积可以得到计算效率更高的评分函数， 但是点积操作要求查询和键具有相同的长度$d$。 假设查询和键的所有元素都是独立的随机变量，并且都满足零均值和单位方差，那么两个向量的点积的均值为0，方差为$d$。为确保无论向量长度如何，点积的方差在不考虑向量长度的情况下仍然是1，我们再将点积除以$\sqrt d$，则缩放点积注意力评分函数为：
    $$
    s(Q,K) = \frac {QK^\top}{\sqrt d}
    $$
@@ -263,7 +263,7 @@ Tips: 这里用到比较深的数学技巧，我会在附录里详细讨论这�
 
 ![Attention_2.svg](../images/Attention_2.svg)
 
-第一步，通过注意力评分函数，算出Score： 即$s(Q,K)$的值
+第一步，通过注意力评分函数，算出Score的值： 即$s(Q,K)$的值
 假定我们采用缩放点积注意力评分函数。
 
 $$
@@ -288,7 +288,7 @@ $$
 Attention(Q,K,V)=Softmax(\frac {QK^\top}{\sqrt d})V
 $$
 
-### 多头注意力机制（Multihead Attention）
+### 多头注意力机制（Multi-Head Attention）
 
 理解了注意力机制，学习多头注意力就比较容易了。只需要把多个Attention连起来就行了。
 我们拓展一下上面Attention的例子，多头注意力机制如下图表示：
@@ -300,8 +300,7 @@ $$
 自注意力机制和注意力机制的区别就在于，注意力机制的查询和键是不同来源的，例如，在Encoder-Decoder模型中，键是Encoder中的元素，而查询是Decoder中的元素。在中译英模型中，查询是中文单词特征，而键则是英文单词特征。而自注意力机制的查询和键则都是来自于同一组的元素，例如，在Encoder-Decoder模型中，查询和键都是Encoder中的元素，即查询和键都是中文特征，相互之间做注意力汇聚。形象的比喻就是Self-Attention在做“完形填空”。
 
 以Deep Learning这个词组为例，我们给出了一个单头的自注意力机制的原理示意图。
-
-![SelfAttentio.svg](../images/SelfAttention.svg)
+![SelfAttention.svg](../images/SelfAttention.svg)
 
 * 向量$a$是Deep单词经过全连接层$W_a$得到的，向量$b$是Deep单词经过全连接层$W_b$得到的.
 * 向量$q_1, q_2$分别是向量$a,b$经过全连接层$W_q$得到的。同理可得向量$k_1,k_2,v_1,v_2$。
@@ -311,7 +310,7 @@ $$
 
 我们还是以Deep Learing这个词组为例，给出了多头注意力机制的原理示意图。
 
-
+![MulHeadsSelfAttention.svg](../images/MulHeadsSelfAttention.svg)
 
 ## Transformer 模型
 
@@ -337,7 +336,7 @@ $$
 举个更加生活化的例子，当你走进图书馆阅览室，目光自然而然的扫了一下在座的同学们（Query），一个“肤白貌美大长腿”的女生映入眼帘（Key），原来是校花小美啊（Value）！
 
 $$
-a^{'}
+b^{n'}
 $$
 
 ## Reference
