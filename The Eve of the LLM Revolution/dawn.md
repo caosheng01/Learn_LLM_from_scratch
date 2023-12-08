@@ -36,7 +36,8 @@
 1. 词表示法（Word Representation）
 2. 语言模型（Language Model）
 
-我会单独写一个章节来介绍词表示法，特别是其中的Word Embedding，从事NLP相关工作的工程师，建议弄清楚。关于词表示方法，我们先记住一个结论。2023年，文字都是表示为词向量。而这一章节的重心，将放在讲解语言模型这部分内容。
+我会单独写一个章节来介绍词表示法，特别是其中的Word Embedding，从事NLP相关工作的工程师，建议弄清楚。
+关于词表示方法，其实就是把人类语言（Nature Language）表示成计算机认识的语言（数学）。这里，我们先记住一个结论。在2023年，文字都是表示为向量。而这一章节的重心，将放在讲解语言模型这部分内容。我们在介绍Transformer模型的时候，也有对这部分内容再做进一步的探讨。
 
 ## Transformer之前的网络模型
 
@@ -295,6 +296,8 @@ $$
 
 ![MultiHeadsAttentio.svg](../images/MultiHeadsAttention.svg)
 
+
+
 ### 自注意力机制（Self-Attention）
 
 自注意力机制和注意力机制的区别就在于，注意力机制的查询和键是不同来源的，例如，在Encoder-Decoder模型中，键是Encoder中的元素，而查询是Decoder中的元素。在中译英模型中，查询是中文单词特征，而键则是英文单词特征。而自注意力机制的查询和键则都是来自于同一组的元素，例如，在Encoder-Decoder模型中，查询和键都是Encoder中的元素，即查询和键都是中文特征，相互之间做注意力汇聚。形象的比喻就是Self-Attention在做“完形填空”。
@@ -312,9 +315,11 @@ $$
 
 ![MulHeadsSelfAttention.svg](../images/MulHeadsSelfAttention.svg)
 
+Tips：如果对Input/Output Embedding有疑问，建议先跳过。我们在下一章节Transformer模型中有进一步的深入探讨
+
 ## Transformer 模型
 
-这一章节，我们直接读一读里程碑式的论文 Attention Is All You Need
+这一章节，我们一起来读一读里程碑式的论文 Attention Is All You Need。理解了Transformer，就等同于拿到学习大语言模型（LLM）最重要的那把钥匙。
 
 ### 解决了什么问题
 
@@ -323,6 +328,57 @@ $$
 1. 提出了transformer架构，其中包含有多层堆叠的编码器(encoder)和解码器(decoder)。其中编码/解码器包含了多头注意力机制(multi-head attention)，层级归一(layer norm)和残差结构(residual)。
 2. 创新性地发展了注意力机制并提出了多头注意力机制，并以此取代了Encoder-Decoder结构中常用的递归层。传统的RNN对序列建模有一个无法避开的问题就是难以并行。为了捕捉长距离的序列依赖关系必须凭借上文处理后的信息从隐层逐级传递过来(也就是当前时序的结果 $O_t$ 取决于 $h_{t-1}$ 和 $x_t$ )，这样的结果就是上一个时序没有处理完下一个时序就无法处理。但是多头注意力机制可以直接捕捉全文信息，既建模了长距离的依赖关系，又方便并行运算的展开。
 3. 将长距离的依赖关系的操作复杂度(number of operations required)从线性关系(比如递归网络)或对数复杂度(卷积操作)降至了常数级别(通过固定的注意力机制)。这部分，我们就不具体讲了，有兴趣的同学请读一下原论文。
+
+### Transformer模型架构图
+
+![TransformerModel.webp](../images/TransformerModel.webp)
+
+再次看到这张图，内心百感交集。3个月前，打算开始学习LLM，我就是从这篇论文和这张图开始的。论文作者说，Transformer是一种“简单的神经网络架构”。整整学了一个周末，具体的说，在图书馆认真学了17个小时后，似懂非懂，太复杂了！然后，我决定从头开始学习，也就有了这一系列的文章。
+图的左边部分是Encoder，右边部分是Decoder；底部是输入，顶部是输出（以概率方式输出）。我们讲分成以下4部分，逐步讲解Transformer模型。
+
+1. Input Embedding 和 Positional Encoding 部分
+2. Attention 和 Add&Norm 部分
+3. Feed Forward 部分
+4. Decoder和Output 部分
+
+### Inputs
+
+Inputs是Transformers的开端。如果是处理NLP的问题，那么输入就是文本。当然也可以是文本，图像，声音等信息。那么问题来了，如何让计算机理解并接受这些信息呢？我们需要用数学来统一表达这些信息。
+
+#### Word Embedding
+
+在自然语言处理（NLP）中，词嵌入（Word Embedding）是一种重要的技术，它将词语映射为数值向量，使之包含更丰富的语义信息和抽象特征。以下是实现词嵌入的一些主要步骤：
+
+1. **数据预处理**​：首先，你需要有一个文本数据集。这个数据集可以是任何形式的文本，比如新闻文章、书籍、网页等。你需要对这些文本进行预处理，包括分词、去除停用词、词干提取等。
+2. ​**构建词汇表**​：根据预处理后的文本，构建一个词汇表，每个词在词汇表中都有一个唯一的索引。
+3. **选择词嵌入模型**​：有许多不同的词嵌入模型可以选择，如One-Hot、Bag of Words、N-gram、Word2Vec、GloVe、FastText、ELMo和BERT等。你需要根据你的任务需求和数据特性来选择合适的模型。
+4. **训练词嵌入模型**​：使用你的文本数据和选择的词嵌入模型来训练词嵌入。这个过程通常需要大量的计算资源和时间。
+5. **得到词向量**​：训练完成后，每个词都会有一个对应的向量表示。这个向量就是词的嵌入，它捕捉了词的语义信息和在文本中的上下文关系。
+
+分词（Tokenizer）是将语料库（所有文本）转化为机器可以更好利用的较小部分的过程。​**假设我们有一个包含 10,000 篇维基百科文章的数据集，我们对每个字符进行处理（分词）。对文本进行分词的方法有很多，让我们看看 OpenAI 的分词器[3]是如何处理以下文本的：
+
+> “Many words map to one token, but some don’t: indivisible.
+> Unicode characters like emojis may be split into many tokens containing the underlying bytes:
+> Sequences of characters commonly found next to each other may be grouped together: 1234567890"
+
+https://platform.openai.com/tokenizer
+https://zhuanlan.zhihu.com/p/662851270
+
+#### Positional Encoding
+
+### Attention
+
+### Add&Norm
+
+#### ResNet
+
+#### Norm
+
+### Decoder
+
+### Output
+
+
 
 ## 小结
 
