@@ -488,6 +488,35 @@ $$
 
 其中$f$是激活函数，$\odot$ 表示Hadamard Product，也就是操作矩阵中对应的元素相乘，因此要求两个相乘矩阵是同型的。
 
+### Feed Forward
+
+在这个章节，我们来讨论一下Feed Forward部分，如图所示：
+![Transformer_FFN.svg](../images/Transformer_FFN.svg)
+
+在Transformer模型中，前馈神经网络（Feed-Forward Network，简称FFN）起着重要的作用。以下是对FFN的简要描述：
+
+* ​**基本结构**​：FFN本质上是一个两层的多层感知机（MLP）。它由两个线性转换层组成，中间有一个非线性激活函数。
+* **独立操作**​：FFN是一个非线性层，独立地应用于序列中的每个位置。
+* ​**映射与转换**​：第一层会将输入的向量升维，第二层将向量重新降维。这样可以学习到更加抽象的特征。
+* **处理与转换信息**​：FFN在Transformer模型中的作用是处理和转换自注意力机制中编码的信息。
+* **记忆功能**​：FFN在Transformer中承担了记忆的功能。它与Key-Value Memory有对应关系。在神经网络中添加记忆模块并不是一个新的想法。早在2015年的End-To-End Memory Networks中，就提出了key-value memory的结构：将需要存储的信息分别映射为key向量与value向量，query向量与memory交互即为与key, value进行attention操作.
+
+6. ​**增强模型容量**​：FFN可以增加网络的容量。这里的容量指的是模型的复杂度或者说模型可以学习的信息的多少。
+
+总的来说，FFN在Transformer模型中起着捕捉输入序列中的复杂模式和关系的作用，并且通过增加模型的容量来提高模型的性能。在原论文中的架构图中，前馈线性层只做了四件事情：
+
+1. 对文本中的每个位置(用向量表示)，进行逐位置的线性计算。
+2. 对线性运算的输出应用ReLU函数。
+3. 对上一步骤ReLU运算的输出进行再一次线性运算。
+4. 最后，将其添加到第 3 层的输出中。
+
+MLP大家已经很熟悉了，FFN只有两层，我们直接用数学公式表示：
+
+$$
+FFN(x) = ReLU(W_1x_1 + b1)W_2+b2
+$$
+
+
 ### Decoder
 
 ### Output
@@ -519,4 +548,5 @@ https://www.baeldung.com/cs/nlp-encoder-decoder-models
 https://arxiv.org/abs/1706.03762
 https://kazemnejad.com/blog/transformer_architecture_positional_encoding/
 https://nlp.seas.harvard.edu/2018/04/03/attention.html#positional-encoding
+https://towardsdatascience.com/transformers-part-1-2a2755a2af0e
 
