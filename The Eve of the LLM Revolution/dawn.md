@@ -271,7 +271,7 @@ $$
 s(Q,K) = \frac {QK^\top}{\sqrt d}
 $$
 
-第二步，通过归一化Softmax函数，算出$a(Q,K)$的值。
+第二步，通过Softmax函数，算出$a(Q,K)$的值。
 
 $$
 a(Q,K) = Softmax(s(Q,K))  = \frac {exp(s(Q,K))}{\sum_{i = 1}^m exp(s(Q,K)} = Softmax(\frac {QK^\top}{\sqrt d})
@@ -323,7 +323,7 @@ Tips：如果对Input/Output Embedding有疑问，建议先跳过。我们在下
 
 该文的贡献主要在于提出了名为transformer的模型架构，并拓展了注意力机制的使用方法。具体来说：
 
-1. 提出了transformer架构，其中包含有多层堆叠的编码器(encoder)和解码器(decoder)。其中编码/解码器包含了多头注意力机制(multi-head attention)，层级归一(layer norm)和残差结构(residual)。
+1. 提出了transformer架构，其中包含有多层堆叠的编码器(Encoder)和解码器(Decoder)。其中编码/解码器包含了多头注意力机制(Multi-Head attention)，层级归一化(Layer Norm)和残差结构(Residual)。
 2. 创新性地发展了注意力机制并提出了多头注意力机制，并以此取代了Encoder-Decoder结构中常用的递归层。传统的RNN对序列建模有一个无法避开的问题就是难以并行。为了捕捉长距离的序列依赖关系必须凭借上文处理后的信息从隐层逐级传递过来(也就是当前时序的结果 $O_t$ 取决于 $h_{t-1}$ 和 $x_t$ )，这样的结果就是上一个时序没有处理完下一个时序就无法处理。但是多头注意力机制可以直接捕捉全文信息，既建模了长距离的依赖关系，又方便并行运算的展开。
 3. 将长距离的依赖关系的操作复杂度(number of operations required)从线性关系(比如递归网络)或对数复杂度(卷积操作)降至了常数级别(通过固定的注意力机制)。这部分，我们就不具体讲了，有兴趣的同学请读一下原论文。
 
@@ -432,8 +432,10 @@ $$
 
 ### Attention
 
-在这个章节，我们来讨论一下Attention部分，如图所示：
+Transformer模型中Attention部分，如图所示：
 ![Transformer_MultiHeadAttention.svg](../images/Transformer_MultiHeadAttention.svg)
+
+Transformer模型中的Multi-Head Attention，其实就是我们前文讲解的多头自注意力机制，用的也是Scalable Dot Production方法，上文解释的比较详细，这里就不重复介绍了。
 
 ### Add&Norm
 
@@ -465,20 +467,23 @@ $$
 **层归一化**（Layer Normalization）与Batch Normalization不同，Layer Normalization是在特征维度上进行标准化的，而不是在数据批次维度上。具体的计算过程如下：
 
 * 计算均值和方差。
+  
   * 均值公式：
     $$
     \mu = \frac{1}{D}\sum_{i=1}^Dx_i
     $$
   * 方差公式：
-  * $$
-    \sigma = \sqrt{\frac{1}{D}\sum_{i=1}^D(x_i - \mu)^2}
-    $$
+  
+  $$
+  \sigma = \sqrt{\frac{1}{D}\sum_{i=1}^D(x_i - \mu)^2}
+  $$
 * 进行归一化：通过均值和方差，可以得到归一化后的值, 公式：
+  
   $$
   \hat x = \frac{x - \mu}{\sqrt{\sigma^2 + \varepsilon}}
   $$
 
-其中，$\varepsilon$是一个很小很小的数，用于防止分母为0这种情况。
+其中，$\varepsilon$是一个很小的数，用于防止分母为0这种情况。
 
 * 线性变换：在Layer Normalization中，我们还需要一组参数来保证归一化操作不会破坏之前的信息。这组参数叫做增益（gain）$g$和偏置（bias）$b$ （等同于Batch Normalization中的$\gamma$和$\beta$）。
   输出公式：
@@ -500,8 +505,7 @@ $$
 * ​**映射与转换**​：第一层会将输入的向量升维，第二层将向量重新降维。这样可以学习到更加抽象的特征。
 * **处理与转换信息**​：FFN在Transformer模型中的作用是处理和转换自注意力机制中编码的信息。
 * **记忆功能**​：FFN在Transformer中承担了记忆的功能。它与Key-Value Memory有对应关系。在神经网络中添加记忆模块并不是一个新的想法。早在2015年的End-To-End Memory Networks中，就提出了key-value memory的结构：将需要存储的信息分别映射为key向量与value向量，query向量与memory交互即为与key, value进行attention操作.
-
-6. ​**增强模型容量**​：FFN可以增加网络的容量。这里的容量指的是模型的复杂度或者说模型可以学习的信息的多少。
+* **增强模型容量**​：FFN可以增加网络的容量。这里的容量指的是模型的复杂度或者说模型可以学习的信息的多少。
 
 总的来说，FFN在Transformer模型中起着捕捉输入序列中的复杂模式和关系的作用，并且通过增加模型的容量来提高模型的性能。在原论文中的架构图中，前馈线性层只做了四件事情：
 
@@ -516,21 +520,109 @@ $$
 FFN(x) = ReLU(W_1x_1 + b1)W_2+b2
 $$
 
+至此，我们已经讲解了Encoder各个模块，在原论文中，不论是Encoder还是Decoder，都有堆叠的6组，即Transformer架构图里的N的数目为6，如图所示：
+![Transformer_Encoder.svg](../images/Transformer_Encoder.svg)
 
-### Decoder
+### Transformer训练过程（Skip）
 
-### Output
+在解释Transformer的训练过程时，我们将超越当前的理解，从未来的角度进行解释，以便更好地理解Transformer的训练方式：
 
-## 小结
+首先，在编码器中，用户的Prompt被转换为嵌入向量，然后我们在其中添加位置编码。编码器组处理数据并生成文本的数字表征。接下来，在解码器中，我们将期望的输出（我们希望模型回应的内容）会被加上一个特殊的标记，表示这是每条句子的第一个标记。比如像\<BOS\>（句子开头）这样的标记，但也可以是模型训练时使用的其他符号。这个输入（input）被转换为嵌入向量，并添加位置编码。解码器组接收这些向量，并与编码器的输出一起生成新的单词表征（word representation）。再将单词表征转换为概率分布（probability distribution），并从模型的整个数据集中选出概率最高的单词。最后，根据模型所选单词和模型期望的输出之间的差距计算损失函数。该损失函数可用于生成梯度（gradients），而这些梯度对于反向传播算法（一种根据各自对整体误差的贡献计算权重应如何变化的算法）非常重要。
 
-记忆的检索过程是大脑从存储的信息中搜索并提取信息的过程。以下是一种可能的解释：
+既然我们已经了解了总体流程，那么让我们来看看一个微小但重要的细节：我们使用的一种名为Teacher Forcing的技术。
 
-1. **触发**：记忆的检索通常开始于某种触发，这可能是一个问题、一个物体、一个场景，或者任何其他能够引发记忆的事物。
-2. **搜索**：大脑开始在存储的信息中搜索相关的记忆。这个过程可能涉及到大脑的多个区域，包括前额叶和海马体。
-3. **激活**：一旦找到了相关的记忆，大脑会激活这些记忆，使其进入我们的意识。这可能涉及到将记忆从长期存储转移到工作记忆，以便我们可以在意识中处理这些信息。
-4. **重建**：记忆的检索并不总是完全准确的。有时，我们可能会重建或修改记忆，以适应当前的情境或需求。这就是为什么人们有时会记住事情的方式与实际发生的情况不同。
+### Decoder和Output
 
-接下来，我们想办法用计算机来模拟上述过程。
+在这个章节，我们来讨论一下Decoder和Output部分，如图所示：
+![Transformer_Decoder.svg](../images/Transformer_Decoder.svg)
+
+我们先看一下Decoder的输入部分，有两个，一个比较好理解，就是Encoder的Output：$K,V$，另外一个是Outputs(shifted right)。这个理解起来有点费劲，我们一起来分析一下Outputs(shifted right)相关联的模块,如下图所示。
+![Transformer_MastedMultiHeadAttention.svg](../images/Transformer_MastedMultiHeadAttention.svg)
+Outputs Embedding和上文我们介绍Encoder的Inputs Embedding是一样的。Positional Encoding也和Encoder的Positional Encoding是一样的。最大的不同是Masked Multi-Head Attention部分。
+
+在Transformer模型中，Encoder传给Decoder的是K和V，这是因为在Decoder中有两个注意力模块：
+
+* 一个是自注意力模块，其Q、K、V的输入都来自Decoder上一层的输出。
+* 另一个是Encoder-Decoder注意力模块，其K、V的输入来自Encoder的输出。
+
+这样设计的原因是，当Decoder生成目标语言时，我们需要使用源语言的信息和Decoder到此刻之前的信息。在Decoder的每个位置，我们希望得到一个当前位置的有用的隐藏状态，这个隐藏状态除了考虑之前位置的Decoder隐藏状态之外（即Decoder的自注意力模块），还希望考虑到Encoder所有位置的信息（即Decoder的Encoder-Decoder注意力模块）。
+
+具体来说，当前位置的Decoder原隐藏状态$Q$会去询问Encoder每一个位置的隐藏状态$K$：“你是我生命中最重要的那个词吗？很重要是多重要？”每个$k$给出一个重要度，得到回答后，用Encoder的每个位置的隐藏状态$V$加权乘上其对该解码位置的重要度，得到当前位置的新隐藏状态。这样一来，当前位置的Decoder的隐藏状态表示，就集合了Encoder中所有位置的信息了。
+
+这种设计使得在Decoder的每个位置上，都能获得全局所有的信息。这也模仿了序列到序列模型中的典型Encoder-Decoder注意力机制。
+
+#### Masked Multi-Head Attention
+
+为什么要使用Mask掩码呢？
+
+我们举个例子吧，我们用Transformer翻译“Machine learning is fun.”成中文。
+具体预测时（非训练时）的工作流程，如图所示：
+![Transformer_Sample.svg](../images/Transformer_Sample.svg)
+
+分析：
+
+* 在Round#2，我们只传入了“机”, 使用了Attention机制后，“机”的编码为[0.11, 0.22, ...]
+* 在Round#3，如果我们不使用Mask，“机”的编码会改变！这样就会让网络产生问题。
+
+我们从数学角度来解释，“机”的编码会改变原因，以及如何进行Mask掩码。
+先复习一下Attention公式
+
+在结合上面这个例子，我们先忽略\<bos>, 直接从Round#2开始。
+
+1. 第一次（对应Round#2图），我们只有$v_1$一个变量（对应“机”的注意力），所以输出为：
+
+$$
+\left[\begin{matrix}o_1 \end{matrix}\right] = \left[\begin{matrix}a'_{1,1} \end{matrix}\right] \cdot \left[\begin{matrix}v_1 \end{matrix}\right]
+$$
+
+此时，对应“机”的输出值：$o_1 = a'_{1,1} \times v_1$
+
+2. 第二次（对应Round#3图），我们有$v_1，v_2$二个变量（对应“机“”器”的注意力），所以输出为：
+
+$$
+\left[\begin{matrix}o_1\\o_2 \end{matrix}\right] = \left[\begin{matrix}a'_{1,1}\quad a'_{2,1} \\ a'_{1,2}\quad a'_{2,2} \end{matrix}\right] \cdot \left[\begin{matrix}v_1 \\ v_2 \end{matrix}\right]
+$$
+
+此时，对应“机”的输出值：$o_1 = a'_{1,1} \times v_1 + a'_{2,1} \times v_2$。当且仅当$a'_{2,1} = 0$这种情况，$o_1$才能保持不变。这也解释了为什么不使用掩码就无法保持原有输出的一致性。
+我们现在对第二次这种情况加掩码，输出为：
+
+$$
+\left[\begin{matrix}o_1\\o_2 \end{matrix}\right] = \left[\begin{matrix}a'_{1,1} \quad\quad 0\\ a'_{1,2}\quad a'_{2,2} \end{matrix}\right] \cdot \left[\begin{matrix}v_1 \\ v_2 \end{matrix}\right]
+$$
+
+推广为n维后，我们就得到了掩码矩阵。
+
+$$
+\left[\begin{matrix}o_1\\o_2\\ \vdots \\ o_n \end{matrix}\right] = \left[\begin{matrix}a'_{1,1} \quad\quad 0 \cdots 0 \\ a'_{1,2}\quad a'_{2,2} \cdots 0 \\ \vdots \\ a'_{1,2}\quad a'_{2,2} \cdots a'_{n,n} \end{matrix}\right] \cdot \left[\begin{matrix}v_1 \\ v_2 \\ \vdots \\ v_n \end{matrix}\right]
+$$
+
+在Transformer实际应用中，Mask不是0，而是负无穷(-1e9)。以为Decoder输出的时候，有个Softmax函数，如果你看一下这个函数图像就知道了，这个函数符合正态分布。只有当无穷时，输出值才接近0。至此，我们介绍完了Masked Multi-Head Attention。
+
+现在我们来到最后一步。堆叠的解码器层（stack of decoders）中的最后一个（即第6个）解码器将其输出传递给一个线性层（linear layer）。通过线性层，我们可以生成任意数量的数字表征。在语言模型中，我们希望表征的数量与模型的词汇量相匹配。如果模型的全部词汇量（它所见过的所有单词）是 1000 个，那么就需要 1000 个数字来表示词汇表中的每个单词。我们需要对每个位置上的每个单词都这样做。如果最终的输出内容拥有10个单词，我们要为其中的每一个单词计算512个向量。然后，我们将其传递给一个Softmax层，该层会给出每个单词的概率，最高概率的单词就是我们要使用的单词。Softmax会返回给我们一个索引，比如3。模型就会输出词汇表中索引为3的单词。如果我们的词汇表是['机', ‘器‘, ‘学‘, ‘习‘, ‘真‘，‘好’，‘完’，...]，那么输出的单词将是'习'。
+
+至此，Transformer介绍完毕。
+
+## 结尾
+
+看到这里，我们就学习完了整个Transformer，说句老掉牙的话，Enjoy~~
+
+写到这里，算是完成了本章节，在写本篇文章的过程，文案部分直接借用了Copilot生成的文字，如果你的观点文字在我本章中，而没有出现在引用列表里，麻烦请告知，我核实后讲第一时间修订引用列表。
+
+最后，用Copilot生成的文案，结束这一章。
+Transformer模型在自然语言处理中有许多优点：
+
+1. **并行计算能力**：Transformer突破了RNN模型不能并行计算的限制，因此处理速度更快。
+2. **处理长距离依赖性问题**：Transformer可以理解距离很远的序列元素之间的关系。
+3. **对序列中的所有元素给予同样的关注**：这就有了后面的transformer+attention。
+4. **更具可解释性的模型**：我们可以从模型中检查注意力分布。
+5. **通用性强**：Transformer几乎可以处理任何序列数据。
+6. **可扩展性强**：有了Transformer，为单词之间的关系建模变得比以往任何时候都容易。
+7. **自注意力机制**：各个注意头 (attention head)可以学会执行不同的任务。
+8. **位置编码**：由于self-attention没有循环结构，Transformer需要一种方式来表示序列中元素的相对或绝对位置关系。Position Embedding (PE)就是该文提出的方案。
+
+说句老掉牙的话，Enjoy~~
+
+
 
 #### 另一种解释
 
@@ -549,4 +641,10 @@ https://arxiv.org/abs/1706.03762
 https://kazemnejad.com/blog/transformer_architecture_positional_encoding/
 https://nlp.seas.harvard.edu/2018/04/03/attention.html#positional-encoding
 https://towardsdatascience.com/transformers-part-1-2a2755a2af0e
+https://towardsdatascience.com/transformers-part-2-input-2a8c3a141c7d
+https://towardsdatascience.com/transformers-part-3-attention-7b95881714df
+https://towardsdatascience.com/simplifying-transformers-state-of-the-art-nlp-using-words-you-understand-part-4-feed-foward-264bfee06d9
+https://towardsdatascience.com/simplifying-transformers-state-of-the-art-nlp-using-words-you-understand-part-5-decoder-and-cd2810c6ad40
+https://blog.csdn.net/zhaohongfei_358/article/details/125858248
+https://www.mikecaptain.com/2023/01/22/captain-aigc-1-transformer/
 
