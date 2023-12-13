@@ -152,24 +152,24 @@ Z = tanh(W_z[h_{t-1}, x_t]) = tanh(W_{hz} \cdot h_{t-1} + W_{xz} \cdot x_t + b_z
 $$
 
 4. [选择记忆阶段]计算输出$c_t$
-   
+
    $$
    c_t = Z_f \odot c_{t-1} + Z_i \odot Z
    $$
-   
+
    Tips: $\odot$ 表示Hadamard Product，也就是操作矩阵中对应的元素相乘，因此要求两个相乘矩阵是同型的。
 5. [输出阶段]计算输出门$Z_o$
-   
+
    $$
    Z_o = \sigma(W_o[h_{t-1}, x_t]) = \sigma(W_{oh} \cdot h_{t-1} + W_{ox} \cdot x_{t} + b_o)
    $$
 6. [输出阶段]计算输出$h_t$
-   
+
    $$
    h_t = o_t \odot tanh(c_t)
    $$
 7. [输出阶段]计算输出$o_t$
-   
+
    $$
    o_t = \sigma(W_o[h_t])
    $$
@@ -364,7 +364,7 @@ Inputs是Transformers的开端。如果是处理NLP的问题，那么输入就�
 在网站(https://platform.openai.com/tokenizer)里输入，你想要分词的句子。
 
 > “My name is Carson. I would like to try GPT-4 Tokenizer.
-> 
+>
 > 我的名字叫Carson。让我们来试试GPT-4 Tokenizer吧。"
 
 这就是分词后的结果。
@@ -467,18 +467,18 @@ Transformer模型中的Multi-Head Attention，其实就是我们前文讲解的�
 **层归一化**（Layer Normalization）与Batch Normalization不同，Layer Normalization是在特征维度上进行标准化的，而不是在数据批次维度上。具体的计算过程如下：
 
 * 计算均值和方差。
-  
+
   * 均值公式：
     $$
     \mu = \frac{1}{D}\sum_{i=1}^Dx_i
     $$
   * 方差公式：
-  
+
   $$
   \sigma = \sqrt{\frac{1}{D}\sum_{i=1}^D(x_i - \mu)^2}
   $$
 * 进行归一化：通过均值和方差，可以得到归一化后的值, 公式：
-  
+
   $$
   \hat x = \frac{x - \mu}{\sqrt{\sigma^2 + \varepsilon}}
   $$
@@ -500,12 +500,12 @@ Transformer模型中的Multi-Head Attention，其实就是我们前文讲解的�
 
 在Transformer模型中，前馈神经网络（Feed-Forward Network，简称FFN）起着重要的作用。以下是对FFN的简要描述：
 
-* ​**基本结构**​：FFN本质上是一个两层的多层感知机（MLP）。它由两个线性转换层组成，中间有一个非线性激活函数。
-* **独立操作**​：FFN是一个非线性层，独立地应用于序列中的每个位置。
-* ​**映射与转换**​：第一层会将输入的向量升维，第二层将向量重新降维。这样可以学习到更加抽象的特征。
-* **处理与转换信息**​：FFN在Transformer模型中的作用是处理和转换自注意力机制中编码的信息。
-* **记忆功能**​：FFN在Transformer中承担了记忆的功能。它与Key-Value Memory有对应关系。在神经网络中添加记忆模块并不是一个新的想法。早在2015年的End-To-End Memory Networks中，就提出了key-value memory的结构：将需要存储的信息分别映射为key向量与value向量，query向量与memory交互即为与key, value进行attention操作.
-* **增强模型容量**​：FFN可以增加网络的容量。这里的容量指的是模型的复杂度或者说模型可以学习的信息的多少。
+* **基本结构**：FFN本质上是一个两层的多层感知机（MLP）。它由两个线性转换层组成，中间有一个非线性激活函数。
+* **独立操作**：FFN是一个非线性层，独立地应用于序列中的每个位置。
+* **映射与转换**：第一层会将输入的向量升维，第二层将向量重新降维。这样可以学习到更加抽象的特征。
+* **处理与转换信息**：FFN在Transformer模型中的作用是处理和转换自注意力机制中编码的信息。
+* **记忆功能**：FFN在Transformer中承担了记忆的功能。它与Key-Value Memory有对应关系。在神经网络中添加记忆模块并不是一个新的想法。早在2015年的End-To-End Memory Networks中，就提出了key-value memory的结构：将需要存储的信息分别映射为key向量与value向量，query向量与memory交互即为与key, value进行attention操作.
+* **增强模型容量**：FFN可以增加网络的容量。这里的容量指的是模型的复杂度或者说模型可以学习的信息的多少。
 
 总的来说，FFN在Transformer模型中起着捕捉输入序列中的复杂模式和关系的作用，并且通过增加模型的容量来提高模型的性能。在原论文中的架构图中，前馈线性层只做了四件事情：
 
@@ -565,9 +565,25 @@ Outputs Embedding和上文我们介绍Encoder的Inputs Embedding是一样的。P
 * 在Round#3，如果我们不使用Mask，“机”的编码会改变！这样就会让网络产生问题。
 
 我们从数学角度来解释，“机”的编码会改变原因，以及如何进行Mask掩码。
-先复习一下Attention公式
+我们先来复习一下Attention公式
 
-在结合上面这个例子，我们先忽略\<bos>, 直接从Round#2开始。
+$$
+Attention(Q,K,V)=Softmax(\frac {QK^\top}{\sqrt d})V
+$$
+
+我们再把维度信息加上，上面的公式改写为：
+
+$$
+O_{n \times d_v} = Attention(Q_{n \times d_k},K_{n \times d_k},V_{n \times d_v})=Softmax(\frac {Q_{n \times d_k}K_{d_k \times n}^\top}{\sqrt d_k})V_{n \times d_k} = A'_{n \times n}V_{n \times d_k}
+$$
+
+其中，
+
+$$
+O_{n \times d_v}=\left[\begin{matrix}o_1\\o_2\\ \vdots \\o_3 \end{matrix}\right], A'_{n \times n}=\left[\begin{matrix}a'_{1,1}, a'_{2,1}, \cdots, a'_{n,1}\\ a'_{1,2}, a'_{2,2}, \cdots, a'_{n,2}\\ \vdots \\a'_{1,n}, a'_{2,n}, \cdots, a'_{n,n} \end{matrix}\right], V_{n \times d_v}=\left[\begin{matrix}v_1\\v_2\\ \vdots \\v_3 \end{matrix}\right]
+$$
+
+再结合上面这个例子，我们先忽略\<bos>, 直接从Round#2开始。
 
 1. 第一次（对应Round#2图），我们只有$v_1$一个变量（对应“机”的注意力），所以输出为：
 
@@ -596,17 +612,17 @@ $$
 \left[\begin{matrix}o_1\\o_2\\ \vdots \\ o_n \end{matrix}\right] = \left[\begin{matrix}a'_{1,1} \quad\quad 0 \cdots 0 \\ a'_{1,2}\quad a'_{2,2} \cdots 0 \\ \vdots \\ a'_{1,2}\quad a'_{2,2} \cdots a'_{n,n} \end{matrix}\right] \cdot \left[\begin{matrix}v_1 \\ v_2 \\ \vdots \\ v_n \end{matrix}\right]
 $$
 
-在Transformer实际应用中，Mask不是0，而是负无穷(-1e9)。以为Decoder输出的时候，有个Softmax函数，如果你看一下这个函数图像就知道了，这个函数符合正态分布。只有当无穷时，输出值才接近0。至此，我们介绍完了Masked Multi-Head Attention。
+在Transformer实际应用中，Mask不是0，而是负无穷(-1e9)。因为Decoder输出的时候，有个Softmax函数，看一下这个函数图像就明白了，这个函数符合正态分布。只有当自变量x趋向于无穷时，函数值y才接近0。至此，我们介绍完了Masked Multi-Head Attention。
 
 现在我们来到最后一步。堆叠的解码器层（stack of decoders）中的最后一个（即第6个）解码器将其输出传递给一个线性层（linear layer）。通过线性层，我们可以生成任意数量的数字表征。在语言模型中，我们希望表征的数量与模型的词汇量相匹配。如果模型的全部词汇量（它所见过的所有单词）是 1000 个，那么就需要 1000 个数字来表示词汇表中的每个单词。我们需要对每个位置上的每个单词都这样做。如果最终的输出内容拥有10个单词，我们要为其中的每一个单词计算512个向量。然后，我们将其传递给一个Softmax层，该层会给出每个单词的概率，最高概率的单词就是我们要使用的单词。Softmax会返回给我们一个索引，比如3。模型就会输出词汇表中索引为3的单词。如果我们的词汇表是['机', ‘器‘, ‘学‘, ‘习‘, ‘真‘，‘好’，‘完’，...]，那么输出的单词将是'习'。
 
-至此，Transformer介绍完毕。
+至此，Transformer模型介绍完毕。
 
 ## 结尾
 
-看到这里，我们就学习完了整个Transformer，说句老掉牙的话，Enjoy~~
+看到这里，我们就学习完了大语言模型的基础知识。
 
-写到这里，算是完成了本章节，在写本篇文章的过程，文案部分直接借用了Copilot生成的文字，如果你的观点文字在我本章中，而没有出现在引用列表里，麻烦请告知，我核实后讲第一时间修订引用列表。
+写到这里，算是完成了本章节，在写本篇文章的过程，部分文案直接借用了Copilot生成的文字，如果你的观点或文字出现在本章内容中，却没有出现在引用列表里，麻烦请告知，我核实后将第一时间修订引用列表。
 
 最后，用Copilot生成的文案，结束这一章。
 Transformer模型在自然语言处理中有许多优点：
@@ -620,11 +636,9 @@ Transformer模型在自然语言处理中有许多优点：
 7. **自注意力机制**：各个注意头 (attention head)可以学会执行不同的任务。
 8. **位置编码**：由于self-attention没有循环结构，Transformer需要一种方式来表示序列中元素的相对或绝对位置关系。Position Embedding (PE)就是该文提出的方案。
 
-说句老掉牙的话，Enjoy~~
+最后，说句老掉牙的话，Enjoy it~~
 
-
-
-#### 另一种解释
+#### 另一种解释（backup）
 
 对上述过程，我们还有一种理解方式。引起注意力的方式有两种，**自主提示**和**非自主提示**。如果考虑自主提示的话，我们就需要设计一种通过Query，Key和Value来实现注意力机制的方法。
 
@@ -647,4 +661,3 @@ https://towardsdatascience.com/simplifying-transformers-state-of-the-art-nlp-usi
 https://towardsdatascience.com/simplifying-transformers-state-of-the-art-nlp-using-words-you-understand-part-5-decoder-and-cd2810c6ad40
 https://blog.csdn.net/zhaohongfei_358/article/details/125858248
 https://www.mikecaptain.com/2023/01/22/captain-aigc-1-transformer/
-
