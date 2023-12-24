@@ -173,24 +173,24 @@ Z = tanh(W_z[h_{t-1}, x_t]) = tanh(W_{hz} \cdot h_{t-1} + W_{xz} \cdot x_t + b_z
 $$
 
 4. [选择记忆阶段]计算输出$c_t$
-
+   
    $$
    c_t = Z_f \odot c_{t-1} + Z_i \odot Z
    $$
-
+   
    Tips: $\odot$ 表示Hadamard Product，也就是操作矩阵中对应的元素相乘，因此要求两个相乘矩阵是同型的。
 5. [输出阶段]计算输出门$Z_o$
-
+   
    $$
    Z_o = \sigma(W_o[h_{t-1}, x_t]) = \sigma(W_{oh} \cdot h_{t-1} + W_{ox} \cdot x_{t} + b_o)
    $$
 6. [输出阶段]计算输出$h_t$
-
+   
    $$
    h_t = o_t \odot tanh(c_t)
    $$
 7. [输出阶段]计算输出$o_t$
-
+   
    $$
    o_t = \sigma(W_o[h_t])
    $$
@@ -385,7 +385,7 @@ Inputs是Transformers的开端。如果是处理NLP的问题，那么输入就�
 在网站(https://platform.openai.com/tokenizer)里输入，你想要分词的句子。
 
 > “My name is Carson. I would like to try GPT-4 Tokenizer.
->
+> 
 > 我的名字叫Carson。让我们来试试GPT-4 Tokenizer吧。"
 
 这就是分词后的结果。
@@ -482,24 +482,24 @@ Transformer模型中的Multi-Head Attention，其实就是我们前文讲解的�
 
 #### 归一化（Normalization）
 
-归一化是一种常用的数据预处理技术，主要用于消除数据特征之间的量纲和数值范围差异，使得不同特征具有相同的尺度。归一化的基本思想是将原始数据按比例缩放，使之落入一个小的特定区间。这样做可以使得模型训练更加稳定，收敛更快，同时可以防止模型在训练过程中产生过大或过小的数值。
+归一化是一种常用的数据预处理技术，主要用于消除数据特征之间的量纲和数值范围差异，使得不同特征具有相同的尺度。说人话就是，和残差连接的作用类似，使得损失函数形状变平滑。归一化的基本思想是将原始数据按比例缩放，使之落入一个小的特定区间。换句话说，这样做可以使梯度的方差变小，使得模型训练更加稳定，收敛更快，同时可以防止模型在训练过程中产生过大或过小的数值。
 因为Transformer模型用到了Layer Normalization，我们只介绍这个归一化。如果读者有兴趣了解其他的归一化方法，附录里有详细的归一化章节。
 
 **层归一化**（Layer Normalization）与Batch Normalization不同，Layer Normalization是在特征维度上进行标准化的，而不是在数据批次维度上。具体的计算过程如下：
 
 * 计算均值和方差。
-
+  
   * 均值公式：
     $$
     \mu = \frac{1}{D}\sum_{i=1}^Dx_i
     $$
   * 方差公式：
-
+  
   $$
   \sigma = \sqrt{\frac{1}{D}\sum_{i=1}^D(x_i - \mu)^2}
   $$
 * 进行归一化：通过均值和方差，可以得到归一化后的值, 公式：
-
+  
   $$
   \hat x = \frac{x - \mu}{\sqrt{\sigma^2 + \varepsilon}}
   $$
@@ -637,13 +637,12 @@ $$
 
 现在我们来到最后一步。堆叠的解码器层（stack of decoders）中的最后一个（即第6个）解码器将其输出传递给一个线性层（linear layer）。通过线性层，我们可以生成任意数量的数字表征。在语言模型中，我们希望表征的数量与模型的词汇量相匹配。如果模型的全部词汇量（它所见过的所有单词）是 1000 个，那么就需要 1000 个数字来表示词汇表中的每个单词。我们需要对每个位置上的每个单词都这样做。如果最终的输出内容拥有10个单词，我们要为其中的每一个单词计算512个向量。然后，我们将其传递给一个Softmax层，该层会给出每个单词的概率，最高概率的单词就是我们要使用的单词。Softmax会返回给我们一个索引，比如3。模型就会输出词汇表中索引为3的单词。如果我们的词汇表是['机', ‘器‘, ‘学‘, ‘习‘, ‘真‘，‘好’，‘完’，...]，那么输出的单词将是'习'。
 
-至此，Transformer模型介绍完毕。
+至此，我们就学习完了大语言模型的两大基石之一的Transformer模型。
 
 ## 结尾
 
-看到这里，我们就学习完了大语言模型的基础知识。
+写到这里，算是完成了本章节，在写本篇文章的过程，部分文案直接借用了Copilot生成的文字，如果你的观点或文字出现在本章内容中，却没有出现在引用列表里，麻烦请告知，笔者核实后将第一时间修订引用列表。
 
-写到这里，算是完成了本章节，在写本篇文章的过程，部分文案直接借用了Copilot生成的文字，如果你的观点或文字出现在本章内容中，却没有出现在引用列表里，麻烦请告知，我核实后将第一时间修订引用列表。
 
 最后，用Copilot生成的文案，结束这一章。
 Transformer模型在自然语言处理中有许多优点：
@@ -659,7 +658,7 @@ Transformer模型在自然语言处理中有许多优点：
 
 最后，说句老掉牙的话，Enjoy it~~
 
-#### 另一种解释（backup）
+#### 注意力机制的另一种解释（backup）
 
 对上述过程，我们还有一种理解方式。引起注意力的方式有两种，**自主提示**和**非自主提示**。如果考虑自主提示的话，我们就需要设计一种通过Query，Key和Value来实现注意力机制的方法。
 
@@ -682,3 +681,4 @@ https://towardsdatascience.com/simplifying-transformers-state-of-the-art-nlp-usi
 https://towardsdatascience.com/simplifying-transformers-state-of-the-art-nlp-using-words-you-understand-part-5-decoder-and-cd2810c6ad40
 https://blog.csdn.net/zhaohongfei_358/article/details/125858248
 https://www.mikecaptain.com/2023/01/22/captain-aigc-1-transformer/
+
