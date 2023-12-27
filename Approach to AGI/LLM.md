@@ -266,32 +266,71 @@ Tips：请参考附录关于向量余弦章节。这两个词距离相近，用�
 
 这个问题，尽管这被 GloVe 方法考虑更大范围词频共现后一定程度解决了（没有完全解决）。然而，另一个致命问题来了，一词多义。
 
-
-
-#### 问题：一词多义
+#### 问题1：如何解决“一词多义”问题
 
 请看下面这两句，用WordEmbedding的方法，两个bank只能表示成一组相同的向量，无法处理“一词多义”这种情况。
 
 ![WordEmbedding_3.svg](../images/WordEmbedding_3.svg)
 
-问题提出来了，现在解决问题。估计大家都能想到解决思路，把bank表示成多个向量。
+解决这个问题的大致思路，我估计大家都能想到，就是把bank表示成多个向量。这样的词表示法有个专门术语：CWRs(Contextual Word Representations), 截止到2023年，这种解决思路是业界主流。
+
+#### 问题2：如何避免“See themselves”问题
+
+在讲解本系列文章的时候，我举得都是相对简单基础的模型。实际上，业界还是涌现出很多改进的模型。比如基于RNN/LSTM的双向模型，而且这些双向模型效果比基础模型要好的。这样在预训练阶段，就带来了“see themselves”的问题，如下图所示：
+![Bidirection.svg](../images/Bidirection.svg)
+
+具体的说，在双向模型中，单词可以“看到自己(see themselves)”的。这是因为双向模型在处理每个单词时，会同时考虑该单词前后的上下文信息。然而，这种方式可能会导致一种情况，即模型在预测某个单词时，实际上已经“看到”了这个单词，从而影响了模型的预测能力。
+解决这个问题，大致思路有两个。
+
+1. 从根本上解决：去掉双向模型，改为单向模型。
+2. 另一种办法：在预训练阶段，人为用Mask遮住一些词。类似于“Masked MultiHeadsAttention”思路。
+
+方法二，听起来更像一种Workaround，但是结合上下文，却更加符合人类理解语言的方式。所以，上面两种方法孰优孰劣在2017~2018年这个时间节点，还真不好说。
+
+至此，问题提出来了，即解决“一词多义”问题，并同时避免“see themselves”问题。
 
 ### 解决问题
 
-解决一词多义的问题，业界还是花了不少精力的。我们一起来看看别人是怎么解决这个问题的。
+解决“一词多义”问题，并同时避免“see themselves”问题，业界还是花了不少精力的。我们一起来考古一下，看看别人是怎么解决这个问题的。
 
 #### 方案1：半监督学习（2015）
 
-第一种解决方案，其实没什么好讲的，叫半监督学习。其实就是在Fine-tune阶段，人为的把这些问题标注出来。值得一提的是，这个办法在2015年，是基于LSTM的。
+第一种解决方案，其实没什么好讲的，叫半监督学习。其实就是在Fine-tune阶段，人为的把这些问题标注出来。人们用这个办法在2015年，是基于LSTM的。
 详见Semi-Supervised Sequence Learning, Google, 2015
 
-#### 方案2：ELMo（2017）
+#### 方案2：ELMo（2018）
 
 这个需要提一下，ELMO是2018年度NAACL最佳论文，解决的办法也很巧妙，可惜的是还是用了LSTM模型，没有用到最新的Transformer模型。
+解决一词多义，用的是CWRs。ELMo用了BiLSTM。在预训练阶段，对于任何一个输入文本，用一个”从左到右“的单向LSTM模型和一个”从右到左“的单向LSTM模型，从而避免了“see themselves”问题，如下图所示：
+
+![ELMo.svg](../images/ELMo.svg)
+
+这样每个词的词向量都有了上下文的信息。这样用ELMo得到的文本向量就可以作为其他模型的预训练嵌入（Pre-trained Embeddings）了。具体步骤就不详细展开了，大家专注于理解思路即可。如果大家对ELMo有兴趣，请自行在网上搜索。
 
 #### 方案3：GPT-1 (2018)
 
+这个就是大名鼎鼎的ChatGPT。用的办法是CWRs和单向从左到右的模型。后面会详细讨论GPT，这里就先按下不表了。
+
 #### BERT的解决方案：MLM+NSP
+
+##### MLM（Masked Language Modeling）
+
+80-10-10 corruption
+
+For the 15% predicted words,
+• 80% of the time, they replace it with [MASK] token
+went to the store ⟶ went to the [MASK]
+• 10% of the time, they replace it with a random word in the vocabulary
+went to the store ⟶ went to the running
+• 10% of the time, they keep it unchanged
+went to the store ⟶ went to the store
+
+Why? Because [MASK] tokens are never seen during fine-tuning
+
+* 
+
+##### NSP
+
 
 ### 改进二：Input Representation
 
@@ -322,6 +361,6 @@ https://arxiv.org/abs/1810.04805
 https://www.cs.princeton.edu/courses/archive/fall22/cos597G/lectures/lec02.pdf
 https://nlp.stanford.edu/seminar/details/jdevlin.pdf
 https://www.mikecaptain.com/2023/03/06/captain-aigc-2-llm/
-
 http://www.evinchina.com/uploadfile/file/20230315/2023031509402407539.pdf
+https://developers.google.com/machine-learning/glossary/language
 
