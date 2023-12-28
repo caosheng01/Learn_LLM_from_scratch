@@ -242,9 +242,18 @@ Tips: 我没有任何贬低监督学习的意思，相反在我眼里，瀑布�
 
 ### BERT简介
 
-BERT（Bidirectional Encoder Representations from Transformers）是一种用于自然语言处理的预训练技术，由Google提出。强调了不再像以往一样采用传统的单向语言模型或者把两个单向语言模型进行浅层拼接的方法进行预训练，而是采用新的masked language model（MLM），以致能生成深度的双向语言表征。
+BERT（Bidirectional Encoder Representations from Transformers）是一种用于自然语言处理的预训练技术，由Google提出。强调了不再像以往一样采用传统的单向语言模型或者把两个单向语言模型进行浅层拼接的方法进行预训练，而是采用新的masked language model（MLM），以致能生成深度的双向语言表征。BERT模型的预训练可以使用较少的资源和较小的数据集在下游任务上进行微调，以改进在这些任务上的效能。这使得BERT模型的适用性更广，并且不需要做更多重复性的模型训练工作。
 
-BERT模型的预训练可以使用较少的资源和较小的数据集在下游任务上进行微调，以改进在这些任务上的效能。这使得BERT模型的适用性更广，并且不需要做更多重复性的模型训练工作。虽然BERT效果很好，但是学习BERT其实一点不难，就两部分有点改进工作，这也是为什么笔者把BERT称之为集大成者原因。一个改进在名字里，即Bidirectional，另一个改进在架构图里，即在Input Embedding处。
+BERT 模型可以作为公认的里程碑式的模型，但是它最大的优点不是创新，而是集大成者，具体如下：
+
+* BERT采用两段式训练方法：第一阶段，使用大规模无标签语料，训练出基础模型。第二阶段，使用少量带标签数据微调。
+* 参考了ELMO模型的双向编码思想，提出Bidirectional双向编码。
+* 借鉴了GPT用Transformer作为特征提取器的思路，采用了Transformer中的Encoder编码器。
+* 采用了类似word2vec所使用的CBOW方法，提出MLM。
+
+Tips：本文没有讲解CBOW，请读者自行查阅。思路类似于英语考试题型“完型填空”。
+
+学习BERT其实一点不难，就两部分有点改进工作，一个改进在名字里，即Bidirectional，另一个改进在架构图里，即在Input Embedding处。
 
 ### 改进一：双向（Bidirectional）语言表征
 
@@ -313,19 +322,31 @@ Tips：请参考附录关于向量余弦章节。这两个词距离相近，用�
 
 #### BERT的解决方案：MLM+NSP
 
-##### MLM（Masked Language Modeling）
+##### 语言掩码模型（MLM，Masked Language Modeling）
 
-BERT 具体采用的方法是，随机选择 15% 的 tokens 出来，但是并非把它们全部都 MASK 掉，而是：
+前文提到BERT借鉴了Word2Vec的类似于“完型填空”的CBOW思路，提出了MLM。一句话，解释MLM方法：就是随机去掉句子中的部分token（单词），然后模型来预测被去掉的token是什么。​这样实际上已经不是传统的神经网络语言模型(类似于生成模型)了，而是单纯作为分类问题​。
+
+* 分类问题：根据这个时刻的hidden state来预测这个时刻的token应该是什么。
+* 生成模型：预测下一个时刻的词的概率分布了。
+
+BERT具体采用的方法是，随机选择15%的tokens出来（这里和CBOW的100%不一样），但是并非把它们全部都Mask掉。
+这样设计MLM训练方法会引入一些弊端：就是在第二阶段（Fine tune阶段），输入的文本中将没有Mask，进而导致产生训练和预测数据偏差导致的性能损失。
+
+为了解决上述弊端，MLM又做了下面这些事情。
 
 * 其中的 80% 被替换为 [MASK]，例如：went to the store -> went to the [MASK]
 * 其中的 10% 被替换为一个随机token，例如：went to the store -> went to the runing
+  * 这样做，是为了让BERT学会根据上下文信息纠错
 * 剩余的 10% 不变，例如：went to the store ->went to the store
+  * 这样做，是为了缓解训练和预测数据偏差导致的性能损失
 
 这个80-10-10的组合是怎么定出来的呢？答案是Google团队尝试了不同的组合，结果80-10-10效果最好。
 
-##### NSP（Next Sentence Prediction）
+##### 下句预测（NSP，Next Sentence Prediction）
 
-许多NLP任务（比如问答、推理等等）都涉及到句子之间关系的理解，这不会被一般性的语言建模过程学习到。因此 Google想用预训练阶段的NSP任务来解决这个痛点。NSP预训练任务所准备的数据，是从单一语种的语料库中取出两个句子$S_i$和$S_j$，其中 50% 的情况下B就是实际跟在A后面的句子，50%的情况下B是随机取的。这样语言模型就是在面对一个二元分类问题进行预训练，例如：
+在很多自然语言处理的下游任务中，如问答和自然语言推断，都基于两个句子做逻辑推理，而语言模型并不具备直接捕获句子之间的语义联系的能力，或者可以说成​单词预测粒度的训练到不了句子关系这个层级，为了​学会捕捉句子之间的语义联系​，BERT采用了下句预测（NSP）作为无监督预训练的一部分。
+
+因此BERT想用预训练阶段的NSP任务来解决这个痛点。NSP预训练任务所准备的数据，是从单一语种的语料库中取出两个句子$S_i$和$S_j$，其中50%的情况下B就是实际跟在A后面的句子，50%的情况下B是随机取的。这样语言模型就是在面对一个二元分类问题进行预训练，例如：
 
 ```
 INPUT: [CLS] the man went to [MASK] store [SEP]
@@ -339,10 +360,12 @@ INPUT: [CLS] the man [MASK] to the store [SEP]
 LABEL: NotNext
 ```
 
-[CLS]表示"classification"，[SEP]表示"separate"。这样的预训练任务，让BERT在词维度的语言知识外，也让BERT学习到一些句子维度的语言结构。
+其中，[CLS]表示"classification"，用于类别预测，结果为1，表示输入为连续句对（sentence pair）；结果为0，表示输入为随机句对。
+[SEP]表示"separate"，即分隔符，用于断句。这样的预训练任务，让BERT在词维度的语言知识外，也让BERT学习到一些句子维度的语言结构。
+
 Tips: NSP效果一般，后续的BERT改进模型中，都不约而同的弱化或者直接放弃了NSP。
 
-### 改进二：Input Representation
+### 改进二：输入表示（Input Representation）
 
 前文提到BERT的另外一项改进可以从架构图里找到，我们一起来看看BERT的架构图。
 
@@ -351,30 +374,44 @@ Tips: NSP效果一般，后续的BERT改进模型中，都不约而同的弱化�
 ![BERT_Arch.svg](../images/BERT_Arch.svg)
 
 和标准的Transformer Encoder比较，差别比较大的就是Input这部分。我们一起来讨论一下BERT的Input部分。
-所有的NLP问题，第一步就是分词和WordEmbedding。BERT的分词用的是开源的Workpieces。
 Input Embedding部分，引用一下原论文的这张图，如图所示：
 
 ![BERT_inputs.png](../images/BERT_input.png)
 
-包含3个Input Embedding，分别是：
+和大多数NLP深度学习模型一样，BERT将输入文本中的每一个词（token)送入Token Embeddings层从而将每一个词转换成向量形式。在Transformer模型中，有Positional Embeddings和Token Embeddings。BERT又多了一个嵌入层Segment Embeddings。
 
-Token Embedding
-Segment Embedding
-Positional Embedding
+#### Inputs Embeddings
 
-### 用BERT来处理NLP任务
+1. **Token Embeddings**：Token Embeddings是BERT的一个重要组成部分，它将每个词（token）转换为一个固定维度的向量。在BERT中，每个词会被转换成768维的向量表示。这个过程实际上是建立一个从one-hot编码到768维稠密向量的映射。每个词的词向量最初都是随机生成的，在神经网络训练的过程中，这些词向量会不断优化。
+2. **Segment Embeddings**：Segment Embeddings用于帮助BERT区分输入序列中的不同句子。例如，对于一对句子（"I like cats", "I like dogs"），Segment Embeddings层只有两种向量表示。前一个向量是把0赋给第一个句子中的各个token，后一个向量是把1赋给第二个句子中的各个token。如果输入仅仅只有一个句子，那么它的segment embedding就是全0。
+3. **Positional Embeddings**：Positional Embeddings用于补充文本输入的时序性信息。BERT能够处理最长512个token的输入序列。论文作者通过让BERT在各个位置上学习一个向量表示来讲序列顺序的信息编码进来。这意味着Position Embeddings实际上就是一个大小为 (512, 768) 的lookup表，表的第一行是代表第一个序列的第一个位置，第二行代表序列的第二个位置，以此类推。
 
-NLP任务：4类
+就拿上面这个例子来解释一下上面这3种Embeddings吧。
+Input部分为两句话：my dog is cute 和 he likes playing
 
-1. 判断题 - 文本分类任务(Single Sentence Tagging)
-2. 文本蕴含任务
-3. 单项选择题 - 文本选择任务(Sentence Pair Classification)
-4. 问答题 - 文本问答任务(Question Answering Tasks）
+* NLP在处理语言之前，先做分词(Tokenize)，再建立词表，最后转化为Token ids。BERT的分词用的是开源的Workpieces，词表也是直接用的开源[vocab.txt](https://huggingface.co/bert-base-cased/blob/main/vocab.txt)。
+  * Token Embeddings将两个input被表示为11个Token，即[CLS]my dog is cute[SEP]he likes play ##ing[SEP]
+* Segment Embeddings把input1赋值为0（对应图中$E_A$）；input2赋值为1（对应图中$E_B$）。
+  * 对应Segment Embedding编码为00000011111
+* Positional Embeddings直接给这11个token，独一无二的位置编码。
+
+最后把一个把这三种向量相加，形成单一序列。然后经过Layer Norm和Dropout，输出到Encoder Layer。
+至此，我们介绍完BERT在Pre-tain阶段的任务了。下一章节，我们来看看如何用BERT来处理第二阶段任务。
+
+### 微调BERT模型
+
+本文开始阶段就提到NLP最终把所有问题都转化成一个分类问题。BERT也是如此，将微调训练的NLP任务分为四类：
+
+1. 句子对分类任务(Sentence Pair Classification)
+2. 单句分类任务(Single Sentence Classification)
+3. 文本问答任务(Question Answering Tasks）
+4. 单句标注任务(Single Sentence Tagging)
+
+我们从最简单的单句标注任务开始。
 
 ## 小结
 
 科学的重大进步，从不是通过一种直接的方式，而是一定要设立一个高度挑战性的目标，通过强大的动力促使技术革新，迫使科学家燃烧他们的想象力，使他们尽最大的可能完成他们的目标，这就是为什么我们说，一定要把路脚放的更远一点。
-
 
 ## Reference
 
