@@ -60,7 +60,10 @@ Tips: 分类（Classification）和聚类（Clustering）的区别
 
 在机器学习中，回归问题和分类问题是两种主要的任务类型，它们各自解决不同的问题。回归问题是预测一个连续的输出值，例如预测股价。而分类问题是预测一个离散的输出值，例如判断一封电子邮件是否为垃圾邮件。
 Tips: 这里，我们把二分类问题和多分类问题，统称为分类问题。
-既然是处理连续和离散的问题，就是一个非常经典的数学问题。如果在丢失一些精度的情况下，连续问题是可以转化为离散的问题来处理的。上世纪70到80年代，轰轰烈烈的模拟电路往数字电路转变，背后的数学原理就是拉普拉斯变换。而我们在处理NLP的时候，用了几乎一样的思路。
+既然是处理连续和离散的问题，就是一个非常经典的数学问题。如果在丢失一些精度的情况下，连续问题是可以转化为离散的问题来处理的。上世纪70到80年代，轰轰烈烈的模拟电路往数字电路转变，背后的数学原理就是拉普拉斯变换。而我们在处理NLP的时候，用了几乎一样的思路。通常来说，在NLP领域的很多场景中模型最后所做的基本上都是一个分类任务，虽然表面上看起来不是。例如：
+
+* 文本蕴含任务: 其实就是将两个序列拼接在一起，然后预测其所属的类别；
+* 基于神经网络的序列生成模型（翻译、文本生成等）本质: 就是预测词表中下一个最有可能出现的词，此时的分类类别就是词表的大小。
 
 > 通常来说，我们把几乎所有问题都最终转变成**分类问题**。即，在NLP邻域的许多场景中模型最后所做的基本上都是一个**分类任务**。
 
@@ -143,13 +146,7 @@ Tips: 我没有任何贬低监督学习的意思，相反在我眼里，瀑布�
 
 > 天才的设计，来自于剽窃！
 
-针对**痛点一：数据标注困难**问题，大家第一个想到Copy解决CV问题时的思路，做一个通用的标注好了的语言库，类似于ImageNet的东西。ImageNet是包含了超过1400万张手动标注图像、涵盖 2 万多个类别的大型图像数据库，正是由于ImageNet的出现，帮助AI顺利的解决了CV邻域绝大多数的问题。曾经有很多人花费了多精力朝这个方向努力，可惜的是，直到2023年，NLP的ImageNet时刻始终没有到来。但是也产生了一些比较优秀的通用数据集：
-
-* **GLUE**（General Language Understanding Evaluation）是一个多任务基准和分析平台，由纽约大学、华盛顿大学以及DeepMind的研究者们共同提出。GLUE包含了一系列自然语言理解数据集和任务，主要目标是鼓励开发出能够在任务之间共享通用的语言知识的模型。GLUE主要由9项任务组成，一个预训练模型在9项任务上的得分的平均即为它的最终得分。
-* **SWAG**（Situations With Adversarial Generations）是一个大规模的数据集，用于进行基于常识的推理任务。给定一个情境（一个问题或一句描述），任务是从给定的四个选项中预测最有可能的一个。
-* **SQuAD**（Stanford Question Answering Dataset）是一个由斯坦福大学创建的机器阅读理解数据集。SQuAD包含了一系列的英文阅读理解任务，现在做和英文的阅读理解相关所有任务，都用它。SQuAD有两个版本，SQuAD1.0和SQuAD2.0²。SQuAD1.0的数据集中，所有的答案都可以在文章中找到²。而SQuAD2.0增加了一些没有答案的问题。
-* **MNLI**(Multi-Genre Natural Language Inference)是一个自然语言推断任务的数据集。MNLI数据集是通过众包方式对句子对进行文本蕴含标注的集合。给定前提语句和假设语句，任务是预测前提语句是否包含假设（entailment）、与假设矛盾(contradiction)或者两者都不(中立，neutral)。前提语句是从数十种不同来源收集的，包括转录的语音、小说和政府报告。
-  ...
+针对**痛点一：数据标注困难**问题，大家第一个想到Copy解决CV问题时的思路，做一个通用的标注好了的语言库，类似于ImageNet的东西。ImageNet是包含了超过1400万张手动标注图像、涵盖 2 万多个类别的大型图像数据库，正是由于ImageNet的出现，帮助AI顺利的解决了CV邻域绝大多数的问题。曾经有很多人花费了多精力朝这个方向努力，可惜的是，直到2023年，虽然产生了一些比较优秀的数据集，但NLP的ImageNet时刻始终没有到来。
 
 既然此路不通，再换条路。能否设计一套免标注的训练方法，或者少量标注训练数据的方法。所幸的是，少标注训练数据这条路走通了，发展出了**自监督学习**。后文会详细讲解，这里先按下不表。
 
@@ -407,7 +404,255 @@ Input部分为两句话：my dog is cute 和 he likes playing
 3. 文本问答任务(Question Answering Tasks）
 4. 单句标注任务(Single Sentence Tagging)
 
-我们从最简单的单句标注任务开始。
+![BERT_Finetune.png](../images/BERT_Finetune.png)
+
+上图引自BERT原论文，如图所示，前2类是基于句子级别（sentence level）的任务；后两类基于词级别(token level)的任务。我们先一起来看一下涉及到的数据集，如果想从事NLP相关工作，最好还是熟悉一下这些数据集。
+
+* **MNLI(Multi-Genre Natural Language Inference)** 是一个自然语言推断任务的数据集。MNLI数据集是通过众包方式对句子对进行文本蕴含标注的集合。给定前提语句和假设语句，任务是预测前提语句是否包含假设（entailment）、与假设矛盾(contradiction)或者两者都不(中立，neutral)。前提语句是从数十种不同来源收集的，包括转录的语音、小说和政府报告。
+* **QQP (Quora Question Pairs)**: 这是一个包含大约40万对问题的数据集，目标是确定一对问题是否具有相同的意思。这个数据集来自Quora，一个用户可以提出问题并得到其他用户的回答的网站。
+* **QNLI (Question Natural Language Inference)**: 这个数据集是从斯坦福问答数据集（SQuAD）派生出来的自然语言推理数据集。任务是确定上下文句子是否包含问题的答案。
+* **STS-B (Semantic Textual Similarity Benchmark)**: 这个数据集包含了一对句子，这些句子已经被人工标记为在0（没有语义相似性）到5（语义等价）之间的相似性。
+* **MRPC (Microsoft Research Paraphrase Corpus)**: 这个数据集包含了一对句子，目标是确定一对句子是否彼此是释义。
+* **RTE (Recognizing Textual Entailment)**: 这个数据集包含了一对句子，目标是确定一个句子是否能从另一个句子中推断出来。
+* **SWAG（Situations With Adversarial Generations）** 是一个大规模的数据集，用于进行基于常识的推理任务。给定一个情境（一个问题或一句描述），任务是从给定的四个选项中预测最有可能的一个。
+* **SST-2 (Stanford Sentiment Treebank)**: 这个数据集包含了电影评论的句子，已经被标记为正面或负面情感。
+* **CoLA (Corpus of Linguistic Acceptability)**: 这个数据集包含了一些句子，已经被标记为语法正确或错误。
+* **SQuAD（Stanford Question Answering Dataset）**：是一个由斯坦福大学创建的机器阅读理解数据集。SQuAD包含了一系列的英文阅读理解任务，现在做和英文的阅读理解相关所有任务，都用它。SQuAD有两个版本，SQuAD1.0和SQuAD2.0²。SQuAD1.0的数据集中，所有的答案都可以在文章中找到²。而SQuAD2.0增加了一些没有答案的问题。
+* **CoNLL-2003 NER (Named Entity Recognition)**: 这个数据集包含了一些句子，已经被标记为命名实体识别的任务，包括位置（LOC），组织（ORG），人名（PER）和杂项（MISC）。
+
+#### 句子对的分类任务
+
+举个单项选择题的例子，看我们是如何做fine tune的。
+
+本文开头提到NLP问题最终都转成分类问题。四选一的选择题问题就是一个典型的分类任务（四分类问题），而关键的地方就在于如何构建模型的输入和输出。对照上面列出来的数据集，我们也很容易能想到采用SWAG这个数据集。
+
+下面我们展示一下如何准备数据来进行fine tune的具体步骤。
+原始数据中有两个样本，需要把多个样本构筑成一个batch，然后交给BERT模型做fine tune。整个过程如下：
+
+```
+The people are in robes. They  
+ A) are wearing colorful costumes. ## Correct
+ B) are doing karate moves on the floor. 
+ C) shake hands on their hips. 
+ D) do a flip to the bag.
+```
+
+```
+She smirks at someone and rides off. He
+ A) similes and falls heavily.
+ B) wears a bashful smile. ## Correct
+ C) kneels down behind her.
+ D) gives him a playful glance.
+```
+
+第一步，我们需要重构这个样本，改为：
+
+```
+[CLS]The people are in robes. They[SEP]are wearing colorful costumes.[SEP]
+[CLS]The people are in robes. They[SEP]are doing karate moves on the floor.[SEP]
+[CLS]The people are in robes. They[SEP]shake hands on their hips.[SEP]
+[CLS]The people are in robes. They[SEP]do a flip to the bag.[SEP]
+```
+
+```
+[CLS]She smirks at someone and rides off. He[SEP]smiles and falls heavily.[SEP]
+[CLS]She smirks at someone and rides off. He[SEP]wears a bashful smile.[SEP]
+[CLS]She smirks at someone and rides off. He[SEP]kneels down behind her.[SEP]
+[CLS]She smirks at someone and rides off. He[SEP]gives him a playful glance.[SEP]
+```
+
+第二步，分词(Tokenize)和填充(Padding)
+
+为了让训练更加高效，还需要把样本对齐，即每句话的Token数一样。用的方法也挺简单的，就是在短句后面加padding，用[PAD]表示。在BERT中，还有两种特殊标记，分别是[UNK]表示Unkown，[MASK]表示遮蔽语言模型中的单词。
+Tips：实际过程中，先做分词转换得到token id后，再做padding。为了更好的可读性，本文先讲padding。
+
+```
+[CLS]The people are in robes. They[SEP]are wearing colorful costumes.[SEP][PAD][PAD][PAD]
+[CLS]The people are in robes. They[SEP]are doing karate moves on the floor.[SEP]
+[CLS]The people are in robes. They[SEP]shake hands on their hips.[SEP][PAD][PAD]
+[CLS]The people are in robes. They[SEP]do a flip to the bag.[SEP][PAD]
+```
+
+```
+[CLS]She smirks at someone and rides off. He[SEP]smiles and falls heavily.[SEP][PAD]
+[CLS]She smirks at someone and rides off. He[SEP]wears a bashful smile.[SEP][PAD]
+[CLS]She smirks at someone and rides off. He[SEP]kneels down behind her.[SEP][PAD]
+[CLS]She smirks at someone and rides off. He[SEP]gives him a playful glance.[SEP]
+```
+
+再结合vocab.txt，把词用Token id表示，结果如下：
+
+```
+[101, 1996, 2111,..., 2027, 102, 2024, 4147,...,  102,    0,    0,   0]
+[101, 1996, 2111,..., 2027, 102, 2024, 2725,..., 1996, 2723, 1012, 102]
+[101, 1996, 2111,..., 2027, 102, 6073, 2398,..., 2006,  102,    0,   0]
+[101, 1996, 2111,..., 2027, 102, 2079, 1037,...,  200, 1012,  102,   0]
+```
+
+```
+[101, 2016, 15081, ..., 102,  8451, 1998,  4112, 4600, 1012,  102,   0]
+[101, 2016, 15081, ..., 102,  6181, 4877,  2091, 2369, 1012,  102,   0]
+[101, 2016, 15081, ..., 102,  3957, 2032,  1037, 6054, 1012,  102，  0]
+[101, 2016, 15081, ..., 102, 11651, 1037, 24234, 3993, 2868, 1012, 102]
+```
+
+第二步结束后，我们得到一个[batch_size, num_choice, seq_len]的三维张量([2,4,18])
+
+第三步，合并这2个已经对齐了的样本，变成一个batch。这个过程叫Reshape。此时我们得到一个[batch_size * num_choice, seq_len]二维张量([8,18])
+
+```
+[101, 1996, 2111,..., 2027, 102, 2024, 4147,...,  102,    0,    0,   0]
+[101, 1996, 2111,..., 2027, 102, 2024, 2725,..., 1996, 2723, 1012, 102]
+[101, 1996, 2111,..., 2027, 102, 6073, 2398,..., 2006,  102,    0,   0]
+[101, 1996, 2111,..., 2027, 102, 2079, 1037,...,  200, 1012,  102,   0]
+[101, 2016, 15081, ..., 102,  8451, 1998,  4112, 4600, 1012,  102,   0]
+[101, 2016, 15081, ..., 102,  6181, 4877,  2091, 2369, 1012,  102,   0]
+[101, 2016, 15081, ..., 102,  3957, 2032,  1037, 6054, 1012,  102，  0]
+[101, 2016, 15081, ..., 102, 11651, 1037, 24234, 3993, 2868, 1012, 102]
+```
+
+第四步，输入到BERT模型，进行fune tune。上述四步全过程如下图所示：
+
+![BERT_SentencePair.svg](../images/BERT_SentencePair.svg)
+
+#### 单句的分类任务
+
+BERT的单句分类（Single Sentence Classification）是一种监督学习任务，用于确定给定文本的类别。
+
+在单句分类任务中，BERT模型接收一个单独的句子作为输入，然后通过其内部的自注意力机制和Transformer架构，生成该句子的深度表示。然后，这个表示被送入一个顶层分类器（通常是一个全连接层），该分类器根据训练数据将句子分类到预定义的类别中。
+
+例如，单句分类可以用于情感分析（将文本分类为“正面”或“负面”），主题分类（将新闻文章分类为“政治”，“体育”等类别），或者垃圾邮件检测（将电子邮件分类为“垃圾邮件”或“非垃圾邮件”）等任务。基本工作流程示意图如下：
+
+![BERT_SingleSentence.svg](../images/BERT_SingleSentence.svg)
+
+#### 文本回答任务
+
+所谓问题回答指的就是同时给模型输入一个问题和一段描述，最后需要模型从给定的描述中预测出问题答案所在的位置（text span)。我们采用SQuAD这个数据集。
+
+原始数据：
+
+```
+描述：苏轼是北宋著名的文学家与政治家，眉州眉山人。 
+问题：苏轼是哪里人？ 
+标签：眉州眉山人
+```
+
+对于这样一个问题问答任务我们应该怎么来构建这个模型呢？
+在做这个任务之前首先需要明白的就是：
+
+1. 最终问题的答案一定是在给定的“描述”中；
+2. 问题再描述中的答案一定是一段连续的字符，不能有间隔。
+
+例如对于上面的描述内容来说，如果给出的问题是“苏轼生活在什么年代以及他是哪里人？”，那么模型最终并不会给出类似“北宋”和“眉州眉山人”这两个分离的 答案，最好的情况下便是给出“北宋著名的文学家与政治家，眉州眉山人”这一个连续的答案。
+在有了这两个限制条件后，对于这类问答任务的本质也就变成了需要让模型预测得到答案在描述中的起始位置（start position）以及它的结束位置（end position）。所以，问题最终又变成了如何在BERT模型的基础上再构建一个分类器来对BERT最后一层输出的每个Token进行分类，判断它们是否属于start position或者是end position。原理，如下图所示：
+
+![BERT_QuestionAnswering.svg](../images/BERT_QuestionAnswering.svg)
+
+在重构样本时，我们把问题和描述合成一个句子，也引入了一个问题。如果这个合成的句子超过了BERT模型的最大长度（通常为512个tokens），怎么办？通常有下面这几种处理方法：
+
+1. **截断**：这是最简单的方法，可以选择保留前512个tokens，或者保留后512个tokens，或者保留前N个和后K个tokens，其中N+K<=510。
+2. **滑动窗口**：将长文本分割成多个小段，每个小段的长度不超过512，且相邻的小段有重叠部分。
+3. **重新初始化Positional Embedding**：BERT模型中的Positional Embedding是一个可学习的参数，我们可以重新初始化一个更大的位置词表，然后将前512个向量用预训练模型中的进行替换，余下的通过在下游任务中微调或语料中训练得到。
+
+推荐用第二种滑动窗口的办法。下面是一个使用滑动窗口处理长文本的例子：
+
+```python
+from transformers import BertTokenizer
+
+def sliding_window(text, max_len):
+    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    tokens = tokenizer.tokenize(text)
+    window_size = max_len - 2  # for [CLS] and [SEP]
+    segments = []
+
+    for i in range(0, len(tokens), window_size):
+        segment = tokens[i:i+window_size]
+        segments.append(segment)
+
+    return segments
+
+text = "Your long text here..."
+max_len = 512 
+segments = sliding_window(text, max_len)
+
+for segment in segments:
+    print(segment)
+```
+
+这段代码首先将长文本tokenize成tokens，然后使用滑动窗口将tokens分割成多个小段，每个小段的长度不超过512。这样，我们就可以将每个小段分别输入到BERT模型中进行处理了。
+
+如果输入采用了滑动窗口的方法，那么在推理时，我们需要对每个窗口分别进行推理，并将结果合并。具体的操作步骤如下：
+
+1. **分割输入**：首先，我们需要将输入文本分割成多个小段，每个小段的长度不超过BERT模型的最大长度（通常为512个tokens），且相邻的小段有重叠部分。
+2. **对每个窗口进行推理**：然后，我们将每个小段分别输入到BERT模型中进行推理。这一步的操作与之前的推理过程相同，只是输入变成了小段。
+3. **合并结果**：最后，我们需要将每个小段的推理结果合并成完整的推理结果。具体的合并方式取决于你的任务。例如，如果你的任务是文本分类，那么你可以对每个小段的分类结果进行投票，选择得票最多的类别作为最终的分类结果。如果你的任务是问答，那么你可以选择得分最高的答案作为最终的答案。
+
+以下是一个使用滑动窗口处理长文本并进行推理的Python代码示例：
+
+```python
+from transformers import BertForQuestionAnswering, BertTokenizer
+import torch
+
+# Load the fine-tuned BERT-large model
+model = BertForQuestionAnswering.from_pretrained('bert-large-uncased-whole-word-masking-finetuned-squad')
+
+# Load the tokenizer
+tokenizer = BertTokenizer.from_pretrained('bert-large-uncased-whole-word-masking-finetuned-squad')
+
+# Your question and text
+question = "Who was the first president of the United States?"
+text = "Your long text here..."
+
+# Package the question and text into the input, and use the sliding window to handle the long text
+inputs = [tokenizer(question, segment, add_special_tokens=True, return_tensors="pt") for segment in sliding_window(text, max_len)]
+
+# Perform inference on each window and get the prediction of the start and end
+outputs = [model(**input) for input in inputs]
+start_scores, end_scores = zip(*[(output.start_logits, output.end_logits) for output in outputs])
+
+# Find the position with the highest score for the start and end
+start_index = torch.argmax(torch.cat(start_scores))
+end_index = torch.argmax(torch.cat(end_scores)) + 1
+
+# Use the tokenizer to convert the token back to text
+answer = tokenizer.convert_tokens_to_string(tokenizer.convert_ids_to_tokens(inputs[start_index // max_len]["input_ids"][0][start_index % max_len:end_index % max_len]))
+
+print(answer)
+```
+
+这段代码首先加载了一个已经在SQuAD上fine-tuned的BERT模型和相应的tokenizer。然后，我们定义了一个问题和一段包含答案的文本。我们使用tokenizer将问题和文本打包到一个输入张量中，然后将其输入到模型中。模型返回每个可能的开始和结束位置的分数。我们选择分数最高的位置作为答案的开始和结束位置，然后使用tokenizer将这些位置的token转换回文本，得到我们的答案。
+
+这就是在使用滑动窗口处理长文本时，如何进行推理的一个例子。
+
+#### 单句标注任务
+
+让我们通过一个命名实体识别（Named Entity Recognition，NER）的例子来详细说明单句标注（Single Sentence Tagging）。例如，对于句子“苹果公司在加利福尼亚州的库比蒂诺市设有总部”，模型可能会预测出“苹果公司”为“组织”，“加利福尼亚州”和“库比蒂诺市”为“地点”，其余单词为“其他”。具体工作流程，如下图所示：
+
+![BERT_SingleSentenceTagging.svg](../images/BERT_SingleSentenceTagging.svg)
+
+这种标注方式被称为BIO标注法，广泛应用于各种序列标注任务中。BIO标注法是一种常用于序列标注任务（如命名实体识别）的标注方法。在BIO标注法中，每个标签由两部分组成：一个前缀（B、I或O）和一个类型（如PER、LOC等）。前缀表示当前词在实体中的位置，类型表示实体的类别。具体来说：
+
+* ​**B（Begin）**：表示实体的开始。例如，在句子“我在**北京**工作”中，“北京”的标签就是B-LOC。
+* ​**I (inside)**: 表示实体的持续。例如，在句子“我在**新疆乌鲁木齐**市工作”中，“新疆乌鲁木齐”的标签就是B-LOC I-LOC I-LOC。
+* ​**O (Outside)**: 表示这个词不属于任何实体。
+
+除了人名（PER），地名（LOC）和组织名(ORG)之外，命名实体识别（Named Entity Recognition，NER）通常还包括以下类型：
+
+* TIME：时间表达式，如“下周一”、“20世纪90年代”等。
+* DATE：日期表达式，如“2024年1月1日”、“上个月”等。
+* MONEY：货币表达式，如“五美元”、“100人民币”等。
+* PERCENT：百分比表达式，如“百分之五”、“20%”等。
+
+至此，我们讲解完了BERT模型。
+
+### BERT的影响
+
+从纯技术的角度来说，BERT没什么太大的创新，更像是把2018年前NLP领域重大进展的集大成者。但是，BERT效果非常好，在机器阅读理解顶级水平测试SQuAD1.1中，BERT模型的表现甚至超越了人类（详见论文）。对后面的发展产生了重大影响。
+在笔者看来，最主要的以下三方面的影响：
+
+1. **夯实预训练和微调的范式**：BERT模型的成功证明了预训练和微调的有效性。在预训练阶段，BERT模型在大规模无标签文本数据上进行训练，学习到丰富的语言表示。在微调阶段，BERT模型在特定任务的标注数据上进行训练，使得模型能够适应各种NLP任务。
+2. **推动了Transformer的广泛应用**：BERT模型基于Transformer架构，这种架构能够捕获文本中的长距离依赖关系，并且计算效率高。BERT模型的成功推动了Transformer架构在NLP领域的广泛应用，让Transformer取代RNN，占据主导地位。
+3. **促进了NLP领域的创新**：BERT开源并开放各种规格的模型下载成为了2018到几乎ChatGPT出现之前NLP领域研究的核心模型。BERT模型的出现引发了一系列的创新工作，包括对BERT模型的改进，以及模型轻量化技术。
 
 ## 小结
 
