@@ -1,15 +1,13 @@
 # 大语言模型：革命前夜
 
-## 聚焦NLP
-
-### 机器学习分岔路
-
 当我们拥有了神经网络后，自然而然地就想让计算机拥有人类的能力。由此，发展出两大方向：
 
 * 计算机视觉（CV，Computer Vision）, 像人一样，看世界。
 * 自然语言处理（NLP，Nature Language Process），像人一样，理解语言，并用语言交流。
 
 我们的目标是学习大语言模型（LLM），所以更加关注NLP的方向。
+
+## 聚焦NLP
 
 自然语言处理（NLP）是计算机科学、人工智能和语言学的交叉领域，主要研究如何让计算机能够理解、处理和生成人类语言。
 
@@ -20,7 +18,7 @@
 3. **句子关系判断**：例如句法分析、蕴含关系判断（entailment）,自然语言推理等。
 4. **生成式任务**：这类任务一般直接面向普通用户，提供自然语言处理产品服务的系统级任务，会用到多个层面的自然语言处理技术。例如机器翻译、文本摘要、总结、阅读理解、语音识别、对话系统、问答系统、自动文章分级等。
 
-第1，2点，我们也称为自然语言理解(NLU, Nature Language Understanding)，即理解人类语言。第3，4点，称为自然语言生成(NLG, Nature Language Generation)，用来处理和生成人类的语言。
+第1，2，3点，我们也称为自然语言理解(NLU, Nature Language Understanding)，即理解人类语言。第4点，称为自然语言生成(NLG, Nature Language Generation)，用来处理和生成人类的语言。
 
 ### NLP的难点
 
@@ -36,8 +34,7 @@
 1. 词表示法（Word Representation）
 2. 语言模型（Language Model）
 
-我会单独写一个章节来介绍词表示法，特别是其中的Word Embedding，从事NLP相关工作的工程师，建议弄清楚。
-关于词表示方法，其实就是把人类语言（Nature Language）表示成计算机认识的语言（数学）。这里，我们先记住一个结论。在2023年，文字都是表示为向量。而这一章节的重心，将放在讲解语言模型这部分内容。我们在介绍Transformer模型的时候，也会对这部分内容再做进一步的探讨。
+关于词表示方法，其实就是把人类语言（Nature Language）表示成计算机认识的语言（数学）。我会单独写一个章节来介绍词表示法，特别是其中的Word Embedding，从事NLP相关工作的工程师，建议把这个问题弄清楚。这里，我们先记住一个结论。在2023年，词都是表示为向量。而这一章节的重心，将放在讲解语言模型这部分内容。我们在介绍Transformer模型的时候，也会对这部分内容再做进一步的探讨。
 
 ## Transformer之前的网络模型
 
@@ -68,11 +65,11 @@ CBAPD，就是CNN网络5个重要步骤：
 
 ```python
 model = tf.keras.models.Sequential([
-Conv2D(filters=6, kernel\_size=(5,5), padding='same'),
-BatchNormalization(),
-Activation('relu'),
-MaxPool2D(pool\_size=(2,2), strides=2, padding='same'),
-Dropout(0.2),
+    Conv2D(filters=6, kernel\_size=(5,5), padding='same'),
+    BatchNormalization(),
+    Activation('relu'),
+    MaxPool2D(pool\_size=(2,2), strides=2, padding='same'),
+    Dropout(0.2),
 ])
 ```
 
@@ -84,7 +81,7 @@ Dropout(0.2),
 
 相比之下，RNN通过在网络中添加循环连接，可以记住过去的信息，从而能够处理序列数据。这使得RNN能够理解文本、音频、时间序列数据等的顺序信息，因此在许多任务中，如语音识别、自然语言处理、时间序列预测等，RNN都表现出了优越的性能。
 
-如何理解RNN呢？我们先把上面那个MLP图，做一下简化和旋转90度的变形，如下图所示：
+如何理解RNN呢？我们先把上面那个MLP图，做一下简化和逆时针旋转90度的变形，如下图所示：
 
 ![NN_RNN_1.svg](../images/NN_RNN_1.svg)
 
@@ -123,7 +120,7 @@ $$
 * 你可以将隐藏的状态$s_t$看作网络的记忆，它捕获有关所有先前时间步骤中发生的事件的信息。步骤输出$o_t$根据时间t的记忆计算。正如上面简要提到的，它在实践中有点复杂，因为$s_t$通常无法从太多时间步骤中捕获信息。
 * 与在每层使用不同参数的传统深度神经网络不同，RNN共享相同的参数（所有步骤的$U,V,W$）。这反映了我们在每个步骤执行相同任务的事实，只是使用不同的输入，这大大减少了我们需要学习的参数总数。
 
-上图在每个时间步都有输出，这种输入和输出数据项数一致的 RNN，一般叫做 N：N 的 RNN。但根据任务，这可能不是必需的。所以，RNN结构可以是不同的组合，下图是N：1型和1:N型的RNN。N:M型的，我们放在后续章节再讨论。
+上图在每个时间步都有输出，这种输入和输出数据项数一致的 RNN，一般叫做N：N的RNN。但根据任务，这可能不是必需的。所以，RNN结构可以是不同的组合，下图是N：1型和1:N型的RNN。N:M型的，我们放在后续章节再讨论。
 
 ![NN_RNN_5.svg](../images/NN_RNN_5.svg)
 
@@ -150,52 +147,52 @@ LSTM的设计者用三个门控，即遗忘门，输入门和输出门，来处�
 
 LSTM内部主要有三个阶段：
 
-1. 遗忘阶段。这个阶段主要是对上一个节点传进来的输入进行选择性遗忘。简单来说就是会 “遗忘不重要的，记住重要的”。具体来说是通过计算得到的 $Z_f$ （f表示forget）来作为遗忘门控，来控制上一个状态的 $c_{t-1}$ 哪些需要留哪些需要忘。
-2. 选择记忆阶段。这个阶段将这个阶段的输入有选择性地进行“记忆”。主要是会对输入 $x_t$ 进行选择记忆。哪些重要则着重记录下来，哪些不重要，则少记一些。当前的输入内容由前面计算得到的$Z$ 表示。而选择的门控信号则是由 $Z_i$ （i代表input）来进行控制。
-3. 输出阶段。这个阶段将决定哪些将会被当成当前状态的输出。主要是通过 $Z_o$(o代表output) 来进行控制的。并且还对上一阶段得到的 $c_t$ 进行了放缩（通过一个tanh激活函数进行变化）。与普通RNN类似，输出$o_t$往往最终也是通过$h_t$变化得到。
+1. **遗忘阶段**: 这个阶段主要是对上一个节点传进来的输入进行选择性遗忘。简单来说就是会 “遗忘不重要的，记住重要的”。具体来说是通过计算得到的$Z_f$（f表示forget）来作为遗忘门控，来控制上一个状态的$c_{t-1}$哪些需要留哪些需要忘。
+2. **选择记忆阶段**: 这个阶段将这个阶段的输入有选择性地进行“记忆”。主要是会对输入$x_t$进行选择记忆。哪些重要则着重记录下来，哪些不重要，则少记一些。当前的输入内容由前面计算得到的$Z$表示。而选择的门控信号则是由$Z_i$（i代表input）来进行控制。
+3. **输出阶段**: 这个阶段将决定哪些将会被当成当前状态的输出。主要是通过$Z_o$(o代表output) 来进行控制的。并且还对上一阶段得到的$c_t$进行了放缩（通过一个tanh激活函数进行变化）。与普通RNN类似，输出$o_t$往往最终也是通过$h_t$变化得到。
 
 现在我们用数学把这个过程表示出来，详细计算步骤如下:
 
-1. [遗忘阶段]计算遗忘门$Z_f$
+1. **遗忘阶段**: 计算遗忘门$Z_f$
    $$
    Z_f = \sigma(W_f[h_{t-1}, x_t]) = \sigma(W_{fh} \cdot h_{t-1} + W_{fx} \cdot x_{t} + b_f)
    $$
-2. [选择记忆阶段]计算输入门$Z_i$
+2. **选择记忆阶段**: 计算输入门$Z_i$
 
 $$
 Z_i = \sigma(W_i[h_{t-1}, x_t]) = \sigma(W_{ih} \cdot h_{t-1} + W_{ix} \cdot x_{t} + b_i)
 $$
 
-3. [选择记忆阶段]计算$Z$
+3. **选择记忆阶段**: 计算$Z$
 
 $$
 Z = tanh(W_z[h_{t-1}, x_t]) = tanh(W_{hz} \cdot h_{t-1} + W_{xz} \cdot x_t + b_z)
 $$
 
-4. [选择记忆阶段]计算输出$c_t$
-
+4. **选择记忆阶段**: 计算输出$c_t$
+   
    $$
    c_t = Z_f \odot c_{t-1} + Z_i \odot Z
    $$
-
+   
    Tips: $\odot$ 表示Hadamard Product，也就是操作矩阵中对应的元素相乘，因此要求两个相乘矩阵是同型的。
 5. [输出阶段]计算输出门$Z_o$
-
+   
    $$
    Z_o = \sigma(W_o[h_{t-1}, x_t]) = \sigma(W_{oh} \cdot h_{t-1} + W_{ox} \cdot x_{t} + b_o)
    $$
-6. [输出阶段]计算输出$h_t$
-
+6. **输出阶段**: 计算输出$h_t$
+   
    $$
    h_t = o_t \odot tanh(c_t)
    $$
-7. [输出阶段]计算输出$o_t$
-
+7. **输出阶段**: 计算输出$o_t$
+   
    $$
    o_t = \sigma(W_o[h_t])
    $$
 
-LSTM通过门控状态来控制传输状态，记住需要长时间记忆的，忘记不重要的信息；而不像普通的RNN那样只能够“呆萌”地仅有一种记忆叠加方式。对很多需要“长期记忆”的任务来说，尤其好用。但也因为引入了很多内容，导致参数变多，也使得训练难度加大了很多。因此很多时候我们往往会使用效果和LSTM相当但参数更少的GRU来构建大训练量的模型。我们的目标是学习LLM，这里对GRU不做深入探讨，请有兴趣的读者，自行学习一下GRU。
+LSTM通过门控状态来控制传输状态，记住需要长时间记忆的，忘记不重要的信息；而不像普通的RNN那样只能够“呆萌”地仅有一种记忆叠加方式。对很多需要“长期记忆”的任务来说，尤其好用。但也因为引入了很多内容，导致参数变多，也使得训练难度加大了很多。因此很多时候我们往往会使用效果和LSTM相当但参数更少的GRU来构建大训练量的模型。我们的目标是学习LLM，这里对GRU不做深入探讨，请有兴趣的读者，请自行学习一下GRU。
 
 ### Encoder-Decoder模型 （N:M型RNN）
 
@@ -324,9 +321,9 @@ $$
 以Deep Learning这个词组为例，我们给出了一个单头的自注意力机制的原理示意图。
 ![SelfAttention.svg](../images/SelfAttention.svg)
 
-* 向量$a$是Deep单词经过全连接层$W_a$得到的，向量$b$是Deep单词经过全连接层$W_b$得到的.
-* 向量$q_1, q_2$分别是向量$a,b$经过全连接层$W_q$得到的。同理可得向量$k_1,k_2,v_1,v_2$。
-* 向量$a’,b’$分别是向量$a,b$经过注意力汇聚后的结果。
+* $a$是Deep单词经过全连接层$W_a$得到的，$b$是Deep单词经过全连接层$W_b$得到的.
+* 向量$q_1, q_2$分别是$a,b$经过全连接层$W_q$得到的。同理可得向量$k_1,k_2,v_1,v_2$。
+* $a’,b’$分别是$a,b$经过注意力汇聚后的结果。
 
 ### 多头自注意力机制
 
@@ -345,7 +342,7 @@ Tips：如果对Input/Output Embedding有疑问，建议先跳过。我们在下
 该文的贡献主要在于提出了名为transformer的模型架构，并拓展了注意力机制的使用方法。具体来说：
 
 1. 提出了transformer架构，其中包含有多层堆叠的编码器(Encoder)和解码器(Decoder)。其中编码/解码器包含了多头注意力机制(Multi-Head attention)，层级归一化(Layer Norm)和残差结构(Residual)。
-2. 创新性地发展了注意力机制并提出了多头注意力机制，并以此取代了Encoder-Decoder结构中常用的递归层。传统的RNN对序列建模有一个无法避开的问题就是难以并行。为了捕捉长距离的序列依赖关系必须凭借上文处理后的信息从隐层逐级传递过来(也就是当前时序的结果 $O_t$ 取决于 $h_{t-1}$ 和 $x_t$ )，这样的结果就是上一个时序没有处理完下一个时序就无法处理。但是多头注意力机制可以直接捕捉全文信息，既建模了长距离的依赖关系，又方便并行运算的展开。
+2. 创新性地发展了注意力机制并提出了多头注意力机制，并以此取代了Encoder-Decoder结构中常用的递归层。传统的RNN对序列建模有一个无法避开的问题就是难以并行。为了捕捉长距离的序列依赖关系必须凭借上文处理后的信息从隐层逐级传递过来(也就是当前时序的结果$O_t$取决于$h_{t-1}$和$x_t$)，这样的结果就是上一个时序没有处理完下一个时序就无法处理。但是多头注意力机制可以直接捕捉全文信息，既建模了长距离的依赖关系，又方便并行运算的展开。
 3. 将长距离的依赖关系的操作复杂度(number of operations required)从线性关系(比如递归网络)或对数复杂度(卷积操作)降至了常数级别(通过固定的注意力机制)。这部分，我们就不具体讲了，有兴趣的同学请读一下原论文。
 
 ### Transformer模型架构图
@@ -385,7 +382,7 @@ Inputs是Transformers的开端。如果是处理NLP的问题，那么输入就�
 在网站(https://platform.openai.com/tokenizer)里输入，你想要分词的句子。
 
 > “My name is Carson. I would like to try GPT-4 Tokenizer.
->
+> 
 > 我的名字叫Carson。让我们来试试GPT-4 Tokenizer吧。"
 
 这就是分词后的结果。
@@ -502,7 +499,15 @@ Transformer模型中的Multi-Head Attention，其实就是我们前文讲解的�
 
 什么是归一化？举个例子，大家先体会一下归一化思想。
 
-读大学的时候，有一门课叫高等数学（微积分/数值分析），期末考试结束后，寝室里大家一片悲嚎——太难了，大题都不会，50分（满分为100分）都没有……要挂科了！
+读大学的时候，有一门课叫高等数学（微积分/数值分析），期末考试结束后，寝室里大家一片悲嚎——
+
+```
+“太难了，大题都不会！”
+“50分（满分为100分）都没有!"
+……
+"要挂科了！"
+```
+
 没过多久，卷面分数出来，全班100人，满分1人，80分以上3人，60分以上20人，30分以下4人…… 如果按照60分为及格线，意味着大部分人都不及格。任课老师决定把卷面成绩处理一下，希望大部分人的分数都能上60分，且成绩排名保持不变。于是乎，“著名”的归一化公式出现了：
 
 $$
@@ -517,18 +522,18 @@ $$
 **层归一化**（Layer Normalization）与Batch Normalization不同，Layer Normalization是在特征维度上进行标准化的，而不是在数据批次维度上。具体的计算过程如下：
 
 * 计算均值和方差。
-
+  
   * 均值公式：
     $$
     \mu = \frac{1}{D}\sum_{i=1}^Dx_i
     $$
   * 方差公式：
-
+  
   $$
   \sigma = \sqrt{\frac{1}{D}\sum_{i=1}^D(x_i - \mu)^2}
   $$
 * 进行归一化：通过均值和方差，可以得到归一化后的值, 公式：
-
+  
   $$
   \hat x = \frac{x - \mu}{\sqrt{\sigma^2 + \varepsilon}}
   $$
@@ -573,23 +578,10 @@ $$
 至此，我们已经讲解了Encoder各个模块，在原论文中，不论是Encoder还是Decoder，都有堆叠的6组，即Transformer架构图里的N的数目为6，如图所示：
 ![Transformer_Encoder.svg](../images/Transformer_Encoder.svg)
 
-### Transformer训练过程（Skip）
-
-在解释Transformer的训练过程时，我们将超越当前的理解，从未来的角度进行解释，以便更好地理解Transformer的训练方式：
-
-首先，在编码器中，用户的Prompt被转换为嵌入向量，然后我们在其中添加位置编码。编码器组处理数据并生成文本的数字表征。接下来，在解码器中，我们将期望的输出（我们希望模型回应的内容）会被加上一个特殊的标记，表示这是每条句子的第一个标记。比如像\<BOS\>（句子开头）这样的标记，但也可以是模型训练时使用的其他符号。这个输入（input）被转换为嵌入向量，并添加位置编码。解码器组接收这些向量，并与编码器的输出一起生成新的单词表征（word representation）。再将单词表征转换为概率分布（probability distribution），并从模型的整个数据集中选出概率最高的单词。最后，根据模型所选单词和模型期望的输出之间的差距计算损失函数。该损失函数可用于生成梯度（gradients），而这些梯度对于反向传播算法（一种根据各自对整体误差的贡献计算权重应如何变化的算法）非常重要。
-
-既然我们已经了解了总体流程，那么让我们来看看一个微小但重要的细节：我们使用的一种名为Teacher Forcing的技术。
-
 ### Decoder和Output
 
 在这个章节，我们来讨论一下Decoder和Output部分，如图所示：
 ![Transformer_Decoder.svg](../images/Transformer_Decoder.svg)
-
-我们先看一下Decoder的输入部分，有两个，一个比较好理解，就是Encoder的Output：$K,V$，另外一个是Outputs(shifted right)。这个理解起来有点费劲，我们一起来分析一下Outputs(shifted right)相关联的模块,如下图所示。
-![Transformer_MastedMultiHeadAttention.svg](../images/Transformer_MastedMultiHeadAttention.svg)
-Outputs Embedding和上文我们介绍Encoder的Inputs Embedding是一样的。Positional Encoding也和Encoder的Positional Encoding是一样的。最大的不同是Masked Multi-Head Attention部分。
-
 在Transformer模型中，Encoder传给Decoder的是K和V，这是因为在Decoder中有两个注意力模块：
 
 * 一个是自注意力模块，其Q、K、V的输入都来自Decoder上一层的输出。
@@ -600,6 +592,12 @@ Outputs Embedding和上文我们介绍Encoder的Inputs Embedding是一样的。P
 具体来说，当前位置的Decoder原隐藏状态$Q$会去询问Encoder每一个位置的隐藏状态$K$：“你是我生命中最重要的那个词吗？很重要是多重要？”每个$k$给出一个重要度，得到回答后，用Encoder的每个位置的隐藏状态$V$加权乘上其对该解码位置的重要度，得到当前位置的新隐藏状态。这样一来，当前位置的Decoder的隐藏状态表示，就集合了Encoder中所有位置的信息了。
 
 这种设计使得在Decoder的每个位置上，都能获得全局所有的信息。这也模仿了序列到序列模型中的典型Encoder-Decoder注意力机制。
+
+我们再来看一下Decoder的输入部分，有两个，一个比较好理解，就是Encoder的Output：$K,V$，另外一个是Outputs(shifted right)。这个理解起来有点费劲，我们一起来分析一下Outputs(shifted right)相关联的模块,如下图所示。
+![Transformer_MastedMultiHeadAttention.svg](../images/Transformer_MastedMultiHeadAttention.svg)
+Outputs Embedding和上文我们介绍Encoder的Inputs Embedding是一样的。Positional Encoding也和Encoder的Positional Encoding是一样的。最大的不同是Masked Multi-Head Attention部分。
+
+
 
 #### Masked Multi-Head Attention
 
@@ -630,7 +628,7 @@ $$
 其中，
 
 $$
-O_{n \times d_v}=\left[\begin{matrix}o_1\\o_2\\ \vdots \\o_3 \end{matrix}\right], A'_{n \times n}=\left[\begin{matrix}a'_{1,1}, a'_{2,1}, \cdots, a'_{n,1}\\ a'_{1,2}, a'_{2,2}, \cdots, a'_{n,2}\\ \vdots \\a'_{1,n}, a'_{2,n}, \cdots, a'_{n,n} \end{matrix}\right], V_{n \times d_v}=\left[\begin{matrix}v_1\\v_2\\ \vdots \\v_3 \end{matrix}\right]
+O_{n \times d_v}=\left[\begin{matrix}o_1\\o_2\\ \vdots \\o_n \end{matrix}\right], A'_{n \times n}=\left[\begin{matrix}a'_{1,1}, a'_{2,1}, \cdots, a'_{n,1}\\ a'_{1,2}, a'_{2,2}, \cdots, a'_{n,2}\\ \vdots \\a'_{1,n}, a'_{2,n}, \cdots, a'_{n,n} \end{matrix}\right], V_{n \times d_v}=\left[\begin{matrix}v_1\\v_2\\ \vdots \\v_n \end{matrix}\right]
 $$
 
 再结合上面这个例子，我们先忽略\<bos>, 直接从Round#2开始。
@@ -692,7 +690,7 @@ Transformer模型在自然语言处理中有许多优点：
 
 * Query指的是自主提示，即主观意识的特征向量。
 * Key指的是非自主提示，即物体的突出特征信息向量。
-* Value则是代表物体本省的特征向量。
+* Value则是代表物体本身的特征向量。
 
 举个更加生活化的例子，当你走进图书馆阅览室，目光自然而然的扫了一下在座的同学们（Query），一个“肤白貌美大长腿”的女生映入眼帘（Key），原来是校花小美啊（Value）！
 
@@ -709,3 +707,4 @@ https://towardsdatascience.com/simplifying-transformers-state-of-the-art-nlp-usi
 https://towardsdatascience.com/simplifying-transformers-state-of-the-art-nlp-using-words-you-understand-part-5-decoder-and-cd2810c6ad40
 https://blog.csdn.net/zhaohongfei_358/article/details/125858248
 https://www.mikecaptain.com/2023/01/22/captain-aigc-1-transformer/
+
