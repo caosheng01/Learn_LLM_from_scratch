@@ -173,24 +173,24 @@ Z = tanh(W_z[h_{t-1}, x_t]) = tanh(W_{hz} \cdot h_{t-1} + W_{xz} \cdot x_t + b_z
 $$
 
 4. [选择记忆阶段]计算输出$c_t$
-   
+
    $$
    c_t = Z_f \odot c_{t-1} + Z_i \odot Z
    $$
-   
+
    Tips: $\odot$ 表示Hadamard Product，也就是操作矩阵中对应的元素相乘，因此要求两个相乘矩阵是同型的。
 5. [输出阶段]计算输出门$Z_o$
-   
+
    $$
    Z_o = \sigma(W_o[h_{t-1}, x_t]) = \sigma(W_{oh} \cdot h_{t-1} + W_{ox} \cdot x_{t} + b_o)
    $$
 6. [输出阶段]计算输出$h_t$
-   
+
    $$
    h_t = o_t \odot tanh(c_t)
    $$
 7. [输出阶段]计算输出$o_t$
-   
+
    $$
    o_t = \sigma(W_o[h_t])
    $$
@@ -221,7 +221,7 @@ $$
 \end{aligned}
 $$
 
-这种的应用就非常广了，因为大多数时候输入序列与输出序列的长度都是不同的，比如最常见的应用「翻译」，从一个语言翻译成另一个语言；再比如 AI 的一个领域「语音识别」，将语音序列输入后生成所识别的文本内容；还有比如 ChatGPT 这种问答应用等等。
+这种的应用就非常广了，因为大多数时候输入序列与输出序列的长度都是不同的，比如最常见的应用"翻译"，从一个语言翻译成另一个语言；再比如AI的一个领域"语音识别"，将语音序列输入后生成所识别的文本内容；还有比如ChatGPT这种问答应用等等。
 
 Encoder-Decoder模型非常出色，一直到2018年之前NLP领域里该模型已成为主流。但是它有很显著的问题：
 
@@ -244,7 +244,7 @@ Encoder-Decoder模型非常出色，一直到2018年之前NLP领域里该模型�
 
 ![VisionAttention.webp](../images/VisionAttention.webp)
 
-上图形象化展示了人类在看到一副图像时是如何高效分配有限的注意力资源的，其中红色区域表明视觉系统更关注的目标，很明显对于图1所示的场景，人们会把注意力更多投入到人的脸部，文本的标题以及文章首句等位置。
+上图形象化展示了人类在看到一副图像时是如何高效分配有限的注意力资源的，其中红色区域表明视觉系统更关注的目标，很明显对于上图所示的场景，人们会把注意力更多投入到人的脸部，文本的标题以及文章首句等位置。
 
 深度学习中的注意力机制从本质上讲和人类的选择性视觉注意力机制类似，核心目标也是从众多信息中选择出对当前任务目标更关键的信息。
 
@@ -338,7 +338,7 @@ Tips：如果对Input/Output Embedding有疑问，建议先跳过。我们在下
 
 ## Transformer 模型
 
-这一章节，我们一起来读一读里程碑式的论文 Attention Is All You Need。理解了Transformer，就等同于拿到学习大语言模型（LLM）最重要的那把钥匙。
+这一章节，我们一起来读一读里程碑式的论文Attention Is All You Need。理解了Transformer，就等同于拿到学习大语言模型（LLM）最重要的那把钥匙。
 
 ### 解决了什么问题
 
@@ -362,7 +362,7 @@ Tips：如果对Input/Output Embedding有疑问，建议先跳过。我们在下
 
 ### Inputs
 
-Inputs是Transformers的开端。如果是处理NLP的问题，那么输入就是文本。当然也可以是图像，声音等信息。那么问题来了，如何让计算机理解并接受这些信息呢？我们需要用数学来统一表达这些信息。
+Inputs是Transformers的开端。如果是处理NLP的问题，那么输入就是文本。当然也可以是图像，声音等信息。那么问题来了，如何让计算机理解并接受这些信息呢？我们需要把文本用数学来统一表达，以便计算机能理解这些信息。
 
 #### Word Embedding
 
@@ -380,12 +380,12 @@ Inputs是Transformers的开端。如果是处理NLP的问题，那么输入就�
 
 我们来看一下第一步的数据预处理，这里提到了一个重要的概念分词(Tokenizer)。如果你还记得大学里《编译原理》或者看过Webkit之类框架源码，你可以在脑子里简单把这个概念划个等号，然后跳过下面讲解分词部分的内容。
 
-分词（Tokenizer）是将语料库（所有文本）转化为机器可以更好利用的较小部分的过程。对文本进行分词的开源的库有很多，让我们看看 OpenAI 的分词器是如何处理以下文本的：
+分词（Tokenizer）是将语料库（所有文本）转化为机器可以更好利用的较小部分的过程。对文本进行分词的开源的库有很多，让我们看看OpenAI的分词器是如何处理以下文本的：
 
 在网站(https://platform.openai.com/tokenizer)里输入，你想要分词的句子。
 
 > “My name is Carson. I would like to try GPT-4 Tokenizer.
-> 
+>
 > 我的名字叫Carson。让我们来试试GPT-4 Tokenizer吧。"
 
 这就是分词后的结果。
@@ -399,7 +399,7 @@ Inputs是Transformers的开端。如果是处理NLP的问题，那么输入就�
 
 处理完这一步，我们就把提取好的Token表示为数字了。人类语言中，各个词（word）在语境里彼此是有关联的。接下来我们就想办法在这些不同的Token之间建立联系，即根据这些词元（tokens）生成数值形式的语义表征（numeric, semantic representations）。
 
-第三步，我们选用Word2Vec模型，其主要思想是，采用数字向量（可以简单想象为一个普通的数组），这个向量的大小可以任意设置（比如，512），而这个向量应当代表一个词的语义含义。这样，我们就把一个词表示为一个向量/数组[-3.123456, 2.409875,...,-0.565768]。而这个数组实际上代表了这个单词的语义。
+第三步，我们选用Word2Vec模型，其主要思想是，采用数字向量（可以简单想象为一个普通的数组），这个向量的大小可以任意设置（比如，768），而这个向量应当代表一个词的语义含义。这样，我们就把一个词表示为一个向量/数组[-3.123456, 2.409875,...,-0.565768]。而这个数组实际上代表了这个单词的语义。
 
 第四步和第五步，我们通过大量的训练数据（语料）来训练这个模型，即调整这些数组的值。这些数组有个专业术语叫嵌入（Embeddings）。
 Tips:如果你更好的理解这部分内容，最好看一下附录中的余弦定理，补充一下相应的数学知识。
@@ -517,18 +517,18 @@ $$
 **层归一化**（Layer Normalization）与Batch Normalization不同，Layer Normalization是在特征维度上进行标准化的，而不是在数据批次维度上。具体的计算过程如下：
 
 * 计算均值和方差。
-  
+
   * 均值公式：
     $$
     \mu = \frac{1}{D}\sum_{i=1}^Dx_i
     $$
   * 方差公式：
-  
+
   $$
   \sigma = \sqrt{\frac{1}{D}\sum_{i=1}^D(x_i - \mu)^2}
   $$
 * 进行归一化：通过均值和方差，可以得到归一化后的值, 公式：
-  
+
   $$
   \hat x = \frac{x - \mu}{\sqrt{\sigma^2 + \varepsilon}}
   $$
@@ -709,4 +709,3 @@ https://towardsdatascience.com/simplifying-transformers-state-of-the-art-nlp-usi
 https://towardsdatascience.com/simplifying-transformers-state-of-the-art-nlp-using-words-you-understand-part-5-decoder-and-cd2810c6ad40
 https://blog.csdn.net/zhaohongfei_358/article/details/125858248
 https://www.mikecaptain.com/2023/01/22/captain-aigc-1-transformer/
-
