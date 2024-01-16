@@ -652,6 +652,63 @@ print(answer)
 2. **推动了Transformer的广泛应用**：BERT模型基于Transformer架构，这种架构能够捕获文本中的长距离依赖关系，并且计算效率高。BERT模型的成功推动了Transformer架构在NLP领域的广泛应用，让Transformer取代RNN，占据主导地位。
 3. **促进了NLP领域的创新**：BERT开源并开放各种规格的模型下载成为了2018到几乎ChatGPT出现之前NLP领域研究的核心模型。BERT模型的出现引发了一系列的创新工作，包括对BERT模型的改进，以及模型轻量化技术。
 
+## GPT
+
+2023年初，ChatGPT破圈后，惊醒了很多人，包括笔者本人，没想到大型语言模型效果能这么好；惊醒是我们对LLM的认知及发展理念，距离世界最先进的想法，差得有点远。
+技术领先或技术差距这事情，我觉得要动态地以发展的眼光来看。在Bert出现之后的一到两年间，其实国内在这块的技术追赶速度还是很快的，也提出了一些很好的改进模型，差距拉开的分水岭应该是在GPT-3出来之后，也就是2020年年中左右。在当时，其实只有很少的人觉察到：GPT-3它不仅仅是一项具体的技术，其实体现的是LLM应该往何处去的一个发展理念。自此之后，差距拉得越来越远，ChatGPT只是这种发展理念差异的一个自然结果。所以，如果单从技术角度看，差距主要来自于对LLM的认知以及未来应往何处去的发展理念的不同。
+
+2022年至2023年中，国内被国外技术甩得越来越远，这个是事实，不承认也不行。但放眼世界，具备这么超前眼光的也就OpenAI一家。包括Google在内的所有对手，明显都落后OpenAI一个身位。现实是OpenAI表现过于优秀，把所有人都甩开了，不仅仅是国内。当OpenAI推出ChatGPT时，Google重心在强化学习攻克游戏和AI for science（如AlphaFloder项目）。Meta重心也不在LLM上面。国内的语言模型研究重心在走BERT这条路上。所幸的是，2023年，国内追赶OpenAI的脚步猛然加速，差距正在缩小，而美国政府能做的，也仅仅是限制AI算力进入国内而已。
+
+> 为什么是OpenAI作出了ChatGPT，而不是其它机构呢？
+> 答案是：AGI
+
+OpenAI是怎么看待LLM的呢？回顾它不断推出的技术，可以看出，它其实从GPT 1.0开始，基本就坚定地把LLM看做是通往AGI的一条必由之路。具体而言，在OpenAI眼中，未来的AGI应该长这个样子：
+
+1. 有一个任务无关的超大型LLM，用来从海量数据中学习各种知识。
+2. 这个LLM以生成一切的方式，来解决各种各样的实际问题，而且它应该能听懂人类的命令，以便于人类使用。
+
+其实对LLM发展理念的理解，第1部分，几乎是大家的共识，能体现出OpenAI眼光的其实是第2部分。OpenAI的理念比较超前，对自我定位从一开始就定得比较高，始终坚定不移地探索上述方式是否可以实现AGI。OpenAI之所以能作出ChatGPT，胜在一个是定位比较高，另一个是不受外界干扰，态度上坚定不移。
+
+> 科学的重大进步，从不是通过一种直接的方式，而是一定要设立一个高度挑战性的目标，通过强大的动力促使技术革新，迫使科学家燃烧他们的想象力，使他们尽最大的可能完成他们的目标。
+
+正所谓，昨夜西风凋敝树，独上高楼，望尽天涯路，此第一境界也。
+
+### GPT出现的背景
+
+在介绍GPT（Generative Pre-trained Transformer）之前，我们时钟拨回到2017年底2018年初。在那个时间点，NLP邻域绝大多数的SOTA模型，都是针对特定类型任务进行监督学习训练得到的。显然，针对特定类型任务，就意味着**泛化能力差**；监督学习也意味着**标注成本非常高**。如果想让AI技术解决NLP邻域的问题，就必须解决这“两朵乌云”。
+
+Tips: SOTA是State of the Art的缩写，中文可以解释为“最前沿”。在机器学习中，SOTA通常用于表示当前研究领域中最先进、性能表现最好的模型或方法。它通常是经过大量实验验证和比较后得出的结果，被认为是在特定任务上所能达到的最佳性能。
+
+### GPT演进之路
+
+我们来整体看一下GPT的演进之路，在不到5年的时间里，OpenAI陆续发布了令人惊艳的5个版本，深深的震撼了整个业界。本文也将以这个5个重要版本来介绍GPT。
+
+![LLM_GPT_History.svg](../images/LLM_GPT_History.svg)
+
+### GPT-1
+
+2018年1月，Google继提出Transformer模型后，Google在文章《Generating Wikipedia by Summarizing Long Sequences》中提出了一种基于Transformer 改进，但只有 Decoder 架构的模型，也可以用于构建语言模型。Google在《Character-Level Language Modeling with Deeper Self-Attention》论文的工作中验证了用类似架构构建的语言模型可以逐一生成词。
+2018年6月，OpenAI发表《Improving Language Understanding with Unsupervised Learning》的文章提出了一种模型，该模型的打造方法包括**​生成式预训练（Generative Pre-training）​**和**​判别式微调（Discriminative Fine-tuning）​**两个关键阶段。后来，大家把2018年6月的这个版本叫做GPT-1。在该论文中证明，通过对未标记文本的不同语料库进行语言模型的生成性预训练，然后对每个特定任务进行判别式微调，可以实现这些任务上的巨大收益。和之前方法不同，GPT在微调期间使用任务感知输入转换，以实现有效的传输，同时对模型架构的更改最小。
+
+> 在NLU领域，GPT-1模型的核心手段就是把无监督预训练+有监督的微调结合形成了一种**自监督方法**。
+
+#### GPT-1架构
+
+
+
+
+### GPT-2
+
+### GPT-3
+
+### InstructGPT和ChatGPT
+
+### GPT-4
+
+### 为什么是OpenAI
+
+
+
 ## 小结
 
 科学的重大进步，从不是通过一种直接的方式，而是一定要设立一个高度挑战性的目标，通过强大的动力促使技术革新，迫使科学家燃烧他们的想象力，使他们尽最大的可能完成他们的目标，这就是为什么我们说，一定要把路脚放的更远一点。
@@ -664,4 +721,8 @@ https://nlp.stanford.edu/seminar/details/jdevlin.pdf
 https://www.mikecaptain.com/2023/03/06/captain-aigc-2-llm/
 http://www.evinchina.com/uploadfile/file/20230315/2023031509402407539.pdf
 https://developers.google.com/machine-learning/glossary/language
+https://zhuanlan.zhihu.com/p/597586623
+https://arxiv.org/abs/1801.10198
+https://arxiv.org/abs/1808.04444
+https://openai.com/blog/language-unsupervised/
 
