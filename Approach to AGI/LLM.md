@@ -15,7 +15,6 @@
 简单的说，回归就是处理**连续数据**，如**时间序列数据**时使用的技术。
 例子：过去几天的股价数据，如下表所示：
 
-
 | 日期  | 股价   |
 | ----- | ------ |
 | 昨天  | ￥1000 |
@@ -30,7 +29,6 @@
 
 例子：根据邮件内容，以及这封邮件是否属于垃圾邮件这些数据来进行学习。
 
-
 | 邮件内容                                   | 是否为垃圾邮件 |
 | ------------------------------------------ | -------------- |
 | 辛苦啦！下个周日我们去玩吧.....            | No             |
@@ -43,7 +41,6 @@
 
 聚类(也称“多分类”)与分类相似，又有不同。
 例子：假设在100名学生的学校进行摸底考试，然后根据考试成绩把100名学生分成几组，根据分组结果，我们能得出某组偏重理科、某组偏重文科这样有意义的结论。
-
 
 | 学生编号 | 英语分数 | 数学分数 | 语文分数 | 物理分数 |
 | -------- | -------- | -------- | -------- | -------- |
@@ -170,14 +167,14 @@ Tips: 我没有任何贬低监督学习的意思，相反在我眼里，瀑布�
 **初始阶段（Phrase#0）**：程序员张三为项目A开发了一个User service。虽然user svc出色的完成了任务，但该User Svc泛化性差，只能专门服务于项目A。
 
 * **Phrase#1** - 过了一段时间，项目B，有了一个类似的需求需要开发User Service。基于User Service的口碑，项目B的负责人决定复用（reuse）项目A的User Service。
-
+  
   * 步骤1：张三移除了原先User Service专门服务于项目A的代码，加入了拓展机制，使其能满足各个不同项目的需求。
   * 步骤2：项目组B的程序员李四，复用了新的User svc，并基于其拓展机制，实现了项目B的特殊需求，并部署在项目B中。这时，项目A和项目B里面各自都有一个User svc。
 
 Tips: User Service是一份代码（对应步骤1），两份部署（对应步骤2）。
 
 * **Phrase#2** - 又过了一段时间，项目C/D/E/...都有了类似的需求，各个项目基于User svc在项目A/B中的良好的口碑，都想用这个User Svc。
-
+  
   * 张三所在的公司决定把这个User Svc做成一个Common svc，部署在公司统一平台里。这时，全公司就一个User svc，供所有项目统一使用。
 
 Tips：User Service是一份代码，一份部署。
@@ -188,7 +185,7 @@ Tips：User Service是一份代码，一份部署。
 * 第一阶段叫**预训练（Pre-train）**, 解决问题的思路类似Phrase#1中的步骤1
 * 第二阶段叫**微调（Fine-tune）**，解决问题的思路类似Phrase#1中的步骤2
 
-这就是鼎鼎大名的两阶段训练法，正式名称叫**语言建模预训练-微调（Pre-train LM and Fine-tune）**。而第一阶段的产物，称之为**预训练模型（PTM, Pre-Train Model）**.
+这就是鼎鼎大名的两阶段训练法，正式名称叫**语言建模预训练-微调（Pre-train LM and Fine-tune）**。而第一阶段的产物，称之为**预训练模型（PTM, Pre-Train Model）**。笔者会在介绍GPT时，再次对两阶段训练方法进行深入探讨。
 
 借鉴Phrase#2的解决问题的思路，发展出了**上下文学习(ICL，In-Context Learning)**。这是更加牛逼的技术，我们后面还会遇到，届时再详细介绍。
 
@@ -217,11 +214,64 @@ Tips：User Service是一份代码，一份部署。
 
 ## 大语言模型
 
+### 语言模型，自回归语言模型(AR)和自编码语言模型(AE)
+
 语言模型（Language Model，LM）是自然语言处理领域的核心问题，它的任务是预测一个句子在语言中出现的概率。语言模型起源于语音识别，如今已经扩展到机器翻译、信息检索、问答、文摘等众多NLP领域。
 
 简单来说，语言模型是这样一个模型：对于任意的词序列，它能够计算出这个序列是一句话的概率。例如，词序列A：“张三|的|文章|真|水|啊”，这个明显是一句话，一个好的语言模型也会给出很高的概率，再看词序列B：“张三|的|睡觉|啤酒|好快”，这明显不是一句话，如果语言模型训练的好，那么序列B的概率就很小很小。
 
 更为正式的定义是，假设我们要为中文创建一个语言模型，V表示词典，V={猫,狗,机器,学习,语言,模型,...}，$w_ {i} \in V$ 。语言模型就是这样一个模型：给定词典V，能够计算出任意单词序列 $w_ {1},w_ {2},...,w_ {n}$ 是一句话的概率 $p (w_ {1},w_ {2},...,w_ {n})$ ，其中，$p\geq 0$。
+语言模型，直白点讲就是判断字符串是人话的概率，用数学公式表示就是：
+
+$$
+P(S) = P(w_1w_2w_3...w_n)\\
+其中，S表示一段字符串，w_i表示句子中的第i个字。
+$$
+
+这个公式的意思就是表示这一段字符串发生的概率等于每个字（word），即$w_1,w_2,...,w_n$，同时发生的概率。现在，我们做一个数学变形，引入条件概率。上述的公式可以改写为条件概率的积：
+
+$$
+P(S)=P(w_1|<s>)*P(w_2|w_1)*P(w_3|w_1w_2)*...*P(w_n|w_1w_2...w_{n-1})=\prod_{i=1}^{n}P(w_i|w_1w_2...w_{i-1}) \\
+其中，<s>表示w_1的上文。
+$$
+
+这个公式就非常有用了，如果模型能对任意长度的上文，计算下一个字出现的概率：$P(w_i|w_1w_2...w_{i-1})$ ，那么模型也就能计算整个句子的概率了。
+
+> 自回归语言模型（Autoregressive Language Model）就是要学习出一个模型，它能够对任意的上文，给出下一个字的条件概率。
+
+举个例子，理解一下上面这个结论。想利用AI做自然语言的生成，先要训练一个AI模型。这个过程需要有大量的语料来训练模型。现在，我们以“这句话是人话吗”为例，描述如何利用上面提到的条件概率公式，来训练这个模型：
+
+| Conditional Probality | Data         |
+| --------------------- | -------------- |
+| P(句\|这)             | 这？           |
+| P(话\|这句)           | 这句？         |
+| P(是\|这句是)         | 这句话？       |
+| P(人\|这句是)         | 这句话是？     |
+| P(话\|这句是人)       | 这句话是人？   |
+| P(吗\|这句是人话)     | 这句话是人话？ |
+
+通过大量的文本训练，我们得到了这个AI模型，接下来我们就要让这个AI模型能根据上文预测下一个位置出现字典各个字的概率，具备这个能力后模型就可以生成句子了。具体如下：
+
+| Input | Top 5 Tokens | Selected Token         | Output|
+| ----- | -------------- | -------------- | -------------- |
+| My name is Carson and my main            | goal:10.97%; interest:7.47%;hobby:7.18%;character:5.68%;interests:4.56% | interest | My name is Carson and my main interest |
+| My name is Carson and my main interest         | is:30%; in:12.91%;lies:0.91%;was:0.75%;are:0.43% | in| My name is Carson and my main interest in |
+| My name is Carson and my main interest in         | the:9.17%; this:6.06%;photography:6.04%;life:4.50%;computers:4.56% | life | My name is Carson and my main interest in life |
+| My name is Carson and my main interest in life        | is:90.59%; was:1.32%;has:1.22%;,:0.74%;and:0.71% | is| My name is Carson and my main interest in life is |
+| ...       | ...   | ...   |
+| My name is Carson and my main interest in life is to be an artist   | .:63.40%; and:9.24%; ,:7.97%;.":5.09%;,":1.64% | .| My name is Carson and my main interest in life is to be an artist.|
+
+上面是一个文本补全的示例，用的是gpt2-xl模型，可以看到补全后的句子很通顺。通过上述步骤可以知道了GPT生成文本的大致过程。同时也可以看到，生成答案需要不断循环执行，因此生成答案是一个很耗时的过程。在上面的示例中，可能有人会有疑问，每一步为何不选择概率最大的单词，主要有两点：
+
+1. 当前概率最大并不代表最终生成句子整体概率最大。
+2. 每次都选最大的，对于同样的输入，每次结果是确定的，缺乏多样性。比如，ChatGPT问同一个问题每次结果都不一样。
+
+上文解释了一个自回归语言模型（AR），其实，除了自回归语言模型，还有自编码语言模型（Autoencoding Language Model）这一类别，现在给出两者的解释。
+
+* **自回归语言模型**：是一种统计模型，用于生成文本。它基于序列数据的概率分布，通过建模当前词语与前面已生成词语的条件概率来预测下一个词语。这种模型是自左向右或自右向左的语言模型任务，即根据上文内容预测下一个可能的单词，或者根据下文预测前面的单词。典型的自回归语言模型有GPT和ELMo。从Transformer架构的角度理解的话，AE就是Transformer Encoder模型。
+* **自编码语言模型**：使用自编码神经网络进行训练，任务是使输出的句子尽量靠近输入的句子。在自编码语言模型中，一个典型的例子是BERT模型，它通过mask掉输入句子中的部分词语，然后让模型预测这些被mask掉的词语，从而实现对上下文语义的编码。从Transformer架构的角度理解的话，AR就是Transformer Decoder模型。
+
+自编码语言模型（AE）与自回归语言模型（AR）的主要区别在于，自编码语言模型可以同时利用上文和下文的信息进行预测，而自回归语言模型只能利用上文或下文的信息。这使得自编码语言模型在一些任务上，如问答、文本分类等，即NLU方面，可能表现得更好。自回归语言模型在生成类NLP任务，如文本摘要、机器翻译等,即NLG方面，表现出色。
 
 语言模型的发展先后经历了文法规则语言模型、统计语言模型、神经网络语言模型。其中，统计语言模型中最常用的是n-gram model，它引入了马尔可夫假设：当前词的出现概率仅与前 n-1个词有关。神经网络语言模型则基于深度学习架构，如转化器，这有助于它们在各种NLP任务上取得令人印象深刻的表现。
 
@@ -243,7 +293,7 @@ Tips：User Service是一份代码，一份部署。
 
 ![Transformer_Encoder_n_Decoder.svg](../images/Transformer_Encoder_n_Decoder.svg)
 
-总所周知，在Transformer模型的左面是Encoder，右边是Decoder。发生在2018年的三条线路之争，对的应产品就是：
+总所周知，在Transformer模型的左边是Encoder，右边是Decoder。发生在2018年的三条线路之争，对应产品就是：
 
 1. Decoder：OpenAI的GPT-1
 2. Encoder+Decoder：Google的T5
@@ -704,11 +754,15 @@ Tips: SOTA是State of the Art的缩写，中文可以解释为“最前沿”。
 ### GPT-1
 
 2018年1月，Google继提出Transformer模型后，Google在文章《Generating Wikipedia by Summarizing Long Sequences》中提出了一种基于Transformer 改进，但只有 Decoder 架构的模型，也可以用于构建语言模型。Google在《Character-Level Language Modeling with Deeper Self-Attention》论文的工作中验证了用类似架构构建的语言模型可以逐一生成词。
-2018年6月，OpenAI发表《Improving Language Understanding with Unsupervised Learning》的文章提出了一种模型，该模型的打造方法包括**生成式预训练（Generative Pre-training）**和**判别式微调（Discriminative Fine-tuning）**两个关键阶段。后来，大家把2018年6月的这个版本叫做GPT-1。在该论文中证明，通过对未标记文本的不同语料库进行语言模型的生成性预训练，然后对每个特定任务进行判别式微调，可以实现这些任务上的巨大收益。和之前方法不同，GPT在微调期间使用任务感知输入转换，以实现有效的传输，同时对模型架构的更改最小。
+2018年6月，OpenAI发表《Improving Language Understanding with Unsupervised Learning》的文章提出了一种模型，该模型的打造方法包括**生成式预训练（Generative Pre-training）**和**判别式微调（Discriminative Fine-tuning)** 两个关键阶段。后来，大家把2018年6月的这个版本叫做GPT-1。在该论文中证明，通过对未标记文本的不同语料库进行语言模型的生成性预训练，然后对每个特定任务进行判别式微调，可以实现这些任务上的巨大收益。和之前方法不同，GPT在微调期间使用任务感知输入转换，以实现有效的传输，同时对模型架构的更改最小。
 
 > 在NLU领域，GPT-1模型的核心手段就是把无监督预训练+有监督的微调结合形成了一种**自监督方法**。
 
-#### GPT-1架构
+Tips:GPT-1在时间点上要早于BERT发布的。本文为了知识的连贯性，把GPT的相关内容放在了一起，也就是先介绍BERT然后再写GPT-1.
+
+#### GPT-1的架构
+
+#### GPT-1的无监督预训练
 
 ### GPT-2
 
@@ -736,3 +790,7 @@ https://zhuanlan.zhihu.com/p/597586623
 https://arxiv.org/abs/1801.10198
 https://arxiv.org/abs/1808.04444
 https://openai.com/blog/language-unsupervised/
+https://zhuanlan.zhihu.com/p/613735101
+https://link.zhihu.com/?target=https%3A//huggingface.co/gpt2-xl
+
+
