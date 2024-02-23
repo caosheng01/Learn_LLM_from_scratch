@@ -255,11 +255,11 @@ $$
 | Input | Top 5 Tokens | Selected Token         | Output|
 | ----- | -------------- | -------------- | -------------- |
 | My name is Carson and my main            | goal:10.97%; interest:7.47%;hobby:7.18%;character:5.68%;interests:4.56% | interest | My name is Carson and my main interest |
-| My name is Carson and my main interest         | is:30%; in:12.91%;lies:0.91%;was:0.75%;are:0.43% | in| My name is Carson and my main interest in |
-| My name is Carson and my main interest in         | the:9.17%; this:6.06%;photography:6.04%;life:4.50%;computers:4.56% | life | My name is Carson and my main interest in life |
-| My name is Carson and my main interest in life        | is:90.59%; was:1.32%;has:1.22%;,:0.74%;and:0.71% | is| My name is Carson and my main interest in life is |
+| My name is Carson and my main interest         | is:30%; in:12.91%;lies:0.91%; was:0.75%; are:0.43% | in| My name is Carson and my main interest in |
+| My name is Carson and my main interest in         | the:9.17%; this:6.06%; photography:6.04%; life:4.50%;c omputers:4.56% | life | My name is Carson and my main interest in life |
+| My name is Carson and my main interest in life        | is:90.59%; was:1.32%; has:1.22%; ,:0.74%; and:0.71% | is| My name is Carson and my main interest in life is |
 | ...       | ...   | ...   |
-| My name is Carson and my main interest in life is to be an artist   | .:63.40%; and:9.24%; ,:7.97%;.":5.09%;,":1.64% | .| My name is Carson and my main interest in life is to be an artist.|
+| My name is Carson and my main interest in life is to be an artist   | .:63.40%; and:9.24%; ,:7.97%; .":5.09%; ,":1.64% | .| My name is Carson and my main interest in life is to be an artist.|
 
 上面是一个文本补全的示例，用的是gpt2-xl模型，可以看到补全后的句子很通顺。通过上述步骤可以知道了GPT生成文本的大致过程。同时也可以看到，生成答案需要不断循环执行，因此生成答案是一个很耗时的过程。在上面的示例中，可能有人会有疑问，每一步为何不选择概率最大的单词，主要有两点：
 
@@ -762,7 +762,10 @@ Tips:GPT-1在时间点上要早于BERT发布的。本文为了知识的连贯性
 
 #### GPT-1的架构
 
-#### GPT-1的无监督预训练
+#### GPT-1的两阶段训练
+
+1. 第一阶段：无监督预训练（Unsupervised Pre-training）
+2. 第二阶段：监督微调（Supervised Fine-Tuning，SFT
 
 ### GPT-2
 
@@ -792,5 +795,4 @@ https://arxiv.org/abs/1808.04444
 https://openai.com/blog/language-unsupervised/
 https://zhuanlan.zhihu.com/p/613735101
 https://link.zhihu.com/?target=https%3A//huggingface.co/gpt2-xl
-
 
