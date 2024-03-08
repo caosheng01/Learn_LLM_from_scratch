@@ -241,7 +241,7 @@ $$
 
 举个例子，理解一下上面这个结论。想利用AI做自然语言的生成，先要训练一个AI模型。这个过程需要有大量的语料来训练模型。现在，我们以“这句话是人话吗”为例，描述如何利用上面提到的条件概率公式，来训练这个模型：
 
-| Conditional Probality | Data         |
+| Conditional Probality | Data           |
 | --------------------- | -------------- |
 | P(句\|这)             | 这？           |
 | P(话\|这句)           | 这句？         |
@@ -252,14 +252,14 @@ $$
 
 通过大量的文本训练，我们得到了这个AI模型，接下来我们就要让这个AI模型能根据上文预测下一个位置出现字典各个字的概率，具备这个能力后模型就可以生成句子了。具体如下：
 
-| Input | Top 5 Tokens | Selected Token         | Output|
-| ----- | -------------- | -------------- | -------------- |
-| My name is Carson and my main            | goal:10.97%; interest:7.47%;hobby:7.18%;character:5.68%;interests:4.56% | interest | My name is Carson and my main interest |
-| My name is Carson and my main interest         | is:30%; in:12.91%;lies:0.91%; was:0.75%; are:0.43% | in| My name is Carson and my main interest in |
-| My name is Carson and my main interest in         | the:9.17%; this:6.06%; photography:6.04%; life:4.50%;c omputers:4.56% | life | My name is Carson and my main interest in life |
-| My name is Carson and my main interest in life        | is:90.59%; was:1.32%; has:1.22%; ,:0.74%; and:0.71% | is| My name is Carson and my main interest in life is |
-| ...       | ...   | ...   |
-| My name is Carson and my main interest in life is to be an artist   | .:63.40%; and:9.24%; ,:7.97%; .":5.09%; ,":1.64% | .| My name is Carson and my main interest in life is to be an artist.|
+| Input                                                             | Top 5 Tokens                                                            | Selected Token | Output                                                             |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------ |
+| My name is Carson and my main                                     | goal:10.97%; interest:7.47%;hobby:7.18%;character:5.68%;interests:4.56% | interest       | My name is Carson and my main interest                             |
+| My name is Carson and my main interest                            | is:30%; in:12.91%;lies:0.91%; was:0.75%; are:0.43%                      | in             | My name is Carson and my main interest in                          |
+| My name is Carson and my main interest in                         | the:9.17%; this:6.06%; photography:6.04%; life:4.50%;c omputers:4.56%   | life           | My name is Carson and my main interest in life                     |
+| My name is Carson and my main interest in life                    | is:90.59%; was:1.32%; has:1.22%; ,:0.74%; and:0.71%                     | is             | My name is Carson and my main interest in life is                  |
+| ...                                                               | ...                                                                     | ...            |                                                                    |
+| My name is Carson and my main interest in life is to be an artist | .:63.40%; and:9.24%; ,:7.97%; .":5.09%; ,":1.64%                        | .              | My name is Carson and my main interest in life is to be an artist. |
 
 上面是一个文本补全的示例，用的是gpt2-xl模型，可以看到补全后的句子很通顺。通过上述步骤可以知道了GPT生成文本的大致过程。同时也可以看到，生成答案需要不断循环执行，因此生成答案是一个很耗时的过程。在上面的示例中，可能有人会有疑问，每一步为何不选择概率最大的单词，主要有两点：
 
@@ -907,11 +907,11 @@ Tips：在学习GPT-2时，经常会碰到Zero-shot这个概念，也经常和On
 
 相比GPT-2在训练方式上的突破，其在架构上的改进就不值一提了。不作为重点内容，仅仅简单的介绍一下：
 
-* ​**增加了网络参数**​：GPT-2显著增加了模型参数量，通过增加Transformer堆叠的层数（$n_{layers}$，也称**模型深度**）达到48层和词向量的维度（$d_{model}$，也称**模型宽度**）为1600，模型参数量（$n_{params}$）达到了惊人的1.5B，这使得模型能够更好地捕获语言的复杂性和丰富性。
-* ​**调整了Transformer**​：GPT-2对Transformer结构进行了调整，将Layer Normalization移动到每个Sub-block之前，并在最后一个Self-attention之后增加了一个额外的Layer Normalization。这种调整有助于提高模型的稳定性和性能。
-* **扩大了词汇表**​：GPT-2将词汇表的数量增加到50257个，这使得模型能够处理更多的词汇和短语。
-* ​**提高了上下文大小**​：GPT-2的最大上下文大小从GPT-1的512提高到了1024 tokens，这使得模型能够更好地理解和生成长句子和段落。
-* ​**增加了Batch Size**​：GPT-2的Batch Size增加到512，这有助于加速模型的训练过程并提高训练效果。
+* **增加了网络参数**：GPT-2显著增加了模型参数量，通过增加Transformer堆叠的层数（$n_{layers}$，也称**模型深度**）达到48层和词向量的维度（$d_{model}$，也称**模型宽度**）为1600，模型参数量（$n_{params}$）达到了惊人的1.5B，这使得模型能够更好地捕获语言的复杂性和丰富性。
+* **调整了Transformer**：GPT-2对Transformer结构进行了调整，将Layer Normalization移动到每个Sub-block之前，并在最后一个Self-attention之后增加了一个额外的Layer Normalization。这种调整有助于提高模型的稳定性和性能。
+* **扩大了词汇表**：GPT-2将词汇表的数量增加到50257个，这使得模型能够处理更多的词汇和短语。
+* **提高了上下文大小**：GPT-2的最大上下文大小从GPT-1的512提高到了1024 tokens，这使得模型能够更好地理解和生成长句子和段落。
+* **增加了Batch Size**：GPT-2的Batch Size增加到512，这有助于加速模型的训练过程并提高训练效果。
 
 #### 开启LLM军备竞赛
 
@@ -958,9 +958,28 @@ Few-Shot Learning的目标是让模型只需要少量样本就能快速学习新
 
 * Zero-Shot在推理过程中，不会给模型任何演示，只会提供对任务的自然语言描述。这个方法非常便利、鲁棒性强、避免了预训练-微调的虚假相关性，但着实是一个极具挑战的任务。在不给任何例子的情况下，人类可能都很难理解某些任务的形式，更何况模型。结合上图，我们在提示词（Prompt）里，直接让模型给出cheese，对应的法文单词。
 * One-Shot在推理过程中，只会给模型一个演示，其余同Few-Shot相同。结合上图，我们先给出了一个例子（example），即sea otter => loutre de mer。然后，让模型给出chesse对应的法文。
-* Few-Shot指的是在推理过程中，给模型一些任务演示。比如在英译法的任务中，会给出K个上下文和补全的示例，期待模型在给出类似的上下文时，对结果进行补全。Few-shot的最主要优点就是大大减少了对特定任务数据的需求，降低了从大且窄的微调数据集中学习到一个过窄分布的可能性。缺点就是，这个方法仍然远远落后于目前最先进的fine-tune模型。结合上图，我们先给出了3个例子（examples）。然后，让模型给出chesse对应的法文。从最终结果来看，用Few-Shot方法得到的答案要明显优于Zero-Shot和One-Shot。在易用方面也远远强于fine-tuning，还催生了Promt Engineering这一行业。
+* Few-Shot指的是在推理过程中，给模型一些任务演示。比如在英译法的任务中，会给出K个上下文和补全的示例，期待模型在给出类似的上下文时，对结果进行补全。Few-shot的最主要优点就是大大减少了对特定任务数据的需求，降低了从大且窄的微调数据集中学习到一个过窄分布的可能性。缺点就是，这个方法仍然落后于目前最先进的fine-tune模型。结合上图，我们先给出了3个例子（examples）。然后，让模型给出cheese对应的法文。从最终结果来看，用Few-Shot方法得到的答案要明显优于Zero-Shot和One-Shot。在易用方面也远远强于fine-tuning，还催生了Promt Engineering这一行业。
 
 细心的读者，可能记得笔者在前面章节举了一个例子，如何把一个普通项目级别的User svc变成一个强大的平台级别的通用User Svc的做法。现在我们再一次回到这个例子，体会一下ICL和Fine-tuning的区别。
+
+* **Phrase#0**：程序员张三为项目A开发了一个User service。虽然user svc出色的完成了任务，但该User Svc泛化性差，只能专门服务于项目A。
+
+* **Phrase#1** - 过了一段时间，项目B，有了一个类似的需求需要开发User Service。基于User Service的口碑，项目B的负责人决定复用（reuse）项目A的User Service。
+  
+  * 步骤1：张三移除了原先User Service专门服务于项目A的代码，加入了拓展机制，使其能满足各个不同项目的需求。
+  * 步骤2：项目组B的程序员李四，复用了新的User svc，并基于其拓展机制，实现了项目B的特殊需求，并部署在项目B中。这时，项目A和项目B里面各自都有一个User svc。
+
+Tips: User Service是一份代码（对应步骤1），两份部署（对应步骤2）。
+
+* **Phrase#2** - 又过了一段时间，项目C/D/E/...都有了类似的需求，各个项目基于User svc在项目A/B中的良好的口碑，都想用这个User Svc。
+  
+  * 张三所在的公司决定把这个User Svc做成一个Common svc，部署在公司统一平台里。这时，全公司就一个User svc，供所有项目统一使用。
+
+Tips：User Service是一份代码，一份部署。
+
+如果在实际项目中使用Phrase#2中的User Svc，我们经常会发现不能用一个API/Endpoint，搞定一个业务功能。需要使用调用User svc多个API来组合使用，来解决业务需求。举个例子，App里有个页面要显示用户信息（User Profile），包含用户基本信息，头像，收件地址等。以为User svc是给全公司用的，需要设计时考虑通用性。一般说，这种功能就需要调用3个API来完成。这个过程，就类似于Few-Shot。User svc没有任何改动，通过使用者的调用不同API来完成期望的结果。使用者调用不同API的行为，其实类似于提示词工程（Prompt Engineering）。
+如果，你想一个API搞定这个功能。那么，你只能自己开发一个符合你项目需求的user svc，并部署在你的项目里了。这样做，在中小项目中，实际效果也要优于使用公用的User svc。缺点就是工程代价要大，并且后期维护成本大，特别是加入新功能或者项目变得越来越大的时候。
+而自己开发一个User svc，这个步骤，就类似于Fine-tuning。对比ICL，优缺点也是一样的，即工程代价大，且当模型越大越力不从心。
 
 #### GPT-3 小结
 
