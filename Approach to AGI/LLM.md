@@ -963,7 +963,6 @@ Few-Shot Learning的目标是让模型只需要少量样本就能快速学习新
 细心的读者，可能记得笔者在前面章节举了一个例子，如何把一个普通项目级别的User svc变成一个强大的平台级别的通用User Svc的做法。现在我们再一次回到这个例子，体会一下ICL和Fine-tuning的区别。
 
 * **Phrase#0**：程序员张三为项目A开发了一个User service。虽然user svc出色的完成了任务，但该User Svc泛化性差，只能专门服务于项目A。
-
 * **Phrase#1** - 过了一段时间，项目B，有了一个类似的需求需要开发User Service。基于User Service的口碑，项目B的负责人决定复用（reuse）项目A的User Service。
   
   * 步骤1：张三移除了原先User Service专门服务于项目A的代码，加入了拓展机制，使其能满足各个不同项目的需求。
@@ -1000,6 +999,37 @@ GPT-3相比于GPT-2，在多个方面进行了重要的改进和提升：
 
 ### InstructGPT和ChatGPT
 
+上文提到GPT-3会生成一些带有偏见的、不真实的、有害的、甚至具有负面社会影响的信息，且多数时候，GPT-3并不会按照人们的意图去生成信息（不遵循用户指令）。OpenAI提出了“Align”的概念，即让模型的输出与人类的价值观“对齐”，符合人类的偏好。我们一起来看一下InstructGPT的原始论文：[training language models to follow instructions with human feedback](https://arxiv.org/abs/2203.02155)。从论文题目上看，得知InstructGPT的主要工作是在训练语言模型上，用的方法是让LM遵循人类的指令（follow instructions），而这些指令是基于人工反馈的（human feedback）。在展开介绍InstructGPT技术前，我们先简单的看介绍一下人类是如何对LM定义“价值观”的，即“3H”原则：
+
+1. Helpful （有帮助的）
+2. Honest （诚实的）
+3. Harmless（无害的）
+
+InstructGPT是如何实现上述目标的呢？主要是使用来自人类反馈的强化学习（RLHF），即利用人类的偏好作为奖励信号，对GPT-3进行微调。原论文里的配图很好的说明整个过程。
+
+![InstructGPT_RLHF.png](../images/InstructGPT_RLHF.png)
+
+具体实现步骤如下：
+
+**​第一步：收集示范数据，训练有监督策略。​**雇用40个外包人员标注数据；根据prompts（提示），人类会撰写一系列demonstrations（演示）作为模型的期望输出（主要是英文）；**使用这部分数据集对预训练的GPT-3进行监督微调（监督学习基线）。**
+
+**​第二步：收集比较数据，训练奖励模型。​**上述模型会产生一系列输出，标注者（labelers）会对这些输出进行比较和排序（由好到坏）。基于这个数据集，**训练一个奖励模型（RM），以预测标注者更喜欢哪个输出。**
+
+**​第三步：使用PPO针对奖励模型优化策略。​**使用第二步的RM作为奖励函数，微调第一步的监督学习baseline，使用PPO算法最大化奖励。
+
+步骤2和步骤3可以连续迭代。在当前最佳策略上，收集更多的比较数据，用来训练RM模型和新策略。在实践中，大多数比较数据源于监督策略，部分来自于PPO策略。这些步骤会将GPT-3的行为与一部分特定人群（主要是labelers和researchers）的偏好进行align，仅代表了这群人的偏好，并不代表“人类”偏好。这就是InstructGPT模型。
+
+Tip: 第一步涉及ICT的相关知识，现成发张出Prompt Engineering（提示词工程）；第二和第三步，涉及强化学习（Reinforcement Learning）中的PPO（Proximal Policy Optimization）算法知识。如果读者不明白，先跳过，笔者在后续章节中，单独开章节详细讲。
+
+方法论有了，我们开始着手解决工程问题。我们IT从业者知道，在大项目中引入一项新的技术并且对原来架构有一定冲击的，要慎重。常见的方法就是：先做PoC（Proof of Concept）+评估/改进，然后小规模实践+评估/改进，最后做大规模推广。从GPT-3到InstructGPT，再到ChatGPT的过程就是遵循这个经典的工程学实践。
+
+* 这也就解释了，为什么对比GPT-3(175B参数），相同模型结构的InstructGPT(1.3B参数）要小的多。正式对应上述方法论中的前两步骤，从PoC到小规模实践。
+* 其实，ChatGPT和InstructGPT是一对孪生兄弟，它们在模型结构和训练方式上都完全一致，核心思想在于使用指示学习（Instruction Learning）和人工反馈的强化学习（Reinforcement Learning from Human Feedback，RLHF）来指导模型的训练。​ChatGPT沿用了InstructGPT，数据量大了好几个量级。对应于上述方法论的最后一步，即大规模推广。
+
+下面，我们来学习最难的部分，强化学习。
+
+#### RLHF
+
 ### GPT-4
 
 ### 为什么是OpenAI
@@ -1010,19 +1040,20 @@ GPT-3相比于GPT-2，在多个方面进行了重要的改进和提升：
 
 ## Reference
 
-https://arxiv.org/abs/1810.04805
+[BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding](https://arxiv.org/abs/1810.04805)
 https://www.cs.princeton.edu/courses/archive/fall22/cos597G/lectures/lec02.pdf
 https://nlp.stanford.edu/seminar/details/jdevlin.pdf
 https://www.mikecaptain.com/2023/03/06/captain-aigc-2-llm/
 http://www.evinchina.com/uploadfile/file/20230315/2023031509402407539.pdf
 https://developers.google.com/machine-learning/glossary/language
 https://zhuanlan.zhihu.com/p/597586623
-https://arxiv.org/abs/1801.10198
-https://arxiv.org/abs/1808.04444
+[Generating Wikipedia by Summarizing Long Sequences](https://arxiv.org/abs/1801.10198)
+[Character-Level Language Modeling with Deeper Self-Attention](https://arxiv.org/abs/1808.04444)
 https://openai.com/blog/language-unsupervised/
 https://zhuanlan.zhihu.com/p/613735101
 https://zhuanlan.zhihu.com/p/626494749
 https://huggingface.co/openai-community/gpt2-xl
-https://www.mikecaptain.com/2023/03/06/captain-aigc-2-llm/
-[《Language Models are Few-Shot Learners》](https://arxiv.org/abs/2005.14165)
+[Language Models are Few-Shot Learners](https://arxiv.org/abs/2005.14165)
+[training language models to follow instructions with human feedback](https://arxiv.org/abs/2203.02155)
+https://zhuanlan.zhihu.com/p/627312306
 
