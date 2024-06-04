@@ -1019,41 +1019,35 @@ InstructGPT是如何实现上述目标的呢？主要是使用来自人类反馈
 
 步骤2和步骤3可以连续迭代。在当前最佳策略上，收集更多的比较数据，用来训练RM模型和新策略。在实践中，大多数比较数据源于监督策略，部分来自于PPO策略。这些步骤会将GPT-3的行为与一部分特定人群（主要是labelers和researchers）的偏好进行align，仅代表了这群人的偏好，并不代表“人类”偏好。这就是InstructGPT模型。
 
-Tip: 第一步涉及ICT的相关知识，现成发张出Prompt Engineering（提示词工程）；第二和第三步，涉及强化学习（Reinforcement Learning）中的PPO（Proximal Policy Optimization）算法知识。如果读者不明白，先跳过，笔者在后续章节中，单独开章节详细讲。
+Tip: 第一步涉及ICT的相关知识，现成发展出Prompt Engineering（提示词工程）；第二和第三步，涉及强化学习（Reinforcement Learning）中的PPO（Proximal Policy Optimization）算法知识。如果读者不明白，先跳过，笔者在后续章节中，单独开章节详细讲。
 
 方法论有了，我们开始着手解决工程问题。我们IT从业者知道，在大项目中引入一项新的技术并且对原来架构有一定冲击的，要慎重。常见的方法就是：先做PoC（Proof of Concept）+评估/改进，然后小规模实践+评估/改进，最后做大规模推广。从GPT-3到InstructGPT，再到ChatGPT的过程就是遵循这个经典的工程学实践。
 
 * 这也就解释了，为什么对比GPT-3(175B参数），相同模型结构的InstructGPT(1.3B参数）要小的多。正式对应上述方法论中的前两步骤，从PoC到小规模实践。
 * 其实，ChatGPT和InstructGPT是一对孪生兄弟，它们在模型结构和训练方式上都完全一致，核心思想在于使用指示学习（Instruction Learning）和人工反馈的强化学习（Reinforcement Learning from Human Feedback，RLHF）来指导模型的训练。​ChatGPT沿用了InstructGPT，数据量大了好几个量级。对应于上述方法论的最后一步，即大规模推广。
 
-下面，我们来学习最难的部分，强化学习。
+思考良久，决定先结束这一系列《从零开始学习LLM》文章。笔者发现自己很难在一个非常有限的篇幅里要讲明白RLFH，我计划单独开一个篇文章讲一下强化学习。
 
-#### RLHF
+## 后记
 
-### GPT-4
+学习本身就是一种修行，先恭喜各位，能坚持看到这里，我们先给自己鼓鼓掌。笔者可能要有一段较长的时间断更了，一来知识储备不够了，二来工作非常忙，AI邻域太卷了，每个人都是全力付出，作为其中的一份子，我也需要竭尽全力。等手头各个项目有阶段性成果后，我会继续后续的章节，会把前期留下的坑都填上。
 
-### 为什么是OpenAI
-
-## 小结
-
-科学的重大进步，从不是通过一种直接的方式，而是一定要设立一个高度挑战性的目标，通过强大的动力促使技术革新，迫使科学家燃烧他们的想象力，使他们尽最大的可能完成他们的目标，这就是为什么我们说，一定要把路脚放的更远一点。
+最后，送上一段文字与君共勉：科学的重大进步，从不是通过一种直接的方式，而是一定要设立一个高度挑战性的目标，通过强大的动力促使技术革新，迫使科学家燃烧他们的想象力，使他们尽最大的可能完成他们的目标，这就是为什么我们说，一定要把路脚放的更远一点。
 
 ## Reference
 
 [BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding](https://arxiv.org/abs/1810.04805)
-https://www.cs.princeton.edu/courses/archive/fall22/cos597G/lectures/lec02.pdf
-https://nlp.stanford.edu/seminar/details/jdevlin.pdf
-https://www.mikecaptain.com/2023/03/06/captain-aigc-2-llm/
-http://www.evinchina.com/uploadfile/file/20230315/2023031509402407539.pdf
-https://developers.google.com/machine-learning/glossary/language
-https://zhuanlan.zhihu.com/p/597586623
+[COS 597G: Understanding Large Language Models](https://www.cs.princeton.edu/courses/archive/fall22/cos597G/lectures/lec02.pdf)
+[BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding](https://nlp.stanford.edu/seminar/details/jdevlin.pdf)
+[人工智能LLM革命破晓：一文读懂当下超大语言模型发展现状](https://www.mikecaptain.com/2023/03/06/captain-aigc-2-llm/)
+[ChatGPT研究框架（2023）](http://www.evinchina.com/uploadfile/file/20230315/2023031509402407539.pdf)
+[通向AGI之路：大型语言模型（LLM）技术精要](https://zhuanlan.zhihu.com/p/597586623)
 [Generating Wikipedia by Summarizing Long Sequences](https://arxiv.org/abs/1801.10198)
 [Character-Level Language Modeling with Deeper Self-Attention](https://arxiv.org/abs/1808.04444)
-https://openai.com/blog/language-unsupervised/
-https://zhuanlan.zhihu.com/p/613735101
-https://zhuanlan.zhihu.com/p/626494749
-https://huggingface.co/openai-community/gpt2-xl
+[Improving language understanding with unsupervised learning](https://openai.com/blog/language-unsupervised/)
+[ChatGPT原理详解](https://zhuanlan.zhihu.com/p/613735101)
+[[万字长文]ChatGPT系列论文精读——大模型经典论文GPT1、GPT2、GPT3](https://zhuanlan.zhihu.com/p/626494749)
 [Language Models are Few-Shot Learners](https://arxiv.org/abs/2005.14165)
 [training language models to follow instructions with human feedback](https://arxiv.org/abs/2203.02155)
-https://zhuanlan.zhihu.com/p/627312306
+[InstructGPT论文精读——ChatGPT前身，从人类反馈中学习](https://zhuanlan.zhihu.com/p/627312306)
 

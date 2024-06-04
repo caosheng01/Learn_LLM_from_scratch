@@ -176,24 +176,24 @@ Z = tanh(W_z[h_{t-1}, x_t]) = tanh(W_{hz} \cdot h_{t-1} + W_{xz} \cdot x_t + b_z
 $$
 
 4. **选择记忆阶段**: 计算输出$c_t$
-
+   
    $$
    c_t = Z_f \odot c_{t-1} + Z_i \odot Z
    $$
-
+   
    Tips: $\odot$ 表示Hadamard Product，也就是操作矩阵中对应的元素相乘，因此要求两个相乘矩阵是同型的。
 5. [输出阶段]计算输出门$Z_o$
-
+   
    $$
    Z_o = \sigma(W_o[h_{t-1}, x_t]) = \sigma(W_{oh} \cdot h_{t-1} + W_{ox} \cdot x_{t} + b_o)
    $$
 6. **输出阶段**: 计算输出$h_t$
-
+   
    $$
    h_t = o_t \odot tanh(c_t)
    $$
 7. **输出阶段**: 计算输出$o_t$
-
+   
    $$
    o_t = \sigma(W_o[h_t])
    $$
@@ -427,7 +427,7 @@ Inputs是Transformers的开端。如果是处理NLP的问题，那么输入就�
 在网站(https://platform.openai.com/tokenizer)里输入，你想要分词的句子。
 
 > “My name is Carson. I would like to try GPT-4 Tokenizer.
->
+> 
 > 我的名字叫Carson。让我们来试试GPT-4 Tokenizer吧。"
 
 这就是分词后的结果。
@@ -567,18 +567,18 @@ $$
 **层归一化**（Layer Normalization）与Batch Normalization不同，Layer Normalization是在特征维度上进行标准化的，而不是在数据批次维度上。具体的计算过程如下：
 
 * 计算均值和方差。
-
+  
   * 均值公式：
     $$
     \mu = \frac{1}{D}\sum_{i=1}^Dx_i
     $$
   * 方差公式：
-
+  
   $$
   \sigma = \sqrt{\frac{1}{D}\sum_{i=1}^D(x_i - \mu)^2}
   $$
 * 进行归一化：通过均值和方差，可以得到归一化后的值, 公式：
-
+  
   $$
   \hat x = \frac{x - \mu}{\sqrt{\sigma^2 + \varepsilon}}
   $$
@@ -729,14 +729,15 @@ Transformer模型在自然语言处理中有许多优点：
 
 ## Reference
 
-https://www.baeldung.com/cs/nlp-encoder-decoder-models
-https://arxiv.org/abs/1706.03762
-https://kazemnejad.com/blog/transformer_architecture_positional_encoding/
-https://nlp.seas.harvard.edu/2018/04/03/attention.html#positional-encoding
-https://towardsdatascience.com/transformers-part-1-2a2755a2af0e
-https://towardsdatascience.com/transformers-part-2-input-2a8c3a141c7d
-https://towardsdatascience.com/transformers-part-3-attention-7b95881714df
-https://towardsdatascience.com/simplifying-transformers-state-of-the-art-nlp-using-words-you-understand-part-4-feed-foward-264bfee06d9
-https://towardsdatascience.com/simplifying-transformers-state-of-the-art-nlp-using-words-you-understand-part-5-decoder-and-cd2810c6ad40
-https://blog.csdn.net/zhaohongfei_358/article/details/125858248
-https://www.mikecaptain.com/2023/01/22/captain-aigc-1-transformer/
+[Encoder-Decoder Models for Natural Language Processing](https://www.baeldung.com/cs/nlp-encoder-decoder-models)
+[Attention Is All You Need](https://arxiv.org/abs/1706.03762)
+[Transformer Architecture: The Positional Encoding](https://kazemnejad.com/blog/transformer_architecture_positional_encoding/)
+[The Annotated Transformer](https://nlp.seas.harvard.edu/2018/04/03/attention.html)
+[Simplifying Transformers: State of the Art NLP Using Words You Understand — Part 1 — Intro](https://towardsdatascience.com/transformers-part-1-2a2755a2af0e)
+[Simplifying Transformers: State of the Art NLP Using Words You Understand — part 2 — Input](https://towardsdatascience.com/transformers-part-2-input-2a8c3a141c7d)
+[Simplifying Transformers: State of the Art NLP Using Words You Understand — part 3 — Attention](https://towardsdatascience.com/transformers-part-3-attention-7b95881714df)
+[Simplifying Transformers: State of the Art NLP Using Words You Understand — Part 4 — Feed-Forward-Layer](https://towardsdatascience.com/simplifying-transformers-state-of-the-art-nlp-using-words-you-understand-part-4-feed-foward-264bfee06d9)
+[Simplifying Transformers: State of the Art NLP Using Words You Understand — Part 5 — Decoder and Final Output ](https://towardsdatascience.com/simplifying-transformers-state-of-the-art-nlp-using-words-you-understand-part-5-decoder-and-cd2810c6ad40)
+[MultiHead-Attention和Masked-Attention的机制和原理](https://blog.csdn.net/zhaohongfei_358/article/details/125858248)
+[人工智能 LLM 革命前夜：一文读懂横扫自然语言处理的Transformer模型](https://www.mikecaptain.com/2023/01/22/captain-aigc-1-transformer/)
+
