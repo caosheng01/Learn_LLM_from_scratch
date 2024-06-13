@@ -48,7 +48,7 @@
 
 先复习一下MLP，下图为一个简单的MLP网络，这个例子我们后续章节会用到。
 
-![NN_MLP.svg](../images/NN_MLP.svg)
+![NN_MLP.svg](../../images/NN_MLP.svg)
 
 ### 卷积神经网络（CNN）
 
@@ -89,17 +89,17 @@ model = tf.keras.models.Sequential([
 
 如何理解RNN呢？我们先把上面那个MLP图，做一下简化和逆时针旋转90度的变形，如下图所示：
 
-![NN_RNN_1.svg](../images/NN_RNN_1.svg)
+![NN_RNN_1.svg](../../images/NN_RNN_1.svg)
 
 为了表示时序性，我们需要把多个这样的结构串联起来，即用激活函数(比如tanh函数）和权重把每个单元的连接，如下图所示：
-![NN_RNN_2.svg](../images/NN_RNN_2.svg)
+![NN_RNN_2.svg](../../images/NN_RNN_2.svg)
 
 看到这个图，大家有没有觉得眼熟？像不像数据结构里的链表？它也有单链表的麻烦，第一个节点S1和其他节点不一样。我们也沿用对于链表的加入首结点的思路来处理。我们给S1加入一个虚拟输入并令权重为0，这样我们把RNN图优雅的表示成一个循环图，如下图所示：
-![NN_RNN_3.svg](../images/NN_RNN_3.svg)
+![NN_RNN_3.svg](../../images/NN_RNN_3.svg)
 
 接下来我们用数学公式把RNN表示出来，先把RNN图展开。
 
-![NN_RNN_4.svg](../images/NN_RNN_4.svg)
+![NN_RNN_4.svg](../../images/NN_RNN_4.svg)
 参考MLP的做法，我们可以把$s_t$ 和 $o_t$表示为：
 
 $$
@@ -128,7 +128,7 @@ $$
 
 上图在每个时间步都有输出，这种输入和输出数据项数一致的RNN，一般叫做N：N的RNN。但根据任务，这可能不是必需的。所以，RNN结构可以是不同的组合，下图是N：1型和1:N型的RNN。N:M型的，我们放在后续章节再讨论。
 
-![NN_RNN_5.svg](../images/NN_RNN_5.svg)
+![NN_RNN_5.svg](../../images/NN_RNN_5.svg)
 
 ### 长短时记忆网络（LSTM）
 
@@ -143,13 +143,13 @@ $$
 在机器学习中，循环神经网络（RNN）的主要特点是具有“记忆”功能，能够利用历史信息来影响后续的输出。然而，传统的RNN主要处理短期依赖，对于长期信息的处理并不擅长。为了解决这个问题，长短期记忆网络（LSTM, Long Short-Term Memory）被提出。LSTM是RNN的一种变体，它通过引入了一个称为单元状态(Cell State)的机制，可以在更长的时间跨度上保存信息。这使得LSTM能够更好地处理长期依赖问题。所以，简单来说，传统的RNN更多地处理短期记忆，而LSTM则能够处理长期记忆。
 如下图所示，对比于RNN，LSTM多了一个输入$c_{t-1}$和输出$c_t$。
 
-![NN_LSTM_1.svg](../images/NN_LSTM_1.svg)
+![NN_LSTM_1.svg](../../images/NN_LSTM_1.svg)
 
 LSTM的设计者用三个门控，即遗忘门，输入门和输出门，来处理长短期记忆。如下图所示：
-![NN_LSTM_2.svg](../images/NN_LSTM_2.svg)
+![NN_LSTM_2.svg](../../images/NN_LSTM_2.svg)
 
 我们来看一下LSTM中，Cell State的结构图。
-![NN_LSTM_3.svg](../images/NN_LSTM_3.svg)
+![NN_LSTM_3.svg](../../images/NN_LSTM_3.svg)
 
 LSTM内部主要有三个阶段：
 
@@ -204,7 +204,7 @@ LSTM通过门控状态来控制传输状态，记住需要长时间记忆的，�
 
 对于输入序列长度N和输出序列长度M不一样的RNN模型结构，也可以叫做Encoder-Decoder模型，也可以叫Seq2Seq模型。首先接收输入序列的Encoder先将输入序列转成一个隐藏态的上下文表示$C$。$C$可以只与最后一个隐藏层有关，甚至可以是最后一个隐藏层生成的隐藏态直接设置为$C$，$C$还可以与所有隐藏层有关。有了这个$C$之后，再用Decoder进行解码，也就是从把$C$作为输入状态开始，生成输出序列。
 
-![NN_LSTM_4.svg](../images/NN_LSTM_4.svg)
+![NN_LSTM_4.svg](../../images/NN_LSTM_4.svg)
 
 数学表达式如下：
 
@@ -245,7 +245,7 @@ Encoder-Decoder模型非常出色，一直到2018年之前NLP领域里该模型�
 
 这是人类利用有限的注意力资源从大量信息中快速筛选出高价值信息的手段，是人类在长期进化中形成的一种生存机制，人类视觉注意力机制极大地提高了视觉信息处理的效率与准确性。
 
-![VisionAttention.webp](../images/VisionAttention.webp)
+![VisionAttention.webp](../../images/VisionAttention.webp)
 
 上图形象化展示了人类在看到一副图像时是如何高效分配有限的注意力资源的，其中红色区域表明视觉系统更关注的目标，很明显对于上图所示的场景，人们会把注意力更多投入到人的脸部，文本的标题以及文章首句等位置。
 
@@ -259,7 +259,7 @@ Encoder-Decoder模型非常出色，一直到2018年之前NLP领域里该模型�
 
 非自主提示是基于环境中物体的突出性和易见性。 想象一下，假如我们面前有五个物品： 一份报纸、一篇研究论文、一杯咖啡、一本笔记本和一本书。所有纸制品都是黑白印刷的，但咖啡杯是红色的。 换句话说，这个咖啡杯在这种视觉环境中是突出和显眼的，不由自主地引起人们的注意。 所以我们会把视力最敏锐的地方放到咖啡上，如下图所示。
 
-![Attention_eye_coffee.svg](../images/Attention_eye_coffee.svg)
+![Attention_eye_coffee.svg](../../images/Attention_eye_coffee.svg)
 
 由于突出性的非自主性提示（红杯子），注意力不自主地指向了咖啡杯，这个过程解释了非自主提示。
 
@@ -267,12 +267,12 @@ Encoder-Decoder模型非常出色，一直到2018年之前NLP领域里该模型�
 
 我们先把五个物品，抽象成5个矩形框（object1~5）。而这5个物品根据各自不同的特征值(Eigenvalue)形成注意力，汇聚到人脑注意力池(Attention Pool)中。最后，由于咖啡杯的颜色最突出，从人脑的注意力池中脱颖而出。
 
-![Attention_Sim_Eye_Coffee.svg](../images/Attention_Sim_Eye_Coffee.svg)
+![Attention_Sim_Eye_Coffee.svg](../../images/Attention_Sim_Eye_Coffee.svg)
 
 #### 自主性提示
 
 我们继续这个例子，喝咖啡后，我们会变得兴奋并想读书，所以转过头，重新聚焦眼睛，然后看看书，就像下图中描述那样。与上图中由于突出性导致的选择不同，此时选择书是受到了认知和意识的控制，因此注意力在基于自主性提示去辅助选择时将更为谨慎。受试者的主观意愿推动，选择的力量也就更强大。
-![Attention_Eye_Book.svg](../images/Attention_eye_book.svg)
+![Attention_Eye_Book.svg](../../images/Attention_eye_book.svg)
 
 依赖于任务的意志提示（想读一本书），注意力被自主引导到书上，这个过程解释了自主提示。
 
@@ -286,7 +286,7 @@ Encoder-Decoder模型非常出色，一直到2018年之前NLP领域里该模型�
 
 注意力机制是通过Query和Key的注意力汇聚，实现对Value的注意力权重分配，最终输出结果（在本例中，就是找到Object5-书）。详细过程，如下图所示：
 
-![Attention_Sim_Eye_Book.svg](../images/Attention_Sim_Eye_Book.svg)
+![Attention_Sim_Eye_Book.svg](../../images/Attention_Sim_Eye_Book.svg)
 
 举个更加生活化的例子，当你走进图书馆阅览室，目光自然而然的扫了一下在座的同学们（Query），一个“肤白貌美大长腿”的女生映入眼帘（Key），原来是校花小美啊（Value）！
 
@@ -294,7 +294,7 @@ Encoder-Decoder模型非常出色，一直到2018年之前NLP领域里该模型�
 
 在计算机中，数据是以Key-Value形式储存的。现在，我们模拟人脑快速筛选高价值的信息，比如$V_i$到$V_j$这一组值，如下图所示。
 
-![Attention_1.svg](../images/Attention_1.svg)
+![Attention_1.svg](../../images/Attention_1.svg)
 该如何实现呢？其实，我们只要简单的借助一下数学工具就可以了。
 首先我们将Query变成向量化，即$\vec Q=[0,0,...,w_i,...,w_j,...,0,0]^\top$
 接着，让$\vec Q \cdot \vec K$相乘，这样我们就快速的筛选出高价值的信息了。这就是计算注意力值的基本思路。
@@ -325,7 +325,7 @@ Tips: 这里用到比较深的数学技巧，我会在附录里详细讨论这�
 
 ### 详解计算注意力过程
 
-![Attention_2.svg](../images/Attention_2.svg)
+![Attention_2.svg](../../images/Attention_2.svg)
 
 第一步，通过注意力评分函数，算出Score的值： 即$s(Q,K)$的值
 假定我们采用缩放点积注意力评分函数。
@@ -357,14 +357,14 @@ $$
 理解了注意力机制，学习多头注意力就比较容易了。只需要把多个Attention连起来就行了。
 我们拓展一下上面Attention的例子，多头注意力机制如下图表示：
 
-![MultiHeadsAttentio.svg](../images/MultiHeadsAttention.svg)
+![MultiHeadsAttentio.svg](../../images/MultiHeadsAttention.svg)
 
 ### 自注意力机制（Self-Attention）
 
 自注意力机制和注意力机制的区别就在于，注意力机制的查询和键是不同来源的，例如，在Encoder-Decoder模型中，键是Encoder中的元素，而查询是Decoder中的元素。在中译英模型中，查询是中文单词特征，而键则是英文单词特征。而自注意力机制的查询和键则都是来自于同一组的元素，例如，在Encoder-Decoder模型中，查询和键都是Encoder中的元素，即查询和键都是中文特征，相互之间做注意力汇聚。形象的比喻就是Self-Attention在做“完形填空”。
 
 以Deep Learning这个词组为例，我们给出了一个单头的自注意力机制的原理示意图。
-![SelfAttention.svg](../images/SelfAttention.svg)
+![SelfAttention.svg](../../images/SelfAttention.svg)
 
 * $a$是Deep单词经过全连接层$W_a$得到的，$b$是Deep单词经过全连接层$W_b$得到的.
 * 向量$q_1, q_2$分别是$a,b$经过全连接层$W_q$得到的。同理可得向量$k_1,k_2,v_1,v_2$。
@@ -374,7 +374,7 @@ $$
 
 我们还是以Deep Learing这个词组为例，给出了多头注意力机制的原理示意图。
 
-![MulHeadsSelfAttention.svg](../images/MulHeadsSelfAttention.svg)
+![MulHeadsSelfAttention.svg](../../images/MulHeadsSelfAttention.svg)
 
 Tips：如果对Input/Output Embedding有疑问，建议先跳过。我们在下一章节Transformer模型中有进一步的深入探讨
 
@@ -392,7 +392,7 @@ Tips：如果对Input/Output Embedding有疑问，建议先跳过。我们在下
 
 ### Transformer模型架构图
 
-![TransformerModel.webp](../images/TransformerModel.webp)
+![TransformerModel.webp](../../images/TransformerModel.webp)
 
 再次看到这张图，内心百感交集。3个月前，打算开始学习LLM，我就是从这篇论文和这张图开始的。论文作者说，Transformer是一种“简单的神经网络架构”。整整学了一个周末，具体的说，在图书馆认真学了17个小时后，似懂非懂，太复杂了！然后，我决定从头开始学习，也就有了这一系列的文章。
 图的左边部分是Encoder，右边部分是Decoder；底部是输入，顶部是输出（以概率方式输出）。我们将分成以下4部分，逐步讲解Transformer模型。
@@ -410,7 +410,7 @@ Inputs是Transformers的开端。如果是处理NLP的问题，那么输入就�
 
 我们先讨论一下Inputs Embedding部分，如图所示：
 
-![Transformer_InputEmbeddings.svg](../images/Transformer_InputEmbeddings.svg)
+![Transformer_InputEmbeddings.svg](../../images/Transformer_InputEmbeddings.svg)
 
 在自然语言处理（NLP）中，词嵌入（Word Embedding）是一种重要的技术，它将词语映射为数值向量，使之包含更丰富的语义信息和抽象特征。以下是实现词嵌入的一些主要步骤：
 
@@ -432,12 +432,12 @@ Inputs是Transformers的开端。如果是处理NLP的问题，那么输入就�
 
 这就是分词后的结果。
 
-![GPT4_Tokenizer_1.png](../images/GPT4_Tokenizer_1.png)
+![GPT4_Tokenizer_1.png](../../images/GPT4_Tokenizer_1.png)
 
 如图，有大约92个字符，生成了64个词元（Token）。有时词元是整个单词，如“My name is Carson”，有时是单词的一部分，如汉字“叫”对应的Unicode。Token有助于模型进行学习，因为文本就是我们的数据，Token就是数据的特征。到了这里，数据预处理就结束了。
 第二步，我们要把预处理完毕的文本，来构建词汇表（Lookup dictionary）,使得每个Token在词汇表中都有一个唯一索引。其实，你点击一下GPT分词器里TokenID就能看到这个索引值，如图所示：
 
-![GPT4_Tokenizer_2.png](../images/GPT4_Tokenizer_2.png)
+![GPT4_Tokenizer_2.png](../../images/GPT4_Tokenizer_2.png)
 
 处理完这一步，我们就把提取好的Token表示为数字了。人类语言中，各个词（word）在语境里彼此是有关联的。接下来我们就想办法在这些不同的Token之间建立联系，即根据这些词元（tokens）生成数值形式的语义表征（numeric, semantic representations）。
 
@@ -502,26 +502,26 @@ $$
 从公式可以看出，其实一个词语的位置编码是由不同频率的正余弦函数组成的，从低位到高位，正余弦函数对应的频率由 1 降低到了$\frac{1}{10000}$ ，按照论文中的说法，也就是，波长从$2\pi$增加到了$10000 \cdot 2\pi$。
 
 你可能会想，这种正弦和余弦的组合如何能够表示位置/顺序呢？其实很简单，假设你想用二进制格式表示一个数字，那会是怎样的呢？举个例子，如何用8421码来表示位置信息。
-![Transformer_8421.png](../images/Transformer_8421.png)
+![Transformer_8421.png](../../images/Transformer_8421.png)
 
 你可以看到不同位之间的变化率。最低有效位（LSB）在每个数字上都在交替，次低位在每两个数字上旋转，依此类推。以红色为例，每个位置数字都在交替。绿色和橙色分别4轮和8轮交替一次。
 
 但是在浮点数的世界中，使用二进制值会浪费空间。所以，我们可以使用它们的浮点连续对应物 - 正余弦函数。事实上，它们等同于交替的位。此外，通过降低它们的频率，我们可以从红色位转变为橙色位。
 
 现在，我们把位置信息（Positional Encoding）和语义表达（Input Embedding）结合起来（用求和表达），如图所示：
-![Transformer_Inputs.svg](../images/Transformer_Inputs.svg)
+![Transformer_Inputs.svg](../../images/Transformer_Inputs.svg)
 
 ### Attention
 
 Transformer模型中Attention部分，如图所示：
-![Transformer_MultiHeadAttention.svg](../images/Transformer_MultiHeadAttention.svg)
+![Transformer_MultiHeadAttention.svg](../../images/Transformer_MultiHeadAttention.svg)
 
 Transformer模型中的Multi-Head Attention，其实就是我们前文讲解的多头自注意力机制，用的也是Scalable Dot Production方法，上文解释的比较详细，这里就不重复介绍了。
 
 ### Add&Norm
 
 在这个章节，我们来讨论一下Add&Norm部分，如图所示：
-![Transformer_Add_n_Norm.svg](../images/Transformer_Add_n_Norm.svg)
+![Transformer_Add_n_Norm.svg](../../images/Transformer_Add_n_Norm.svg)
 
 在Transformer模型中，"Add"和"Norm"是两个重要的操作：
 
@@ -596,7 +596,7 @@ $$
 ### Feed Forward
 
 在这个章节，我们来讨论一下Feed Forward部分，如图所示：
-![Transformer_FFN.svg](../images/Transformer_FFN.svg)
+![Transformer_FFN.svg](../../images/Transformer_FFN.svg)
 
 在Transformer模型中，前馈神经网络（Feed-Forward Network，简称FFN）起着重要的作用。以下是对FFN的简要描述：
 
@@ -621,12 +621,12 @@ FFN(x) = ReLU(W_1x_1 + b1)W_2+b2
 $$
 
 至此，我们已经讲解了Encoder各个模块，在原论文中，不论是Encoder还是Decoder，都有堆叠的6组，即Transformer架构图里的N的数目为6，如图所示：
-![Transformer_Encoder.svg](../images/Transformer_Encoder.svg)
+![Transformer_Encoder.svg](../../images/Transformer_Encoder.svg)
 
 ### Decoder和Output
 
 在这个章节，我们来讨论一下Decoder和Output部分，如图所示：
-![Transformer_Decoder.svg](../images/Transformer_Decoder.svg)
+![Transformer_Decoder.svg](../../images/Transformer_Decoder.svg)
 在Transformer模型中，Encoder传给Decoder的是K和V，这是因为在Decoder中有两个注意力模块：
 
 * 一个是自注意力模块，其Q、K、V的输入都来自Decoder上一层的输出。
@@ -639,7 +639,7 @@ $$
 这种设计使得在Decoder的每个位置上，都能获得全局所有的信息。这也模仿了序列到序列模型中的典型Encoder-Decoder注意力机制。
 
 我们再来看一下Decoder的输入部分，有两个，一个比较好理解，就是Encoder的Output：$K,V$，另外一个是Outputs(shifted right)。这个理解起来有点费劲，我们一起来分析一下Outputs(shifted right)相关联的模块,如下图所示。
-![Transformer_MastedMultiHeadAttention.svg](../images/Transformer_MastedMultiHeadAttention.svg)
+![Transformer_MastedMultiHeadAttention.svg](../../images/Transformer_MastedMultiHeadAttention.svg)
 Outputs Embedding和上文我们介绍Encoder的Inputs Embedding是一样的。Positional Encoding也和Encoder的Positional Encoding是一样的。最大的不同是Masked Multi-Head Attention部分。
 
 #### Masked Multi-Head Attention
@@ -648,7 +648,7 @@ Outputs Embedding和上文我们介绍Encoder的Inputs Embedding是一样的。P
 
 我们举个例子吧，我们用Transformer翻译“Machine learning is fun.”成中文。
 具体预测时（非训练时）的工作流程，如图所示：
-![Transformer_Sample.svg](../images/Transformer_Sample.svg)
+![Transformer_Sample.svg](../../images/Transformer_Sample.svg)
 
 分析：
 

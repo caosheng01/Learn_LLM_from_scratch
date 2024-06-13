@@ -279,7 +279,7 @@ $$
 
 ### 人工智能发展史
 
-![LLM_History.svg](../images/LLM_History.svg)
+![LLM_History.svg](../../images/LLM_History.svg)
 
 * 从上世纪50年代到80年代，我们称之为“前深度学习时代”，随着计算机的诞生和发展，人工智能主要利用各类模板或者规则来解决数据处理的问题。
 * 80年代，诞生了机器学习。那时候的人工智能主要是基于一定量的数据，处理分类问题（模式识别）。
@@ -291,7 +291,7 @@ $$
 
 从人工智能发展史，我们可以看到，业界在2018年，针对Transformer模型，产生了三条不同的发展路径。让我们再度聚焦Transformer模型，看看业界是如何把Transfomer模型玩出花的。
 
-![Transformer_Encoder_n_Decoder.svg](../images/Transformer_Encoder_n_Decoder.svg)
+![Transformer_Encoder_n_Decoder.svg](../../images/Transformer_Encoder_n_Decoder.svg)
 
 总所周知，在Transformer模型的左边是Encoder，右边是Decoder。发生在2018年的三条线路之争，对应产品就是：
 
@@ -327,14 +327,14 @@ Tips：本文没有讲解CBOW，请读者自行查阅。思路类似于英语考
 上一篇我们介绍了词嵌入（Word Embedding）方法在Transformer模型中的应用。我们来看看在NLP预训练过程中，遇到了什么问题。
 处理NLP问题时，第一步就是人类语言用数学表达出来，以便于计算机处理。我们利用词嵌入先把词表示成向量，例子如下：
 
-![WordEmbedding_1.svg](../images/WordEmbedding_1.svg)
+![WordEmbedding_1.svg](../../images/WordEmbedding_1.svg)
 
 无论是word2vec 还是GloVe。这些词嵌入（Word Embeddings）方法都是在语料库中词之间的共现（co-occurrence）统计进行预训练的。如果两个不同词在两句话，上下文相似，当我们用向量表示king时，这两个词的距离相近。
 Tips：请参考附录关于向量余弦章节。这两个词距离相近，用数学表达，就是余弦夹角小，即余弦值近1。
 
 这种基于词共现统计的方法，在一些上下文相识句子中，会得到一模一样的词向量。在下面这个例子里，king和queen的词向量是一致的。
 
-![WordEmbedding_2.svg](../images/WordEmbedding_2.svg)
+![WordEmbedding_2.svg](../../images/WordEmbedding_2.svg)
 
 这个问题，尽管这被GloVe方法考虑更大范围词频共现后一定程度解决了（没有完全解决）。然而，另一个致命问题来了，一词多义。
 
@@ -342,14 +342,14 @@ Tips：请参考附录关于向量余弦章节。这两个词距离相近，用�
 
 请看下面这两句，用WordEmbedding的方法，两个bank只能表示成一组相同的向量，无法处理“一词多义”这种情况。
 
-![WordEmbedding_3.svg](../images/WordEmbedding_3.svg)
+![WordEmbedding_3.svg](../../images/WordEmbedding_3.svg)
 
 解决这个问题的大致思路，我估计大家都能想到，就是把bank表示成多个向量。这样的词表示法有个专门术语：CWRs(Contextual Word Representations), 截止到2023年，这种解决思路是业界主流。
 
 #### 问题2：如何避免“See themselves”问题
 
 在讲解本系列文章的时候，我举得都是相对简单基础的模型。实际上，业界还是涌现出很多改进的模型。比如基于RNN/LSTM的双向模型，而且这些双向模型效果比基础模型要好的。这样在预训练阶段，就带来了“see themselves”的问题，如下图所示：
-![Bidirection.svg](../images/Bidirection.svg)
+![Bidirection.svg](../../images/Bidirection.svg)
 
 具体的说，在双向模型中，单词可以“看到自己(see themselves)”的。这是因为双向模型在处理每个单词时，会同时考虑该单词前后的上下文信息。然而，这种方式可能会导致一种情况，即模型在预测某个单词时，实际上已经“看到”了这个单词，从而影响了模型的预测能力。
 解决这个问题，大致思路有两个。
@@ -375,7 +375,7 @@ Tips：请参考附录关于向量余弦章节。这两个词距离相近，用�
 这个需要提一下，ELMO是2018年度NAACL最佳论文，解决的办法也很巧妙，可惜的是还是用了LSTM模型，没有用到最新的Transformer模型。
 解决一词多义，用的是CWRs。ELMo用了BiLSTM。在预训练阶段，对于任何一个输入文本，用一个”从左到右“的单向LSTM模型和一个”从右到左“的单向LSTM模型，从而避免了“see themselves”问题，如下图所示：
 
-![ELMo.svg](../images/ELMo.svg)
+![ELMo.svg](../../images/ELMo.svg)
 
 这样每个词的词向量都有了上下文的信息。这样用ELMo得到的文本向量就可以作为其他模型的预训练嵌入（Pre-trained Embeddings）了。具体步骤就不详细展开了，大家专注于理解思路即可。如果大家对ELMo有兴趣，请自行在网上搜索。
 
@@ -434,12 +434,12 @@ Tips: NSP效果一般，后续的BERT改进模型中，都不约而同的弱化�
 
 #### BERT架构图
 
-![BERT_Arch.svg](../images/BERT_Arch.svg)
+![BERT_Arch.svg](../../images/BERT_Arch.svg)
 
 和标准的Transformer Encoder比较，差别比较大的就是Input这部分。我们一起来讨论一下BERT的Input部分。
 Input Embedding部分，引用一下原论文的这张图，如图所示：
 
-![BERT_inputs.png](../images/BERT_input.png)
+![BERT_inputs.png](../../images/BERT_input.png)
 
 和大多数NLP深度学习模型一样，BERT将输入文本中的每一个词（token)送入Token Embeddings层从而将每一个词转换成向量形式。在Transformer模型中，有Positional Embeddings和Token Embeddings。BERT又多了一个嵌入层Segment Embeddings。
 
@@ -470,7 +470,7 @@ Input部分为两句话：my dog is cute 和 he likes playing
 3. 文本问答任务(Question Answering Tasks）
 4. 单句标注任务(Single Sentence Tagging)
 
-![BERT_Finetune.png](../images/BERT_Finetune.png)
+![BERT_Finetune.png](../../images/BERT_Finetune.png)
 
 上图引自BERT原论文，如图所示，前2类是基于句子级别（sentence level）的任务；后两类基于词级别(token level)的任务。我们先一起来看一下涉及到的数据集，如果想从事NLP相关工作，最好还是熟悉一下这些数据集。
 
@@ -579,7 +579,7 @@ Tips：实际过程中，先做分词转换得到token id后，再做padding。�
 
 第四步，输入到BERT模型，进行fune tune。上述四步全过程如下图所示：
 
-![BERT_SentencePair.svg](../images/BERT_SentencePair.svg)
+![BERT_SentencePair.svg](../../images/BERT_SentencePair.svg)
 
 #### 单句的分类任务
 
@@ -589,7 +589,7 @@ BERT的单句分类（Single Sentence Classification）是一种监督学习任�
 
 例如，单句分类可以用于情感分析（将文本分类为“正面”或“负面”），主题分类（将新闻文章分类为“政治”，“体育”等类别），或者垃圾邮件检测（将电子邮件分类为“垃圾邮件”或“非垃圾邮件”）等任务。基本工作流程示意图如下：
 
-![BERT_SingleSentence.svg](../images/BERT_SingleSentence.svg)
+![BERT_SingleSentence.svg](../../images/BERT_SingleSentence.svg)
 
 #### 文本回答任务
 
@@ -612,7 +612,7 @@ BERT的单句分类（Single Sentence Classification）是一种监督学习任�
 例如对于上面的描述内容来说，如果给出的问题是“苏轼生活在什么年代以及他是哪里人？”，那么模型最终并不会给出类似“北宋”和“眉州眉山人”这两个分离的 答案，最好的情况下便是给出“北宋著名的文学家与政治家，眉州眉山人”这一个连续的答案。
 在有了这两个限制条件后，对于这类问答任务的本质也就变成了需要让模型预测得到答案在描述中的起始位置（start position）以及它的结束位置（end position）。所以，问题最终又变成了如何在BERT模型的基础上再构建一个分类器来对BERT最后一层输出的每个Token进行分类，判断它们是否属于start position或者是end position。原理，如下图所示：
 
-![BERT_QuestionAnswering.svg](../images/BERT_QuestionAnswering.svg)
+![BERT_QuestionAnswering.svg](../../images/BERT_QuestionAnswering.svg)
 
 在重构样本时，我们把问题和描述合成一个句子，也引入了一个问题。如果这个合成的句子超过了BERT模型的最大长度（通常为512个tokens），怎么办？通常有下面这几种处理方法：
 
@@ -692,7 +692,7 @@ print(answer)
 
 让我们通过一个命名实体识别（Named Entity Recognition，NER）的例子来详细说明单句标注（Single Sentence Tagging）。例如，对于句子“苹果公司在加利福尼亚州的库比蒂诺市设有总部”，模型可能会预测出“苹果公司”为“组织”，“加利福尼亚州”和“库比蒂诺市”为“地点”，其余单词为“其他”。具体工作流程，如下图所示：
 
-![BERT_SingleSentenceTagging.svg](../images/BERT_SingleSentenceTagging.svg)
+![BERT_SingleSentenceTagging.svg](../../images/BERT_SingleSentenceTagging.svg)
 
 这种标注方式被称为BIO标注法，广泛应用于各种序列标注任务中。BIO标注法是一种常用于序列标注任务（如命名实体识别）的标注方法。在BIO标注法中，每个标签由两部分组成：一个前缀（B、I或O）和一个类型（如PER、LOC等）。前缀表示当前词在实体中的位置，类型表示实体的类别。具体来说：
 
@@ -749,7 +749,7 @@ Tips: SOTA是State of the Art的缩写，中文可以解释为“最前沿”。
 
 我们来整体看一下GPT的演进之路，在不到5年的时间里，OpenAI陆续发布了令人惊艳的5个版本，深深的震撼了整个业界。本文也将以这个5个重要版本来介绍GPT。
 
-![LLM_GPT_History.svg](../images/LLM_GPT_History.svg)
+![LLM_GPT_History.svg](../../images/LLM_GPT_History.svg)
 
 ### GPT-1
 
@@ -763,7 +763,7 @@ Tips:GPT-1在时间点上要早于BERT发布的。本文为了知识的连贯性
 
 #### GPT-1的架构
 
-![GPT_1_Arch.svg](../images/GPT_1_Arch.svg)
+![GPT_1_Arch.svg](../../images/GPT_1_Arch.svg)
 具体参数如下：
 
 * 12层Transformer Decoder；12个Attention Heads；Token向量维度为768；位置编码是3072维。
@@ -814,14 +814,14 @@ P(u) &  =Softmax(h_nW_e^T)
 $$
 
 上面的公式，结合架构图表示如下:
-![GPT_1_Pretrained.svg](../images/GPT_1_Pretrained.svg)
+![GPT_1_Pretrained.svg](../../images/GPT_1_Pretrained.svg)
 
 这样，在GPT-1模型里，$U$经过 $W_e$处理后每一行就得到了特征（特征抽取）。文本的有序性决定了"位置"本身就是有信息量的，因此叠加$W_p$则保留了位置相关（position-wise）信息。以最大化 $L_1$为目标，经过这样学习大量文本语料后，就得到了一个预训练模型。
 
 2. 第二阶段：监督微调（Supervised Fine-Tuning，SFT)
 
 现在我们已经有了一个预训练好的模型了，这一步就是要fine-tune它的参数，来适应下游的监督学习任务。下图是GPT-1的示意图，介绍了GPT-1是如何处理分类，蕴含，相似性和多项选择问题的。
-![GPT_1_SFT.png](../images/GPT_1_SFT.png)
+![GPT_1_SFT.png](../../images/GPT_1_SFT.png)
 
 现在我们从数学上理解SFT过程，我们先要标注一个训练用的数据集，记为$C$，组成它的每个样本都包括
 
@@ -954,7 +954,7 @@ Few-Shot Learning的目标是让模型只需要少量样本就能快速学习新
 
 下图是GPT-3原论文的一张图，很好地解释了ICL与传统Fine-tuning方法的区别。Fine-tuning通过训练针对下游特定任务的有监督数据集合，对预训练模型进行梯度下降和权重更新。而其他三种方法是不涉及任何梯度和权重更新的。
 
-![ICT_vs_SFT.png](../images/ICT_vs_SFT.png)
+![ICT_vs_SFT.png](../../images/ICT_vs_SFT.png)
 
 * Zero-Shot在推理过程中，不会给模型任何演示，只会提供对任务的自然语言描述。这个方法非常便利、鲁棒性强、避免了预训练-微调的虚假相关性，但着实是一个极具挑战的任务。在不给任何例子的情况下，人类可能都很难理解某些任务的形式，更何况模型。结合上图，我们在提示词（Prompt）里，直接让模型给出cheese，对应的法文单词。
 * One-Shot在推理过程中，只会给模型一个演示，其余同Few-Shot相同。结合上图，我们先给出了一个例子（example），即sea otter => loutre de mer。然后，让模型给出chesse对应的法文。
@@ -1007,7 +1007,7 @@ GPT-3相比于GPT-2，在多个方面进行了重要的改进和提升：
 
 InstructGPT是如何实现上述目标的呢？主要是使用来自人类反馈的强化学习（RLHF），即利用人类的偏好作为奖励信号，对GPT-3进行微调。原论文里的配图很好的说明整个过程。
 
-![InstructGPT_RLHF.png](../images/InstructGPT_RLHF.png)
+![InstructGPT_RLHF.png](../../images/InstructGPT_RLHF.png)
 
 具体实现步骤如下：
 
