@@ -70,18 +70,18 @@ $$
 
 其中，第二部提到了一个非常重要的概念——词汇表(Vocabulary Table)。我们用的Tokens是可以用有限个词，表述出来的。如果结合到上述二维表格，换句话说，是可以用有限的行和列表示出来的。假设，词汇表里面有n个词，上面的二维表格就可以表示为，如下图：
 
-|              | $W_1$                  | $W_2$                  | ... | $W_n$           |
-| ------------ | ---------------------- | ---------------------- | --- | ---------------------- |
-| $W_1$        | N/A                    | $P_{(w_1,w_2)}$        | ... | $P_{(w_1,w_n)}$ |
-| $W_2$        | $P_{(w_1,w_2)}$        | N/A                    | ... | $P_{(w_2,w_n)}$ |
-| ...          | ...                    | ...                    | ... | ...                    |
-| $W_n$ | $P_{(w_1,w_n)}$ | $P_{(w_2,w_n)}$ | ... | N/A                    |
+|         | $W_1$           | $W_2$           | ... | $W_n$           |
+| ------- | ----------------- | ----------------- | --- | ----------------- |
+| $W_1$ | N/A               | $P_{(w_1,w_2)}$ | ... | $P_{(w_1,w_n)}$ |
+| $W_2$ | $P_{(w_1,w_2)}$ | N/A               | ... | $P_{(w_2,w_n)}$ |
+| ...     | ...               | ...               | ... | ...               |
+| $W_n$ | $P_{(w_1,w_n)}$ | $P_{(w_2,w_n)}$ | ... | N/A               |
 
 Tips：以开源的词汇表[vocab.txt](https://huggingface.co/google-bert/bert-base-cased/blob/main/vocab.txt) 为例，一共有28,998个词，此时n就等于28，998。
 
 至此，我们就解决用数学表示语义的问题。
 
-### 用计算机技术来解决问题
+### 如何用计算机技术来解决这个问题
 
 当我们解决了语义表示的问题后，该如何算出概率值呢？在BoW模型中，是基于频率来计算概率值。全局上，必须维护这一张表格。如果要表示$W_i$和$W_j$的关系，只需要查表，取到$P_{(w_i,w_j)}$的值即可。使用上，非常方便。但是，有个致命的缺点，就是无法表示“一词多义”。换句话说，$W_i$和$W_j$的关系一定等于$P_{(w_i,w_j)}$的值。
 “一词多义”的问题，我们后面再讨论，现在先解决如何在计算机里面表示二维表格的问题。
@@ -95,7 +95,7 @@ W_1 =\left[\begin{matrix}
       ... \\
       P_{(w_1,w_n)}
       \end{matrix}\right] \\
-      
+    
 其中， \sum_{i=1}^{n} P_{(w_1,w_i)} = 1
 $$
 
@@ -109,7 +109,7 @@ $$
 
 现在实现Word2Vec的整体流程，我们还剩下最后一步，找到一个数学模型（即，用函数来描述）。一般来说，数学模型就是一个或者一组数学公式。因为现实世界过于复杂，找到一组精确的数学公式来描述，非常难。随着人工智能邻域的神经网络技术发展，我们一般直接训练一个神经网络来对应。所以上图，笔者就直接用神经网络（NN）来代替函数（Function）了。接下来，我们就动手设计一个NN模型。
 
-#### 动手设计神经网络模型
+### 动手设计神经网络模型
 
 我们来看看，这个数学模型要做什么事情。这个NN需要把输入$W_1$和词汇表中的其他词，即$W_2,W_3,...,W_n$，的搭配关系表述出来。
 我们来看一下这个模型需要哪些功能：
@@ -121,5 +121,91 @@ $$
 - 尽量减少模型的参数量，提高训练效率。
 - 因为输入为独热码，存在大量的稀疏矩阵，需要这个模型能降维，且不需要非线性变换，即不需要激活函数。
 
-综上，该模型只需要1层隐藏层就足够了，这既是因为模型的设计目标相对简单，也是因为单层隐藏层已经能够在保证性能的同时提高训练效率。
+综上，该模型只需要1层隐藏层就足够了，这既是因为模型的设计目标相对简单，也是因为单层隐藏层已经能够在保证性能的同时提高训练效率。基于上述设计，我们得到了模型架构，如下图所示：
+
+![Skip_gram_Model.svg](../images/Skip_gram_Model.svg)
+
+其中，输入层和输出层都是N维的，即词汇表长度。隐藏层为K维，表示有K个特征值。通俗的讲，就是我们比较$W_i$和$W_j$是否相似，我们取了k个点去比较，用来量化$W_i$和$W_j$的相似度。
+Tips:为了便于理解，后面的例子中，我们直接给N和K取值：
+
+$$
+N = 10,000 \\
+K = 300
+$$
+
+#### 简化计算的小技巧
+
+我们以上面这个例子为例，输入层是10，000维，隐藏层是300维。按照正常逻辑，从输入层到隐藏层，就需要做一次矩阵乘法。详细技术如下：
+
+$$
+\vec{a}=\left[\begin{matrix}1\\0\\0\\...\\0 \end{matrix}\right], \vec{b}=\left[\begin{matrix}w_1 & w_2 & ... & w_{300} \end{matrix}\right] \\
+
+\vec{a} \times \vec{b} = 1 \times w_1 + 0\times w_2 + ... + 0\times w_{300} = w_1
+$$
+
+从上述推导过程我们发现，由于$\vec{a}$是稀疏矩阵，在做矩阵乘法时，即$\vec{a} \times \vec{b} $的过程占用了大量的计算资源，结果却是只是得到一个$w_1$。
+如何简化计算呢？非常简单，我们把矩阵乘法，直接变成查找，即先找到$\vec{a}$中非0元素的位置i（因为独热码，只有一个为1）。然后查找$\vec{b}$中，位置为i的权重$w_i$。这样就避免了耗时的矩阵乘法运算。
+
+### 训练网络模型
+
+上文讲到，这个网络模型的核心部分，其实就是那个隐藏层（300维），我们需要用训练数据，得到这个隐藏层300个参数的权重。如何给这300个参数赋权重呢？在上一篇《词表达考古史》中提到，在Word2Vec的模型中，常用的有两种方法，一个是CBOW(给定上下文，预测中心词)，另一个就是Skip-Gram(给定中心词，预测上下文)。在实际工作中，Skip-Gram的效果要好于CBOW，所以笔者这里只讲介绍Skip-Gram。
+
+#### 准备训练数据
+
+传统办法就是选择监督学习，每一个训练数据都需要做标记（Labeling）。如果能采用无监督学习，这将极大的减少.我们的训练工作。我们一起来看一下，Word2Vec是怎么做的吧。
+
+例子：训练语料”The quick brown fox jumps over the lazy dog.“，选择中心词(Input Word)为”fox“，如何用Skip-gram生成上下文呢？
+
+首先，我们需要定义什么是上下文，用最简单粗暴的方式，就是选一个长度一致的上下文窗口，在这个窗口内所有的词，都认为是中心词的上下文。这个思路就是copy TCP中的滑动窗口的算法。需要定义2个参数，即skip_window和num_skips参数。
+
+* skip_window：表示从当前input word的一侧（左边或右边）选取词的数量。若设置$skip\_window=2$，我们获得窗口中的词（包含Input Word）最大值为5。以上面这句话为例，设置$skip\_window=2$,那么我们最终获得窗口中的词为 ['quick', 'brown'，'fox', 'jumps', 'over']。
+* num_skips：表示从整个窗口中选取多少个不同的词作为我们的output word。还是以上面这句话为例，设置$𝑠𝑘𝑖𝑝\_𝑤𝑖𝑛𝑑𝑜𝑤=2，𝑛𝑢𝑚\_𝑠𝑘𝑖𝑝𝑠=2$时，我们将会得到两组(input word, output word)形式的训练数据，即 ('fox', 'quick')和('fox', 'brown')。
+
+我们设置$skip\_window=2$，将获得下表中的训练语料。
+
+| Source Text                                                | Input Word          | Span                                    | Training Samples                                           |
+| ---------------------------------------------------------- | ------------------- | --------------------------------------- | ---------------------------------------------------------- |
+| ***The*** quick brown fox jumps over the lazy dog. | ***The***   | ***The*** quick brown           | (the, quick); (the, brown)                                 |
+| The ***quick*** brown fox jumps over the lazy dog.  | ***quick*** | The ***quick***  brown fox        | (quick, the); (quick, brown); (quick, fox)                 |
+| The quick ***brown*** fox jumps over the lazy dog.  | ***brown*** | The quick ***brown*** fox jumps  | (brown, the); (brown, quick); (brown, fox); (brown, jumps) |
+| The quick brown ***fox*** jumps over the lazy dog.  | ***fox***   | quick brown ***fox*** jumps over | (fox, quick); (fox, brown); (fox, jumps); (fox, over)      |
+| The quick brown fox ***jumps*** over the lazy dog.  | ***jumps*** | brown fox ***jumps*** over the   | (jumps, brown); (jumps, fox); (jumps, over); (jumps, the)  |
+| The quick brown fox jumps ***over*** the lazy dog.  | ***over***  | fox jumps ***over***  the lazy    | (over, fox); (over, jumps); (over, the); (over, lazy)      |
+| The quick brown fox jumps over ***the*** lazy dog.  | ***the***   | jumps over ***the***  lazy dog    | (the, jumps); (the, over); (the, lazy); (the, dog)         |
+
+在论文《Distributed Representations of Words and Phrases and their Compositionality》，Word2Vec作者提出以下两个创新点：
+
+1. 对高频词进行二次抽样以减少训练样本的数量。
+2. 使用他们称为“负采样”的技术修改优化目标，这使得每个训练样本仅更新模型权重的一小部分。
+   值得注意的是，对高频词进行下采样和应用负采样不仅减轻了训练过程的计算负担，还提高了生成的词向量的质量。
+
+### 二次抽样高频词（Subsampling Frequent Words）
+
+还是以上面表格为例，对于“the”这种常用高频单词，这样的处理方式会存在下面两个问题：
+
+1. 当我们得到成对的单词训练样本时，("fox", "the") 这样的训练样本并不会给我们提供关于“fox”更多的语义信息，因为作为英语中最高频的“the”在每个单词的上下文中几乎都会出现。
+2. 由于在文本中“the”这样的常用词出现概率很大，因此我们将会有大量的（”the“，...）这样的训练样本，而这些样本数量远远超过了我们学习“the”这个词向量所需的训练样本数。
+
+Word2Vec通过“二次抽样”模式来解决这种高频词问题。
+
+> "二次抽样"的基本思想：对于我们在训练原始文本中遇到的每一个单词，它们都有一定概率被我们从文本中删掉，而这个被删除的概率与单词的频率有关。
+
+如果我们设置窗口大小$span=4$（即$skip\_window=2$)，并且从我们的文本中“二次抽样”到“the”(即删除所有的“the”)，那么会有下面的结果：
+
+1. 由于我们删除了文本中所有的“the”，那么在我们的训练样本中，“the”这个词永远也不会出现在我们的上下文窗口中。
+2. 当“the”作为input word时，我们的训练样本数至少会减少4个。具体请常考表格第一行和最后一行。
+
+### 负采样（Negative Sampling）
+
+至此，我们解释了如何使用计算机技术来解决语义表达的问题。
+
+## Skip-Gram模型
+
+## 参考文献
+
+[Distributed Representations of Words and Phrases and their Compositionality](https://arxiv.org/pdf/1310.4546)
+
+[Word2Vec Tutorial - The Skip-Gram Model](https://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/)
+
+[Word2Vec Tutorial Part 2 - Negative Sampling](https://mccormickml.com/2017/01/11/word2vec-tutorial-part-2-negative-sampling/)
 
