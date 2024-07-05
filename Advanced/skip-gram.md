@@ -163,10 +163,10 @@ $$
 
 我们设置$skip\_window=2$，将获得下表中的训练语料。
 
-| Source Text                                                | Input Word          | Span                                    | Training Samples                                           |
-| ---------------------------------------------------------- | ------------------- | --------------------------------------- | ---------------------------------------------------------- |
-| ***The*** quick brown fox jumps over the lazy dog. | ***The***   | ***The*** quick brown           | (the, quick); (the, brown)                                 |
-| The ***quick*** brown fox jumps over the lazy dog.  | ***quick*** | The ***quick***  brown fox        | (quick, the); (quick, brown); (quick, fox)                 |
+| Source Text                                                | Input Word          | Span + Input Word          | Training Samples      |
+| ---------------------------------------- | ------------------- | --------------------------------------- | --------------------------------- |
+| ***The*** quick brown fox jumps over the lazy dog. | ***The***   | ***The*** quick brown           | (the, quick); (the, brown)              |
+| The ***quick*** brown fox jumps over the lazy dog.  | ***quick*** | The ***quick***  brown fox    | (quick, the); (quick, brown); (quick, fox)     |
 | The quick ***brown*** fox jumps over the lazy dog.  | ***brown*** | The quick ***brown*** fox jumps  | (brown, the); (brown, quick); (brown, fox); (brown, jumps) |
 | The quick brown ***fox*** jumps over the lazy dog.  | ***fox***   | quick brown ***fox*** jumps over | (fox, quick); (fox, brown); (fox, jumps); (fox, over)      |
 | The quick brown fox ***jumps*** over the lazy dog.  | ***jumps*** | brown fox ***jumps*** over the   | (jumps, brown); (jumps, fox); (jumps, over); (jumps, the)  |
@@ -193,7 +193,9 @@ Word2Vec通过“二次抽样”模式来解决这种高频词问题。
 如果我们设置窗口大小$span=4$（即$skip\_window=2$)，并且从我们的文本中“二次抽样”到“the”(即删除所有的“the”)，那么会有下面的结果：
 
 1. 由于我们删除了文本中所有的“the”，那么在我们的训练样本中，“the”这个词永远也不会出现在我们的上下文窗口中。
-2. 当“the”作为input word时，我们的训练样本数至少会减少4个。具体请常考表格第一行和最后一行。
+2. 当“the”作为input word时，我们的训练样本数至少会减少$span$个。具体请常考表格第一行（2个，特殊情况）和最后一行（4个，一般情况）。
+
+用这个方法就能帮助我们解决了高频词带来的问题。
 
 ### 负采样（Negative Sampling）
 
