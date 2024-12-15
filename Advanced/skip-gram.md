@@ -1,6 +1,6 @@
 # 详谈Skip-gram
 
-前文介绍WordEmbedding是留下了一个坑，即CBOW和Skip-gram算法。
+前文介绍WordEmbedding时留下了一个坑，即CBOW和Skip-gram算法。
 这两个算法正好是个逆过程，实际效果来说，Skip-gram要好一些。因此，本文里将详细探讨Skip-gram算法。
 
 ## 写在前面
@@ -22,13 +22,14 @@
 我们用一个例子来说明。
 
 已知：现在有四个词（Token），分别是$a,b,c,d$。现在我们要表达下面这个搭配关系：
+
 求：$\{a,b\}$，$\{b,c\}$，以及$\{c,d\}$有搭配关系
 
 解：我们用`Y`表示:有搭配关系；用`N`表示:没有搭配关系。
 我们就可以用下面这个二维的表格来求解。
 
 |   | a   | b   | c   | d   |
-| - | --- | --- | --- | --- |
+|---|-----|-----|-----|-----|
 | a | N/A | Y   | N   | N   |
 | b | Y   | N/A | N   | N   |
 | c | N   | Y   | N/A | Y   |
@@ -44,13 +45,13 @@ $$
 P_{(a,b)} = 0.6 \\
 P_{(a,c)} = 0.3 \\
 P_{(a,d)} = 0.1 \\
-其中， \sum_{i}^{\{b,c,d\}} P_{(a,i)} = 1
+Where \sum_{i}^{\{b,c,d\}} P_{(a,i)} = 1
 $$
 
 我们也用概率方式，把(b,c)和(c,d)关系也表示出来。这样上面的二维表格，就可以表示为：
 
 |   | a   | b   | c   | d   |
-| - | --- | --- | --- | --- |
+|---|-----|-----|-----|-----|
 | a | N/A | 0.6 | 0.3 | 0.1 |
 | b | 0.6 | N/A | 0.1 | 0.3 |
 | c | 0.3 | 0.1 | N/A | 0.6 |
@@ -70,12 +71,12 @@ $$
 
 其中，第二部提到了一个非常重要的概念——词汇表(Vocabulary Table)。我们用的Tokens是可以用有限个词，表述出来的。如果结合到上述二维表格，换句话说，是可以用有限的行和列表示出来的。假设，词汇表里面有n个词，上面的二维表格就可以表示为，如下图：
 
-|         | $W_1$           | $W_2$           | ... | $W_n$           |
-| ------- | ----------------- | ----------------- | --- | ----------------- |
-| $W_1$ | N/A               | $P_{(w_1,w_2)}$ | ... | $P_{(w_1,w_n)}$ |
-| $W_2$ | $P_{(w_1,w_2)}$ | N/A               | ... | $P_{(w_2,w_n)}$ |
-| ...     | ...               | ...               | ... | ...               |
-| $W_n$ | $P_{(w_1,w_n)}$ | $P_{(w_2,w_n)}$ | ... | N/A               |
+|       | $W_1$           | $W_2$           | ... | $W_n$           |
+|-------|-----------------|-----------------|-----|-----------------|
+| $W_1$ | N/A             | $P_{(w_1,w_2)}$ | ... | $P_{(w_1,w_n)}$ |
+| $W_2$ | $P_{(w_1,w_2)}$ | N/A             | ... | $P_{(w_2,w_n)}$ |
+| ...   | ...             | ...             | ... | ...             |
+| $W_n$ | $P_{(w_1,w_n)}$ | $P_{(w_2,w_n)}$ | ... | N/A             |
 
 Tips：以开源的词汇表[vocab.txt](https://huggingface.co/google-bert/bert-base-cased/blob/main/vocab.txt) 为例，一共有28,998个词，此时n就等于28，998。
 
@@ -163,15 +164,15 @@ $$
 
 我们设置$skip\_window=2$，将获得下表中的训练语料。
 
-| Source Text                                                | Input Word          | Span + Input Word          | Training Samples      |
-| ---------------------------------------- | ------------------- | --------------------------------------- | --------------------------------- |
-| ***The*** quick brown fox jumps over the lazy dog. | ***The***   | ***The*** quick brown           | (the, quick); (the, brown)              |
-| The ***quick*** brown fox jumps over the lazy dog.  | ***quick*** | The ***quick***  brown fox    | (quick, the); (quick, brown); (quick, fox)     |
-| The quick ***brown*** fox jumps over the lazy dog.  | ***brown*** | The quick ***brown*** fox jumps  | (brown, the); (brown, quick); (brown, fox); (brown, jumps) |
-| The quick brown ***fox*** jumps over the lazy dog.  | ***fox***   | quick brown ***fox*** jumps over | (fox, quick); (fox, brown); (fox, jumps); (fox, over)      |
-| The quick brown fox ***jumps*** over the lazy dog.  | ***jumps*** | brown fox ***jumps*** over the   | (jumps, brown); (jumps, fox); (jumps, over); (jumps, the)  |
-| The quick brown fox jumps ***over*** the lazy dog.  | ***over***  | fox jumps ***over***  the lazy    | (over, fox); (over, jumps); (over, the); (over, lazy)      |
-| The quick brown fox jumps over ***the*** lazy dog.  | ***the***   | jumps over ***the***  lazy dog    | (the, jumps); (the, over); (the, lazy); (the, dog)         |
+| Source Text                                        | Input Word  | Span + Input Word                | Training Samples                                           |
+|----------------------------------------------------|-------------|----------------------------------|------------------------------------------------------------|
+| ***The*** quick brown fox jumps over the lazy dog. | ***The***   | ***The*** quick brown            | (the, quick); (the, brown)                                 |
+| The ***quick*** brown fox jumps over the lazy dog. | ***quick*** | The ***quick***  brown fox       | (quick, the); (quick, brown); (quick, fox)                 |
+| The quick ***brown*** fox jumps over the lazy dog. | ***brown*** | The quick ***brown*** fox jumps  | (brown, the); (brown, quick); (brown, fox); (brown, jumps) |
+| The quick brown ***fox*** jumps over the lazy dog. | ***fox***   | quick brown ***fox*** jumps over | (fox, quick); (fox, brown); (fox, jumps); (fox, over)      |
+| The quick brown fox ***jumps*** over the lazy dog. | ***jumps*** | brown fox ***jumps*** over the   | (jumps, brown); (jumps, fox); (jumps, over); (jumps, the)  |
+| The quick brown fox jumps ***over*** the lazy dog. | ***over***  | fox jumps ***over***  the lazy   | (over, fox); (over, jumps); (over, the); (over, lazy)      |
+| The quick brown fox jumps over ***the*** lazy dog. | ***the***   | jumps over ***the***  lazy dog   | (the, jumps); (the, over); (the, lazy); (the, dog)         |
 
 在论文《Distributed Representations of Words and Phrases and their Compositionality》，Word2Vec作者提出以下两个创新点：
 
@@ -230,9 +231,9 @@ $$
 
 先来回顾一下，上文的例子。我们以fox为Input Word，就得到4组训练样本（Training Sample）。
 
-| Source Text          |   Training Samples (Input Word, Output Word)     |
-| ---------------------------------------- |  --------------------------------- |
-| The quick brown ***fox*** jumps over the lazy dog.  |  (fox, quick); (fox, brown); (fox, jumps); (fox, over)      |
+| Source Text                                        | Training Samples (Input Word, Output Word)            |
+|----------------------------------------------------|-------------------------------------------------------|
+| The quick brown ***fox*** jumps over the lazy dog. | (fox, quick); (fox, brown); (fox, jumps); (fox, over) |
 
 我们采用(fox, quick)为训练样本，正确的输出是一个独热码（最终通过Softmax转成概率值），即Input Word（fox）对于Output Word(quick)的神经元为1，其他都是0；我们得到这个向量就是1个1，9999个0；如果按照这种做法，我们模型需要更新权重参数的个数为：
 
