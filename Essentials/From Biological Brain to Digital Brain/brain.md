@@ -49,7 +49,7 @@ Tips：这里算法指的是狭义的算法，即计算机编程中的算法。
 
 > **神经结构、数据结构、算法**三者之间可以互相转化，或说互相表征。
 
-![NN_DS_Algorithm.svg](../images/NN_DS_Algorithm.svg)
+![NN_DS_Algorithm.svg](../../images/NN_DS_Algorithm.svg)
 
 换言之，如果数据结构足够强大，它就可以充当复杂算法的功能，甚至可以替代复杂的神经结构。
 
