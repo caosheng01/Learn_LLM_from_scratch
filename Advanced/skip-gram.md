@@ -139,7 +139,7 @@ $$
 我们以上面这个例子为例，输入层是10，000维，隐藏层是300维。按照正常逻辑，从输入层到隐藏层，就需要做一次矩阵乘法。详细技术如下：
 
 $$
-\vec{a}=\left[\begin{matrix}1\\0\\0\\...\\0 \end{matrix}\right], \vec{b}=\left[\begin{matrix}w_1 & w_2 & ... & w_{300} \end{matrix}\right] \\
+\vec{a}=\left[\begin{matrix}1\\0\\0\\ \vdots \\0 \end{matrix}\right], \vec{b}=\left[\begin{matrix}w_1 & w_2 & ... & w_{300} \end{matrix}\right] \\
 
 \vec{a} \times \vec{b} = 1 \times w_1 + 0\times w_2 + ... + 0\times w_{300} = w_1
 $$
@@ -269,7 +269,6 @@ $$
 然后，为了实际选择一个负样本，你只需生成一个介于0到1亿之间的随机整数，并使用表中该索引处的词。由于高概率词在表中出现的次数更多，因此你更有可能选择这些词。一个单词的负采样概率越大，那么它在这个表中出现的次数就越多，它被选中的概率就越大。
 
 至此，Word2Vec中的Skip-gram模型就讲完了。
-
 
 ## 参考文献
 
