@@ -135,7 +135,29 @@ Temperature、Top-K、Top-P以及生成token数量的选择取决于具体应用
 2. ​**指导使用**​：明确参数含义、返回值格式及潜在异常，一般还会有示例。
 3. ​**提示边界**​：指出特殊输入（如空值、负数）的处理方式。
 
-提示词工程，其实思路也差不多。先给LLM立个人设(System prompting)，然后告诉LLM具体要做什么事情(Contextual prompting)，最后规定输出的格式和风格(Role prompting)。
+其实，这三点对提示工程来说，也是非常好的建议（最佳实践）。
+
+1. **简单就是美**： 提示词指令要简明,清晰和易于理解。**指令**明确规定响应的期望格式、风格或内容。它指导模型 “应该做什么” 或 “应该生成什么”。举个例子
+
+* ​优化前：
+  我现在正在纽约游玩，想了解一些好地方。我带着两个 3 岁的孩子。假期里我们应该去哪里？
+* 优化后​：
+  请扮演游客的旅行向导，推荐纽约曼哈顿适合带 3 岁孩子游玩的好去处。
+
+2. **说清模样，多给样板**：在提示词中提供具体细节（通过系统提示或情境提示）能帮助模型聚焦于相关信息，提高整体输出的准确性。最重要的最佳实践是在提示词中加入（单样本/少样本）示例。
+
+* ​优化前：
+  生成一篇关于视频游戏主机的博客文章。
+* ​优化前：
+  生成一篇关于五大视频游戏主机的博客文章，篇幅为3个段落。文章需兼具信息量与吸引力，且采用对话式风格撰写。请参考示例：
+  xxxxx(略)
+
+3. **无以规矩不成方圆**： 对于LLM期望的输出格式要具体。在提示词中明确要求特定的长度或者输出格式。比如，请以json格式输出；或者改写文章时，让文章字数控制在800字以内等。
+
+Tips： 优先使用指令而非限制条件。如果可能，请使用积极的指令：与其告诉模型不要做什么，不如直接告诉它应该做什么。因为在LLM预训练阶段，积极（Positive）的数据集数量要远远大于消极（Negative）的数据集。
+
+现在回归主线任务，一起来讨论提示词工程。插一句话，本文讨论的提示词工程的任务，特指复杂且困难的任务。道理很简单，简单任务，一两句提示词就能得到答案的，根本就配不上“工程”二字。
+提示词工程的设计阶段，其实思路也差不多。先给LLM立个人设(System prompting)，然后告诉LLM具体要做什么事情(Contextual prompting)，最后规定输出的格式和风格(Role prompting)。我们先搞清楚这三个概念。
 
 * **System Prompting**: 为LLM设定整体背景和目标。它定义了模型应执行任务的 “全局框架”，例如进行语言翻译、对评论进行分类等。
 * **Contextual Prompting**: 提供与当前对话或任务相关的具体细节或背景信息。它帮助模型理解问题的细微差别，并据此调整响应内容。
@@ -175,14 +197,121 @@ Temperature、Top-K、Top-P以及生成token数量的选择取决于具体应用
 
 ## 提示词工程：实现阶段
 
+想象一下，我们在实际工作学习中遇到难题，该怎么办？针对问题的难易程度，分为两类。
+
+* 一类是“有答案的问题”，我们可以请教身边的“老法师”，也可以从互联网/书籍/论文里找到答案。
+* 另一类就是“没有答案的问题”，这类问题比较棘手，需要大家一起商量/讨论（Brain Storming），然后依据讨论的在多个方案中，着手去说试验（PoC验证），最后解决问题。
+
+提示词工程本质上也是一样，通过和AI合作，一起去寻得问题的解决办法，即答案。
+
+### 有答案的问题
+
+针对第一类“有答案”的问题，使用LLM的目的是减轻人类的工作量。如果我们自己就是“老法师”，我们就可以在人脑中把复杂问题拆解成小问题，俗称“任务分解”（WBS）。然后，把这些小任务一个一个给到LLM来解决。整个过程类似于一条思考链路，如下图所示，专业术语叫“思维链”（Chain of Thought）。
+![Prompt_CoT.svg](../images/Prompt_CoT.svg)
+当然，如果你不是“老法师”，你可以直接让LLM做“老法师”，即先让AI直接帮你做任务分解（WBS），然后求得最终答案。
+举个例子：
+[role:User]
+当我 3 岁时，我的伴侣年龄是我的 3 倍。现在我 20 岁了，我的伴侣多少岁？如果要求解这个问题，请先帮我分解推理步骤。
+[role:Assistent]
+推理步骤分解：
+
+1. ​**确定 “过去” 的年龄关系**​：
+   当你3岁时，伴侣的年龄是你的3倍，因此伴侣当时的年龄 = 3岁×3 =​ **9岁**​。
+2. ​**计算年龄差**​：
+   两人的年龄差是固定不变的，当时的年龄差 = 伴侣年龄-你的年龄 = 9岁-3岁 = ​**6岁**​（即伴侣比你大6岁）。
+3. ​**计算 “现在” 的伴侣年龄**​：
+   现在你20岁，由于年龄差始终是6岁，伴侣现在的年龄 = 你的现在年龄+年龄差 = 20岁+6岁 = ​**26岁**​。
+   答案：你的伴侣现在26岁。
+
+如下图所示，Input部分就是上面这个例子中的Prompt。Output部分就是最终解决方案。
+
+![Prompt_CoT_2.svg](../images/Prompt_CoT_2.svg)
+
+Tips:现在流行的LLM，会把思考过程(图中的Step)以文字的方式表达出来，本文限于篇幅，省略思考部分文字。
+
+### 没有答案的问题
+
+现在，我们开始着手解决利用LLM来解决“没有答案的问题”。现实中，如果你碰到这个问题会这么样？一般的做法是，召集一群“老法师”，然后大家集思广益，罗列出各种值得一试的方法。接着安排人手，比如工程师/科研人员等，对经过“老法师们”筛选过的每一种方法都试一下，通常这个过程叫做“技术验证阶段”。等有了结果后，“老法师们”针对这些试验结果后，继续讨论以列出下一步的方法。循环这个过程，最终求得问题的答案。其实，这就是科研的一般过程和日常工作。
+那么，我们如何利用AI来做这个事情呢？这里的关键就是让AI来扮演“老法师”和“技术验证人员”这个两个角色，如果能熟练掌握AI工具，将极大的加快复杂问题求解的过程。接下来，我们让AI分别扮演“老法师”和“技术验证人员”
+
+#### 让AI扮演“老法师”
+
+现在，我们先把老法师集思广益的过程用图表示出来。
+![Prompt_ToT.svg](../images/Prompt_ToT.svg)
+
+这个过程，在提示词工程中有个专门的术语，叫做**思维树(Tree of Thought, ToT）**。思维树是对思维链提示法的扩展，它允许LLM同时探索多条不同的推理路径，而非仅遵循单一的线性思维链。这种方法使思维树特别适用于需要探索过程的复杂任务。它通过构建 “思维树” 来运作：树中的每个“思维节点”代表一段连贯的语言序列，作为解决问题的中间步骤。模型可以从树的不同节点出发，通过分支扩展探索不同的推理路径。想深入的读者，可以读一读原论文[《Large Language Model Guided Tree-of-Thought》](https://arxiv.org/pdf/2305.08291)
+
+#### 让AI扮演“技术验证人员”
+
+这里我们就要用上提示词工程中的**ReAct(Reason & Act)**方法了。ReAct Prompting允许LLM结合自然语言推理与外部工具（如搜索引擎、代码解释器等）来解决复杂任务，使模型能够执行特定操作（例如调用外部 API 获取信息），这是迈向构建AI智能体(Agent)的重要一步。
+ReAct模仿人类在现实世界中的思考方式:通过语言推理并采取行动获取信息。在多个领域的测试中，ReAct的表现优于其他提示工程方法。缺点就是该方法相较于其他方法，要复杂一些。
+
+ReAct的工作原理是将推理和行动结合为一个“思考-行动”循环：
+
+1. LLM 首先对问题进行推理，生成行动计划；
+2. 执行计划中的行动并观察结果；
+3. 根据观察结果更新推理，生成新的行动计划；
+4. 重复上述过程，直到问题解决。
+   实际使用过程中，我们需要写代码来实现。下面这个例子来自于Google的《Prompt Engineering》一文。
+
+```python
+from langchain.agents import load_tools 
+from langchain.agents import initialize_agent 
+from langchain.agents import AgentType 
+from langchain.llms import VertexAI  
+prompt = "How many kids do the band members of Metallica have?" 
+llm = VertexAI(temperature=0.1) 
+tools = load_tools(["serpapi"], llm=llm) 
+agent = initialize_agent(tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True) 
+agent.run(prompt)
+```
+
+执行结果，如下：
+
+```
+> Entering new AgentExecutor chain... 
+Metallica has 4 members. 
+Action: Search 
+Action Input: How many kids does James Hetfield have? 
+Observation: three children 
+Thought: 1/4 Metallica band members have 3 children 
+Action: Search 
+Action Input: How many kids does Lars Ulrich have? 
+Observation: 3 
+Thought: 2/4 Metallica band members have 6 children 
+Action: Search 
+Action Input: How many kids does Kirk Hammett have? 
+Observation: Hammett has been married to his second wife Lani since 1998. They have two sons, Angel (b. September 29, 2006) and Vincenzo (b. June 28, 2008). 
+Thought: 3/4 Metallica band members have 8 children 
+Action: Search 
+Action Input: How many kids does Robert Trujillo have? 
+Observation: 2 
+Thought: 4/4 Metallica band members have 10 children 
+Final Answer: 10
+```
+
+实际应用ReAct时，需要注意持续发送之前的提示/响应（并适当修剪冗余内容），同时用合适的示例/指令配置模型。
+
+在实际工作中，笔者很少用ToT和ReAct方法。理论上，这两个方法效果很好。实际上，太繁琐。特别是ReAct，还要写代码调用Agent，就这一点把很多非码农挡在门外了。
+笔者在工作学习中，经常采用的是知识反刍--》知识注入--》结果的方法。
 
 ## 提示词工程：调优阶段
 
+Hard code --> Use variables in prompts
+Refractoring --> Experiment with input formats and writing styles; experiment with output formats
+Code review --> Experiment together with other prompt engineers
+Perfromance tunning --> Document the warious prompt attempts；CoT Best practices
+
 ## 提示词工程：测试阶段
 
-## 提示词工程：最佳实践
+Unit testing --> self-consistency
+
+## 提示词工程：总结
+
+最佳实践的总结
 
 ## 参考文献
 
 1. [Prompt Engineering](https://www.gptaiflow.com/assets/files/2025-01-18-pdf-1-TechAI-Goolge-whitepaper_Prompt%20Engineering_v4-af36dcc7a49bb7269a58b1c9b89a8ae1.pdf)
+2. [Large Language Model Guided Tree-of-Thought](https://arxiv.org/pdf/2305.08291)
 
