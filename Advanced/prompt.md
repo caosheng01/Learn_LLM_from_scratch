@@ -227,7 +227,7 @@ Tips： 优先使用指令而非限制条件。如果可能，请使用积极的
 
 ![Prompt_CoT_2.svg](../images/Prompt_CoT_2.svg)
 
-Tips:现在流行的LLM，会把思考过程(图中的Step)以文字的方式表达出来，本文限于篇幅，省略思考部分文字。
+Tips:现在流行的带思维链的LLM，会把思考过程(图中的Step)以文字的方式表达出来，本文限于篇幅，省略思考部分文字。
 
 ### 没有答案的问题
 
@@ -293,20 +293,62 @@ Final Answer: 10
 实际应用ReAct时，需要注意持续发送之前的提示/响应（并适当修剪冗余内容），同时用合适的示例/指令配置模型。
 
 在实际工作中，笔者很少用ToT和ReAct方法。理论上，这两个方法效果很好。实际上，太繁琐。特别是ReAct，还要写代码调用Agent，就这一点把很多非码农挡在门外了。
-笔者在工作学习中，经常采用的是知识反刍--》知识注入--》结果的方法。
 
-## 提示词工程：调优阶段
+#### 让AI+人来扮演“老法师”和“技术验证人员”
+
+笔者在工作学习中，经常采用的是**回溯提示法（Step-back Prompting）**。一种通过引导大语言模型（LLM）先思考与具体任务相关的一般性问题，再将该问题的答案作为输入用于后续具体任务提示，从而提升模型表现的技术。这种“回溯”步骤能让模型在尝试解决具体问题前，激活相关的背景知识和推理过程。
+类似于RAG，先用Step-back prompting让LLM扮演“老法师”，然后人为的把得到的知识做记录和筛选，整理出来标准答案/预备知识，再次作为Prompt的一部分（即知识注入），给到LLM做下一步的推理，直到得到最终结果。
+下图是一个最简单的流程，演示了如何用Step-back prompting，从**知识反刍**到**知识注入**到**获取知识**这一流程。
+![Prompt_step_back.svg](../images/Prompt_step_back.svg)
+
+### 提示词框架
+
+作为程序员，我们在大项目里写代码的时候，需要注意一些代码规范(Code Style)。这些规范可以最大程度的提醒程序员避免错误，以提高生产效率。而成熟的软件团队，都有一些结合自己团队特点的代码规范。
+其实，在提示词工程中也有类似的办法，称之为**提示词框架**。有兴趣的读者可以，自行去网上搜索一下，就会发现业界有很多中提示词框架，你可以结合自己的实际需求选择提示词框架。
+这里介绍一个笔者自己用的比较多的提示词框架，**CRISPE Prompt Framework**。CRISPE是首字母的缩写，分别代表以下含义：
+​**CR**​：Capacity and Role（能力与角色）：这是你给大模型​立下的人设，即**能力与角色**​。
+​**I**​：Insight（洞悉；领悟）：这是你为大模型**背景信息**。
+​**S**​：Statement（表述；声明）：你希望大模型具体​**指令**​。
+​**P**​：Personality（人格；性格）：你希望大模型​**输出风格**​。
+​**E**​：Experiment（尝试；实践）：你给大模型所做的​**输出范围**​。
+
+举个例子，让LLM担任心理医生这样的场景，我们就可以按照CRISPE框架书写提示词。
+
+​**能力与角色**​：你现在是一个心理医生。
+​**背景信息**​：最近有个患者遭遇了人生重大事故{​**设置变量**​}，内心十分抗拒与外人交流。
+​**指令**​：请帮忙写一个心理疏导方案。
+​**输出风格**​：方案内容一定要具备专业性和亲和力。
+​**输出范围**​：方案中一定要穿插人物对话，模拟情境，出具5套不同方案。
+
+Tips：这里有个{**设置变量**}，我们后面章节会介绍。
+
+### 善用工具
+
+#### 让AI生成提示词
+
+如果你是一个程序员，一定接触过Github Copilot或者Cursor一样的代码生成工具，一旦你用过这些工具，基本上就回不去了，会一直用下去。那么提示词工程里有没有类似的工具呢？答案是有的。我用的比较多的是PromptPilot和PromptPerfect。
+
+#### 借鉴别人的Prompt
+
+​**PromptLayer**​：被称为Prompt界的Git，其设计理念类似于Git，主要为工程团队和PM协作提供服务。它可以记录每一次Prompt的修改，形成可审计的变更历史，每个Prompt版本都能进行Diff对比，还能与模型响应绑定以及进行历史趋势分析。
+
+## 提示词工程：调优和测试阶段
+
+写代码到了调优和测试阶段，意味着你的代码能跑通了，基本功能已经实现了。提示词工程也类似，到了这个阶段就是对提示词进行优化了。因此，这部分内容更像是最佳实践的分享了。
+
+### 重构：让提示词保持“好味道”
 
 Hard code --> Use variables in prompts
 Refractoring --> Experiment with input formats and writing styles; experiment with output formats
 Code review --> Experiment together with other prompt engineers
 Perfromance tunning --> Document the warious prompt attempts；CoT Best practices
 
-## 提示词工程：测试阶段
+### 测试：让提示词更加“健壮”
 
 Unit testing --> self-consistency
 
-## 提示词工程：总结
+
+## 总结
 
 最佳实践的总结
 
@@ -314,4 +356,7 @@ Unit testing --> self-consistency
 
 1. [Prompt Engineering](https://www.gptaiflow.com/assets/files/2025-01-18-pdf-1-TechAI-Goolge-whitepaper_Prompt%20Engineering_v4-af36dcc7a49bb7269a58b1c9b89a8ae1.pdf)
 2. [Large Language Model Guided Tree-of-Thought](https://arxiv.org/pdf/2305.08291)
+3. [REACT: SYNERGIZING REASONING AND ACTING IN LANGUAGE MODELS](https://arxiv.org/pdf/2210.03629)
+4. [TAKE A STEP BACK: EVOKING REASONING VIA ABSTRACTION IN LARGE LANGUAGE MODELS](https://openreview.net/pdf?id=3bq3jsvcQ1)
+5. [丰富的CRISPE Prompt Framework](https://cloud.baidu.com/doc/WENXINWORKSHOP/s/3lommshv8)
 
