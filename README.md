@@ -14,9 +14,9 @@
 
 ## 高级篇
 
-### 聊聊提示词工程
+### 提示词工程
 
-### Word Embedding: 词表达考古史
+### Word Embedding: 词表达发展史
 
 ### Word Embedding: 详谈Skip-gram
 
