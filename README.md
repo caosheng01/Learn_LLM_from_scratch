@@ -16,17 +16,16 @@
 
 ### 提示词工程
 
-### Word Embedding: 词表达发展史
+### 词表达发展史
 
-### Word Embedding: 详谈Skip-gram
+### 详谈Skip-gram
 
 ### 谈谈高效微调技术：LoRA
 
-### 详谈RAG（TBD）
+### 深入RAG
 
 ### 浅议Agent（TBD）
 
 ### 多模态（TBD）
 
 ## 附录
-
