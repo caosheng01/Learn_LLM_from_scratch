@@ -30,7 +30,7 @@
 下图中，把各种PEFT方法按照上述分类做了一个总结。
 ![LoRA_PEFT.png](../images/LoRA_PEFT.png)
 
-目前，从效果来讲，增加额外参数(Additive)效果最好，LoRA也属于这一类中，如果从发展史来介绍各种代表性的算法，文章要写的很长。本文的重点是LoRA，所以笔者就介绍LoRA原论文里提及的两种算法，即Adapter-tuning和Prefix-tuning。
+目前，从效果来讲，增加额外参数(Additive)效果最好，LoRA也属于这一类中，如果从发展史来介绍各种代表性的算法，文章要写的很长。本文的重点是LoRA，所以我们就介绍LoRA原论文里提及的两种算法，即Adapter-tuning和Prefix-tuning。
 
 ### Adapter-tuning
 
@@ -134,9 +134,9 @@ $$
 $$
 
 我们仔细思考一下**因式分解**过程，其实这个方法就是找到对$901,800,900$而言，重要的几个数：$2,3,5,7,11,13$，即**质数**(Prime Number)。随便说一下，Prime在英语中，其实就有“重要的”这个意思。
-Tips: 上述这个例子过于简单，大家借鉴一下思路。如果想深入理解如何找到“重要”的参数思想，笔者建议去学一下经典的PCA(Principal Component Analysis)算法。
+Tips: 上述这个例子过于简单，大家借鉴一下思路。如果想深入理解如何找到“重要”的参数思想，建议有兴趣的读者去学一下经典的PCA(Principal Component Analysis)算法。
 
-基础篇中，笔者已经说明，机器学习其实就是调整矩阵参数的权重。结合一下上面这个例子，我们能不能找到类似于的办法解决。
+基础篇中已经说明，机器学习其实就是调整矩阵参数的权重。结合一下上面这个例子，我们能不能找到类似于的办法解决。
 问题就转变为，如何找到矩阵的“少数且重要的参数”。我们不禁会问，初等数学中的因式分解和质数的概念，在矩阵中有没有类似的概念呢？答案是，有的。矩阵的**秩**(Rank)和**奇异值分解**(SVD,Singular Value Decomposition)就是对应**质数**和**因式分解**的概念。
 
 ### 秩
@@ -220,7 +220,7 @@ $$
 
 $$
 \begin{aligned}
-A_{approx} & =  U_{approx}\Sigma_{approx}V_{approx}^T \\ where \quad        
+A_{approx} & =  U_{approx}\Sigma_{approx}V_{approx}^T \\ where \quad      
 & U_{approx}=\begin{bmatrix}-0.2148&-0.8872\\-0.5206&-0.2496\\-0.8263&0.3880\end{bmatrix} \\
 & \Sigma_{approx}=\begin{bmatrix}16.8481&0\\0&1.0684\end{bmatrix} \\
 & V_{approx}^T=\begin{bmatrix}-0.4797&-0.5724\\-0.7767&-0.0757\end{bmatrix}
@@ -282,7 +282,7 @@ Tips: 如果顺着上面这个思路，倒是很容易用这个SVD的办法来�
 
 #### LoRA矩阵降维
 
-这个必须要有，是所有PEFT的基础。LoRA的架构也很简单，就是针对$\Delta W$做了个矩阵降维的操作，再把降维的矩阵，最终升维成和原来$W$一样的维度。命名也很随意（笔者的直觉），降维的矩阵叫A，升维的矩阵叫B。
+这个必须要有，是所有PEFT的基础。LoRA的架构也很简单，就是针对$\Delta W$做了个矩阵降维的操作，再把降维的矩阵，最终升维成和原来$W$一样的维度。命名也很随意（我的直觉，没依据的瞎猜），降维的矩阵叫A，升维的矩阵叫B。
 从数学上理解，全参数微调$d$维矩阵$\Delta W$，需要调整$d \times d$个参数。引入了r维度的矩阵A和B矩阵后，只需要调整调整$2 \times r \times d$个参数。当然，r要远小于d才能起到减少计算的目的。
 
 #### LoRA超参数
@@ -291,7 +291,7 @@ Tips: 如果顺着上面这个思路，倒是很容易用这个SVD的办法来�
 模型训练中，为了让Loss function快速收敛，需要引入个缩放因子(Scalling Factor)。别被这些个名词，收敛啊，缩放啊，唬住。说白了，就除以个数，让$\alpha$的值变小时，更快而已。命名？还是沿用随意风格吧，这次直接取英文缩写，最重要的单词Rank的r吧，够简单明了吧。
 随便提一下，作者做实验的时候，r的取值，也很有理科生特有的浪漫，处处透露着“随意”。既然是搞计算机的，那就二进制吧。取1，2，4，8，64吧，哈哈。
 
-写到这里的时候，笔者一直在疑惑，为啥直接除以一个整数啊? 为什么不参考注意力模型中的公式，除以一个$\sqrt{d}$啊。结果，笔者找到了rsLoRA这篇论文。唉，已经有人发论文了，毕竟这个也太容易想到了。
+写到这里的时候，我一直在疑惑，为啥直接除以一个整数啊? 为什么不参考注意力模型中的公式，除以一个$\sqrt{d}$啊。结果，找到了rsLoRA这篇论文。唉，已经有人发论文了，毕竟这个也太容易想到了。
 
 #### LoRA公式
 
@@ -316,7 +316,7 @@ $$
 * 低秩矩阵A：采用高斯初始化
 * 低秩矩阵B：采用零初始化
 
-行文至此，笔者突然想到一个问题，既然处处透露出随意，是不是可以把A，B的初始化换一下？感觉也没太大问题嘛，结果还真让我找到了。下文是LoRA的第一作者(Edward J Hu)关于这个问题的回复。
+行文至此，我突然想到一个问题，既然处处透露出随意，是不是可以把A，B的初始化换一下？感觉也没太大问题嘛，结果还真让我找到了。下文是LoRA的第一作者(Edward J Hu)关于这个问题的回复。
 ![LoRA_AB_Init.png](../images/LoRA_AB_Init.png)
 哈哈，就是这么的随意。真是中国人特有的浪漫啊！
 
@@ -325,14 +325,14 @@ $$
 #### 用LoRA来训练
 
 站在2024年这个时间节点，时间上的LLM都采用的是Transformer架构，我们来看了一下Transformer架构吧，主要有Multi-Head Attention层和FFN层。
-原论文里，作者直接针对Attention层，做LoRA。不过从原理上讲，FFN由多层感知机(MLP)组成，其本质是一系列的线性变换和非线性激活函数的组合，而LoRA的核心思想是通过低秩矩阵分解来近似原模型的参数更新，这种方法在理论上适用于任何可以表示为矩阵乘法形式的神经网络层，包括FFN中的线性层。也有一些论文和项目是有对FFN经行LoRA训练的，比如**LLaVA-MoE**和**LoRAMoE**。不过有个公认的结论，就是针对Attention层做LoRA训练，收益最大。实际项目中，笔者的团队，也只针对Attention层进行LoRA。
+原论文里，作者直接针对Attention层，做LoRA。不过从原理上讲，FFN由多层感知机(MLP)组成，其本质是一系列的线性变换和非线性激活函数的组合，而LoRA的核心思想是通过低秩矩阵分解来近似原模型的参数更新，这种方法在理论上适用于任何可以表示为矩阵乘法形式的神经网络层，包括FFN中的线性层。也有一些论文和项目是有对FFN经行LoRA训练的，比如**LLaVA-MoE**和**LoRAMoE**。不过有个公认的结论，就是针对Attention层做LoRA训练，收益最大。
 现在，我们来看一下Attention层，有哪些需要训练的矩阵，一共有4个，即$W_q, W_k, W_v,W_0$。其中，$W_0$就是PTM的原始矩阵，即上文提到的矩阵$W$。
 问题来了，我们对这4个矩阵都做LoRA训练吗？不知道，理论上说，无法给出推导。那么，就动手试出来吧。
 设计一个试验，把各种排列组合都试一遍，当然，还要加上缩放因子$r$，看结果那几个因子最重要。具体数据，就不一一讲解了，直接说结论：
 
 > 根据LoRA论文的试验数据，作者认为采用${W_q, W_v, r=4}$这个组合，对于一般的NLP问题，效果最好。
 
-从笔者的实际项目经验来说，r的取值，还是要更加不同的数据集多试几次，以实际效果为准。在做LoRA训练时，我们一般用LLM公开的SFT训练脚本，基本上都采用Pytorch的PEFT库，参数都用默认值。通过debug，我们发现LLM的训练脚本，默认对每一层都做了LoRA，即${q,k,v,o}$、FFN中的MLP、甚至连embedding也做了LoRA。
+从我的实际项目经验来说，r的取值，还是要更加不同的数据集多试几次，以实际效果为准。在做LoRA训练时，我们一般用LLM公开的SFT训练脚本，基本上都采用Pytorch的PEFT库，参数都用默认值。通过debug，我们发现LLM的训练脚本，默认对每一层都做了LoRA，即${q,k,v,o}$、FFN中的MLP、甚至连embedding也做了LoRA。
 
 对了，顺便提一句，那个类似于“穷举法”的试验，有个高级的名词：
 **消融实验（Ablation Experiment）**：是一种用于研究模型中不同组件或特征贡献程度的实验方法。在一个复杂的机器学习模型中，通过去除（或 “消融”）某些部分，如特定的层、模块、特征或机制，然后比较原始模型和消融后的模型在性能指标（如准确率、召回率、F1 值、损失函数值等）上的差异，以此来分析被去除部分对模型整体性能的重要性。
@@ -346,14 +346,14 @@ $$
 #### 写在最后
 
 行文至此，基本上就LoRA就讲完了。本该说几句漂亮话，结束这篇文章。
-不过，笔者脑子里突然冒出一个和LoRA相关的很重要的技术，我甚至不知道这个方法有没有专业名称，但是我认为这个技术将会是2025年的热点。
+不过，我脑子里突然冒出一个和LoRA相关的很重要的技术，我甚至不知道这个方法有没有专业名称，但是我认为这个技术将会是2025年的热点。我不清楚，这个业界的专业术语叫什么，我们团队称之为“Dynamic LoRA”技术。
 问题是这样的，在实际训练中，我们经常要用一个大语言模型，来对应很多种下游任务。如果只训练一个通用的LoRA，在处理不同的下游任务，效果不是特别好。经常会出现“按下葫芦浮起瓢”的现象。
 在LLM跑马圈地的初期，业界的解决方案，是非常简单粗暴的。提供多个LLM，针对每个大类任务用一个LoRA。显然，这种方案会频繁的切换LLM，或者部署多个LLM实例。要么影响用户体验，要么非常费钱。
 能不能只用一个LLM实例，通过切换不同的LoRA来达到同样的效果呢？答案是可以的。如下图所示:
 
 ![LoRA_switch_lora.svg](../images/LoRA_switch_lora.svg)
 
-在处理不同的下游任务时，可以动态加载不同的LoRA来达到最佳效果。从原理上讲，加载和卸载LoRA矩阵，对应矩阵加法和减法，开销很小。比起加载LLM来说，根本就不是一个数量级别的操作。从业界来看，硬件厂商的驱动已经开始或者即将开始支持这个实现了。普通用户将在2025年看到越来越多的app采用这种技术。
+在处理不同的下游任务时，可以动态加载不同的LoRA来达到最佳效果。从原理上讲，加载和卸载LoRA矩阵，对应矩阵加法和减法，开销很小。比起加载LLM来说，根本就不是一个数量级别的操作。从业界来看，显卡厂商（比如CUDA），已经支持了。CPU厂商的驱动已经开始陆续支持这个实现了。普通用户将在2025年看到越来越多的app采用这种技术。
 
 最后再提一嘴，LoRA论文最后一个章节(Understanding the Low-Rank Updates)最好花时间啃完。数学原理就是用SVD分解后，来验证LoRA的有效性，这也是一种用的非常普遍的数学验证方法。毕竟“知其然，知其所以然”，才能成为一个优秀的计算机从业人员。
 
@@ -361,10 +361,14 @@ $$
 
 ## 参考文献
 
-1. [Scaling Down to Scale Up: A Guide to Parameter-Efficient Fine-Tuning](https://arxiv.org/pdf/2303.15647)
-2. [Parameter-Efficient Transfer Learning for NLP](https://arxiv.org/pdf/1902.00751)
-3. [Prefix-Tuning: Optimizing Continuous Prompts for Generation](https://arxiv.org/pdf/2101.00190)
-4. [LORA: LOW-RANK ADAPTATION OF LARGE LANGUAGE MODELS](https://arxiv.org/pdf/2106.09685)
-5. [A Rank Stabilization Scaling Factor for Fine-Tuning with LoRA](https://arxiv.org/pdf/2312.03732)
-6. [大模型微调系列之：大模型低秩适配器LoRA](https://zhuanlan.zhihu.com/p/651951920)
+[1] [Scaling Down to Scale Up: A Guide to Parameter-Efficient Fine-Tuning](https://arxiv.org/pdf/2303.15647)
 
+[2] [Parameter-Efficient Transfer Learning for NLP](https://arxiv.org/pdf/1902.00751)
+
+[3] [Prefix-Tuning: Optimizing Continuous Prompts for Generation](https://arxiv.org/pdf/2101.00190)
+
+[4] [LORA: LOW-RANK ADAPTATION OF LARGE LANGUAGE MODELS](https://arxiv.org/pdf/2106.09685)
+
+[5] [A Rank Stabilization Scaling Factor for Fine-Tuning with LoRA](https://arxiv.org/pdf/2312.03732)
+
+[6] [大模型微调系列之：大模型低秩适配器LoRA](https://zhuanlan.zhihu.com/p/651951920)

@@ -5,7 +5,7 @@
 
 ## 写在前面
 
-学生时代，每次读论文时，我都会跳过Introduction/Background部分，直接看Solution部分。随着年纪的增长，开始注重阅读这部分内容，即提出问题部分。而在学习Solution部分时，更加注重论文作者为什么会想到这个办法来解决问题。实话实说，用这种方式读论文，效率非常低，就笔者自己来说，看论文的速度以及比不上学生时代十分之一了。但是，依旧乐此不疲……
+学生时代，每次读论文时，我都会跳过Introduction/Background部分，直接看Solution部分。随着年纪的增长，开始注重阅读这部分内容，即提出问题部分。而在学习Solution部分时，更加注重论文作者为什么会想到这个办法来解决问题。实话实说，用这种方式读论文，效率非常低，就我自己来说，看论文的速度以及比不上学生时代十分之一了。但是，依旧乐此不疲……
 
 书接上文，闲话少叙。
 
@@ -28,8 +28,9 @@
 解：我们用`Y`表示:有搭配关系；用`N`表示:没有搭配关系。
 我们就可以用下面这个二维的表格来求解。
 
+
 |   | a   | b   | c   | d   |
-|---|-----|-----|-----|-----|
+| - | --- | --- | --- | --- |
 | a | N/A | Y   | N   | N   |
 | b | Y   | N/A | N   | N   |
 | c | N   | Y   | N/A | Y   |
@@ -50,8 +51,9 @@ $$
 
 我们也用概率方式，把(b,c)和(c,d)关系也表示出来。这样上面的二维表格，就可以表示为：
 
+
 |   | a   | b   | c   | d   |
-|---|-----|-----|-----|-----|
+| - | --- | --- | --- | --- |
 | a | N/A | 0.6 | 0.3 | 0.1 |
 | b | 0.6 | N/A | 0.1 | 0.3 |
 | c | 0.3 | 0.1 | N/A | 0.6 |
@@ -71,8 +73,9 @@ $$
 
 其中，第二部提到了一个非常重要的概念——词汇表(Vocabulary Table)。我们用的Tokens是可以用有限个词，表述出来的。如果结合到上述二维表格，换句话说，是可以用有限的行和列表示出来的。假设，词汇表里面有n个词，上面的二维表格就可以表示为，如下图：
 
+
 |       | $W_1$           | $W_2$           | ... | $W_n$           |
-|-------|-----------------|-----------------|-----|-----------------|
+| ----- | --------------- | --------------- | --- | --------------- |
 | $W_1$ | N/A             | $P_{(w_1,w_2)}$ | ... | $P_{(w_1,w_n)}$ |
 | $W_2$ | $P_{(w_1,w_2)}$ | N/A             | ... | $P_{(w_2,w_n)}$ |
 | ...   | ...             | ...             | ... | ...             |
@@ -96,7 +99,7 @@ W_1 =\left[\begin{matrix}
       ... \\
       P_{(w_1,w_n)}
       \end{matrix}\right] \\
-    
+  
 其中， \sum_{i=1}^{n} P_{(w_1,w_i)} = 1
 $$
 
@@ -108,7 +111,7 @@ $$
 因为最终输出是一个概率值，且总和为1，我们很容易想到用Softmax函数。同时，我们把$W_1$用独热码做一个编码，上面这个过程就变成了下图：
 ![Skip_gram_w1_2.svg](../images/Skip_gram_w1_2.svg)
 
-现在实现Word2Vec的整体流程，我们还剩下最后一步，找到一个数学模型（即，用函数来描述）。一般来说，数学模型就是一个或者一组数学公式。因为现实世界过于复杂，找到一组精确的数学公式来描述，非常难。随着人工智能邻域的神经网络技术发展，我们一般直接训练一个神经网络来对应。所以上图，笔者就直接用神经网络（NN）来代替函数（Function）了。接下来，我们就动手设计一个NN模型。
+现在实现Word2Vec的整体流程，我们还剩下最后一步，找到一个数学模型（即，用函数来描述）。一般来说，数学模型就是一个或者一组数学公式。因为现实世界过于复杂，找到一组精确的数学公式来描述，非常难。随着人工智能邻域的神经网络技术发展，我们一般直接训练一个神经网络来对应。所以上图，我就直接用神经网络（NN）来代替函数（Function）了。接下来，我们就动手设计一个NN模型。
 
 ### 动手设计神经网络模型
 
@@ -149,7 +152,7 @@ $$
 
 ### 训练网络模型
 
-上文讲到，这个网络模型的核心部分，其实就是那个隐藏层（300维），我们需要用训练数据，得到这个隐藏层300个参数的权重。如何给这300个参数赋权重呢？在上一篇《词表达考古史》中提到，在Word2Vec的模型中，常用的有两种方法，一个是CBOW(给定上下文，预测中心词)，另一个就是Skip-Gram(给定中心词，预测上下文)。在实际工作中，Skip-Gram的效果要好于CBOW，所以笔者这里只讲介绍Skip-Gram。
+上文讲到，这个网络模型的核心部分，其实就是那个隐藏层（300维），我们需要用训练数据，得到这个隐藏层300个参数的权重。如何给这300个参数赋权重呢？在上一篇《词表达考古史》中提到，在Word2Vec的模型中，常用的有两种方法，一个是CBOW(给定上下文，预测中心词)，另一个就是Skip-Gram(给定中心词，预测上下文)。在实际工作中，Skip-Gram的效果要好于CBOW，所以这里只讲介绍Skip-Gram。
 
 #### 准备训练数据
 
@@ -164,15 +167,16 @@ $$
 
 我们设置$skip\_window=2$，将获得下表中的训练语料。
 
-| Source Text                                        | Input Word  | Span + Input Word                | Training Samples                                           |
-|----------------------------------------------------|-------------|----------------------------------|------------------------------------------------------------|
-| ***The*** quick brown fox jumps over the lazy dog. | ***The***   | ***The*** quick brown            | (the, quick); (the, brown)                                 |
-| The ***quick*** brown fox jumps over the lazy dog. | ***quick*** | The ***quick***  brown fox       | (quick, the); (quick, brown); (quick, fox)                 |
-| The quick ***brown*** fox jumps over the lazy dog. | ***brown*** | The quick ***brown*** fox jumps  | (brown, the); (brown, quick); (brown, fox); (brown, jumps) |
-| The quick brown ***fox*** jumps over the lazy dog. | ***fox***   | quick brown ***fox*** jumps over | (fox, quick); (fox, brown); (fox, jumps); (fox, over)      |
-| The quick brown fox ***jumps*** over the lazy dog. | ***jumps*** | brown fox ***jumps*** over the   | (jumps, brown); (jumps, fox); (jumps, over); (jumps, the)  |
-| The quick brown fox jumps ***over*** the lazy dog. | ***over***  | fox jumps ***over***  the lazy   | (over, fox); (over, jumps); (over, the); (over, lazy)      |
-| The quick brown fox jumps over ***the*** lazy dog. | ***the***   | jumps over ***the***  lazy dog   | (the, jumps); (the, over); (the, lazy); (the, dog)         |
+
+| Source Text                                        | Input Word  | Span + Input Word               | Training Samples                                           |
+| -------------------------------------------------- | ----------- | ------------------------------- | ---------------------------------------------------------- |
+| ***The*** quick brown fox jumps over the lazy dog. | ***The***   | ***The*** quick brown           | (the, quick); (the, brown)                                 |
+| The***quick*** brown fox jumps over the lazy dog.  | ***quick*** | The***quick***  brown fox       | (quick, the); (quick, brown); (quick, fox)                 |
+| The quick***brown*** fox jumps over the lazy dog.  | ***brown*** | The quick***brown*** fox jumps  | (brown, the); (brown, quick); (brown, fox); (brown, jumps) |
+| The quick brown***fox*** jumps over the lazy dog.  | ***fox***   | quick brown***fox*** jumps over | (fox, quick); (fox, brown); (fox, jumps); (fox, over)      |
+| The quick brown fox***jumps*** over the lazy dog.  | ***jumps*** | brown fox***jumps*** over the   | (jumps, brown); (jumps, fox); (jumps, over); (jumps, the)  |
+| The quick brown fox jumps***over*** the lazy dog.  | ***over***  | fox jumps***over***  the lazy   | (over, fox); (over, jumps); (over, the); (over, lazy)      |
+| The quick brown fox jumps over***the*** lazy dog.  | ***the***   | jumps over***the***  lazy dog   | (the, jumps); (the, over); (the, lazy); (the, dog)         |
 
 在论文《Distributed Representations of Words and Phrases and their Compositionality》，Word2Vec作者提出以下两个创新点：
 
@@ -231,9 +235,10 @@ $$
 
 先来回顾一下，上文的例子。我们以fox为Input Word，就得到4组训练样本（Training Sample）。
 
-| Source Text                                        | Training Samples (Input Word, Output Word)            |
-|----------------------------------------------------|-------------------------------------------------------|
-| The quick brown ***fox*** jumps over the lazy dog. | (fox, quick); (fox, brown); (fox, jumps); (fox, over) |
+
+| Source Text                                       | Training Samples (Input Word, Output Word)            |
+| ------------------------------------------------- | ----------------------------------------------------- |
+| The quick brown***fox*** jumps over the lazy dog. | (fox, quick); (fox, brown); (fox, jumps); (fox, over) |
 
 我们采用(fox, quick)为训练样本，正确的输出是一个独热码（最终通过Softmax转成概率值），即Input Word（fox）对于Output Word(quick)的神经元为1，其他都是0；我们得到这个向量就是1个1，9999个0；如果按照这种做法，我们模型需要更新权重参数的个数为：
 
@@ -277,4 +282,3 @@ $$
 [Word2Vec Tutorial - The Skip-Gram Model](https://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/)
 
 [Word2Vec Tutorial Part 2 - Negative Sampling](https://mccormickml.com/2017/01/11/word2vec-tutorial-part-2-negative-sampling/)
-
