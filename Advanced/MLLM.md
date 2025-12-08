@@ -4,11 +4,14 @@
 
 回顾AI的发展史，从某种意义上说就是计算机对人脑的仿真，和人类进化史一样，人类先学会从视觉里学会认识事物，先诞生了绘画，然后是语言，最后是文字。现代AI技术的发展的历史轨迹也和人类进化史类似，先解决机器视觉（Visual）的问题，然后再解决自然语言（Language）处理。
 新的问题来了，众所周知，解决Visual中问题，依赖于CNN。而解决NLP问题呢，都采用Transformer。从生物仿真学的角度来说，人脑解决视觉和语言问题，有且仅有一个器官。用科研的角度来说，当前AI用CNN来处理图像，用Transformer处理文本的解决方案，不够优美（elgant），甚至有点丑陋（Urgly）。其实，物理学在18世纪后叶也有类似的情况，传统力学用牛顿的一套公式，新兴的电学和磁学用的是另一套公式，最终麦克斯韦统一了这两套系统。自然而然，搞AI的这帮聪明脑袋中，就有很多人开始尝试用统一的方式去处理Visual和Language。
+
+### 本章约定
+
 在展开介绍这帮聪明脑袋的成果之前，先解释一下Visual和Language术语。在处理机器视觉（Visual）问题的时候，主要围绕这处理图片（Image）和视频（Video）这两方面工作。本文的重点是聚焦2D的图像（Image），原因也很简单，当前时间点（2025年底），AI处理Image问题，解决方案相对比较成熟。同时，处理的Video的问题也必须要深入理解如何处理Image的。回到传统的Language定义，包含声音（Voice）和文字（Text）两方面工作，LLM处理语音这类问题时，基本上先把语音转化为文本（ASR过程），LLM处理完，输出文本，最后转成语音（TTS过程）。所以，本文提到Language时，如果没有特别说明，就是指处理文本(Text)的过程。提到Visual时，不特殊说明都是二维图片（Image）处理。
 
 ## 多模态的技术基石
 
-上文提到，很多人开始尝试用统一的方法处理Visual和Language。这里我们介绍两个非常有影响力的工作，分别是ViT和CLIP。
+上文提到，很多人开始尝试用统一的方法处理Visual和Language。这里我们介绍一个非常有影响力的工作——ViT。
 
 ### ViT: 用Transformer统一处理VL问题。
 
@@ -52,7 +55,13 @@ $$
 
 ViT后续的处理，和标准Transformer Encoder模型基本上是一致的。因为本文要讨论的内容比较多，关于ViT，只会介绍最核心的思想，如果读者想了解细节，建议直接读一下原始论文。
 
-接下来，我们介绍另一个简单且高效的模型CLIP。
+### VL模型迎来爆发期
+
+2020年，伴随着ViT的横空出世，大家已经认识到多模态解决方案的大爆发时刻即将来临。短短的2，3年，多模态在VL这个赛道就卷出了结果。在开始介绍这场波澜壮阔的卷王赛道之前，我们先来聊聊AI这个领域如何做研究。一般人先想到的就是**模型架构**，这个是最核心的创新，比如NN和Transformer架构就属于这一类。还有一类就是**训练方法**，这一类的代表就是两阶段学习（PTM+SFT），强化学习和对比学习等。最后一类是关于**训练数据**的，这部分工作不难但是很费时间，对业界的贡献也是很显著的，典型的代表就Image领域的ImageNet和VL领域CoCo。本文主要围绕着新的**模型架构**和**训练方法**来介绍。下图是VL模型迭代年鉴，从2020年ViT开始，到2022年BeiTv3这个集大成者的模型出现。
+
+![MLLM_VL.svg](../images/MLLM_VL.svg)
+
+本文将按照顺序讲解CLIP，ViLT，ALBEF，VLMo到BeiTv3这个五个模型。接下来，我们介绍另一个简单且高效的模型CLIP。
 
 ### CLIP：让模型同时理解图像和文字
 
@@ -65,7 +74,11 @@ ViT后续的处理，和标准Transformer Encoder模型基本上是一致的。�
 * 多模态分类(Multimodal classification, image+text -> label)
 * 增强理解/生成任务(Better understanding/generation, image+text -> label/text)
 
-如果仔细看一下这些任务，无一例外，都需要AI模型同时理解图片和文字。回想一下Transformer处理NLP的步骤，把Token映射到一个语义空间里，取概率最大的Token输出。前文提到2020年ViT已经成功的解决了第一个问题——舍弃CNN，用Transformer这个特征提取器统一处理Image和Text问题。那么现在第二个问题来了，需要用一个方法把Image和Text，通过跨模态学习，将图像和文本在统一的语义空间中表示，能够让AI模型同时理解Image和Text。2021年，CLIP的出现，彻底的解决了这个问题。
+如果仔细看一下这些任务，无一例外，都需要AI模型同时理解图片和文字（VL Understanding）。回想一下Transformer处理NLP的步骤，把Token映射到一个语义空间里，取概率最大的Token输出。前文提到2020年ViT已经成功的解决了第一个问题——舍弃CNN，用Transformer这个特征提取器统一处理Image和Text问题。那么现在第二个问题来了，需要用一个方法把Image和Text，通过跨模态学习，将图像和文本在统一的语义空间中表示，能够让AI模型同时理解Image和Text,即完成下图中的多模态融合层（Modality Interacton）的工作。
+
+![MLLM_two_tower.svg](../images/MLLM_two_tower.svg)
+
+随便提一下，上图这个模型也称为**双塔模型**，擅长处理VL Understanding问题。2021年，CLIP的出现，解决了这个问题。
 
 #### CLIP架构
 
@@ -93,6 +106,25 @@ CLIP，全名Contrastive Language-Image Pre-training，OpenAI团队提出的一�
    这一步就是做预测了，即CLIP用于做Zero-shot的分类任务了。输入一张图片dog，图像编码器将其向量化，然后把这个dog图片的向量和所有文本向量进行对比，找到与这个图片向量最接近的文本向量，从而实现Zero-shot分类。
 
 CLIP原理非常简单，很容易想到。在OpenAI团队做这个之前，就有人做一样的事情，但是效果远远没有CLIP好。其核心原因就是OpenAI喜欢大力出奇迹，又发挥了一把Scalling Law的威力。最后提一句，CLIP把Text和Image对比学习的办法，简称为ITC（Image-Text Constrastive），这个简称在后续章节中还会用到。
+
+接下来，我们来介绍ViLT，这个模型也是ViT同一个团队出品的。
+
+### ViLT：用Transformer统一Visual Embedding层
+
+ViLT(Vision-and-Language Transformer)是一种多模态模型，旨在通过Transformer架构统一视觉和语言的嵌入层。由ViT团队提出，主要特点是去掉了传统视觉任务中的卷积操作和区域特征提取器，直接将图像和文本输入到Transformer中进行联合建模。
+回到文章最初提到的**双塔模型**部分的VE（Visual Embedding）部分，2021年前，VL预训练比较依赖图像特征提起，比如，区域监督（如目标检测）与卷积架构（如ResNet）。这样造成Visual Embedding效率很低，模型在这部分花了大量的时间。ViLT的做法简单粗暴，直接用patch projection代替区域监督和卷积的工作。结果模型速度飞快，准确率比起传统方法下降一点，还能接收。结果详见下图：
+
+![MLLM_ViLT_1.png](../images/MLLM_ViLT_1.png)
+
+来看一下ViLT的架构图，一个典型的**双塔模型**，左下是典型的Lang/Text Embedding, 右下是Visual Embedding。MI层，用的是传统的Transformer Encoder。这边聊一下最上层的ITM（Image Text Matching）和MLM（Masked Language Modeling）方法。ITM方法就是对图像文本对（Image-Text Pair）做预测，如果图片和文字描述一致，就返回True。MLM就是BERT模型里采用方法一样，有兴趣的读者，请读一下《大语言模型：通往通用人工智能之路》，这里就不做过多的陈述了。
+
+![MLLM_ViLT_2.png](../images/MLLM_ViLT_2.png)
+
+不管是ViLT还是CLIP，从技术上来说，都不复杂，只是把别的领域用的好的方法应用到VL这个领域。接下来要介绍的模型就开始啃硬骨头了，开始真正意义上去更改模型架构以达成较好的效果。
+
+### ALBeF
+
+
 
 ## 参考文献
 
