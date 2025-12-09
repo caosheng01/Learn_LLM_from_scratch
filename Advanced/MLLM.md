@@ -107,24 +107,61 @@ CLIP，全名Contrastive Language-Image Pre-training，OpenAI团队提出的一�
 
 CLIP原理非常简单，很容易想到。在OpenAI团队做这个之前，就有人做一样的事情，但是效果远远没有CLIP好。其核心原因就是OpenAI喜欢大力出奇迹，又发挥了一把Scalling Law的威力。最后提一句，CLIP把Text和Image对比学习的办法，简称为ITC（Image-Text Constrastive），这个简称在后续章节中还会用到。
 
-接下来，我们来介绍ViLT，这个模型也是ViT同一个团队出品的。
+#### CLIP架构的潜在问题
+
+我们再回顾下图中CLIP架构，CLIP的VE和TE用的都是Transformer，而融合层（MI）只是一个简单的点乘操作（consine相似度）。从模型结构来讲，就是VE层和TE层，要比MI层复杂的多，即
+
+$$
+VE = TE > MI
+$$
+
+![MLLM_CLIP_Arch_2.svg](../images/MLLM_CLIP_Arch_2.svg)
+
+这样的结构，在处理文档普遍检索/匹配任务问题的时候，工作的很好。但是在处理其他问题，比如VQA的时候，效果就一般了，其根源就在于MI层太简单了。后续的模型发展经历也正是对MI有了很深入的改进。在介绍这些复杂模型前，我们还需要解决一些历史遗留问题，就是上面“双塔模型”中的VE层。而这部分改进工作是由ViLT来完成的，这个模型也是ViT同一个团队出品的。
 
 ### ViLT：用Transformer统一Visual Embedding层
 
 ViLT(Vision-and-Language Transformer)是一种多模态模型，旨在通过Transformer架构统一视觉和语言的嵌入层。由ViT团队提出，主要特点是去掉了传统视觉任务中的卷积操作和区域特征提取器，直接将图像和文本输入到Transformer中进行联合建模。
-回到文章最初提到的**双塔模型**部分的VE（Visual Embedding）部分，2021年前，VL预训练比较依赖图像特征提起，比如，区域监督（如目标检测）与卷积架构（如ResNet）。这样造成Visual Embedding效率很低，模型在这部分花了大量的时间。ViLT的做法简单粗暴，直接用patch projection代替区域监督和卷积的工作。结果模型速度飞快，准确率比起传统方法下降一点，还能接收。结果详见下图：
+回到文章最初提到的**双塔模型**部分的VE（Visual Embedding）部分，2021年前，VL预训练比较依赖图像特征提起，比如，区域监督（如目标检测）与卷积架构（如ResNet）。这样造成Visual Embedding效率很低，模型在这部分花了大量的时间。ViLT的做法简单粗暴，直接用patch embedding代替区域监督和卷积的工作。结果模型速度飞快，准确率比起传统方法下降一点，还能接收。结果详见下图：
 
 ![MLLM_ViLT_1.png](../images/MLLM_ViLT_1.png)
 
-来看一下ViLT的架构图，一个典型的**双塔模型**，左下是典型的Lang/Text Embedding, 右下是Visual Embedding。MI层，用的是传统的Transformer Encoder。这边聊一下最上层的ITM（Image Text Matching）和MLM（Masked Language Modeling）方法。ITM方法就是对图像文本对（Image-Text Pair）做预测，如果图片和文字描述一致，就返回True。MLM就是BERT模型里采用方法一样，有兴趣的读者，请读一下《大语言模型：通往通用人工智能之路》，这里就不做过多的陈述了。
+来看一下ViLT的架构图，一个典型的**双塔模型**，左下是典型的Lang/Text Embedding, 右下是Visual Embedding。MI层，用的是传统的Transformer Encoder。这边聊一下最上层的ITM（Image Text Matching）和MLM（Masked Language Modeling）方法。ITM方法就是对图像文本对（Image-Text Pair）做预测，如果图片和文字描述一致，就返回True。MLM就是BERT模型里采用方法一样，俗称“完型填空”。有兴趣的读者，请读一下《大语言模型：通往通用人工智能之路》，这里就不做过多的陈述了。
 
 ![MLLM_ViLT_2.png](../images/MLLM_ViLT_2.png)
 
-不管是ViLT还是CLIP，从技术上来说，都不复杂，只是把别的领域用的好的方法应用到VL这个领域。接下来要介绍的模型就开始啃硬骨头了，开始真正意义上去更改模型架构以达成较好的效果。
+#### 再论双塔模型
+
+在ViLT论文里，有张图非常有名，就是把双塔模型分成四类。如下图所示：
+![MLLM_two_tower_types.svg](../images/MLLM_two_tower_types.svg)
+
+我们在上一个CLIP章节里，讨论了一下CLIP对应的双塔模型，就是上图中的图(b)。CLIP的缺点就是MI层太小了，应付不了复杂的VL问题，但是其中的ITC很好用且高效。
+
+不管是ViLT还是CLIP，从技术上来说，都不复杂，只是把别的领域用的好的方法应用到VL这个领域。接下来要介绍的模型就开始啃硬骨头了，开始真正意义上去更改模型架构以达成较好的效果。再来看ViLT对应的图(d)，采用了Transformer encoder结构的MI层，VE和TE做的非常简单，总体效果就推理速度来说挺好。但是其他方面，比如训练时间耗时，特定任务的性能不够高。同时，ITM和MLM被ViLT论文里的消融实验证明是有效的方法。最后，我们来看一下ViLBERT和UNITER模型为代表的图(c),最终效果是不错的。证明双塔结构中，$VE>MI>TE$这样的模型结构是最好的。然后，为了处理OD，引入的WPA，在推理阶段性能成问题。那么问题来了，
+
+> 怎么样的双塔结构才是理想的架构？
+
+基于上面的分析，很容易得出结论。如下图所示：
+![MLLM_two_tower_proposal.svg](../images/MLLM_two_tower_proposal.svg)
+
+* 首先，应该是类似图(c)的架构，即$VE>MI>TE$
+* 其次，要有ITC+ITM+MLM。
+
+至此，ALBeF的架构简直呼之欲出了。接下来，我们正式开始介绍ALBeF。
 
 ### ALBeF
 
+ALBeF（Align before Fuse），由 Salesforce Research提出，是一个多模态模型，专注于先对齐然后融合视觉和语言信息，以提升多模态任务的性能。ALBeF的主要特点是在多模态融合之前，分别对视觉和语言信息进行高效的对齐，从而实现更精确和深入的跨模态理解。这种方法在多种视觉-语言任务上表现出色，如图像标注、视觉问答和跨模态检索。
+ALBeF有两个创新点，
 
+1. **Align before Fuse**：模型架构。
+2. **Momentum Distillation**：关于数据清洗的，引入了一个蒸馏模型(momentun model)来给网上爬下来的数据做标注，该方法类似于自监督学习。
+
+#### ALBeF架构
+
+![MLLM_ALBeF_Arch.png](../images/MLLM_ALBeF_Arch.png)
+
+ALBeF 通过其创新的对齐-融合策略，在多模态学习领域实现了显著的进步。它为深入理解和处理视觉和语言信息提供了一种高效且精确的方法，特别适用于复杂的跨模态任务。
 
 ## 参考文献
 
@@ -132,4 +169,5 @@ ViLT(Vision-and-Language Transformer)是一种多模态模型，旨在通过Tran
 2. [Learning Transferable Visual Models From Natural Language Supervision](https://arxiv.org/pdf/2103.00020)
 3. [ViLT: Vision-and-Language Transformer Without Convolution or Region Supervision](https://arxiv.org/pdf/2102.03334)
 4. [一文搞懂多模态：BeiT-3之前的14个多模态+4个周边原理解读](https://zhuanlan.zhihu.com/p/633946545)
+5. [Align before Fuse: Vision and Language Representation Learning with Momentum Distillation](https://arxiv.org/pdf/2107.07651)
 
