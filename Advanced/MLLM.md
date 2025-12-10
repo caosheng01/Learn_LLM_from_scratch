@@ -130,7 +130,7 @@ ViLT(Vision-and-Language Transformer)是一种多模态模型，旨在通过Tran
 
 ![MLLM_ViLT_2.png](../images/MLLM_ViLT_2.png)
 
-#### 再论双塔模型
+#### 讨论双塔模型
 
 在ViLT论文里，有张图非常有名，就是把双塔模型分成四类。如下图所示：
 ![MLLM_two_tower_types.svg](../images/MLLM_two_tower_types.svg)
@@ -144,8 +144,8 @@ ViLT(Vision-and-Language Transformer)是一种多模态模型，旨在通过Tran
 基于上面的分析，很容易得出结论。如下图所示：
 ![MLLM_two_tower_proposal.svg](../images/MLLM_two_tower_proposal.svg)
 
-* 首先，应该是类似图(c)的架构，即$VE>MI>TE$
-* 其次，要有ITC+ITM+MLM。
+1. 应该是类似图(c)的架构，即$VE>MI>TE$
+2. 要有ITC+ITM+MLM。
 
 至此，ALBeF的架构简直呼之欲出了。接下来，我们正式开始介绍ALBeF。
 
@@ -154,14 +154,52 @@ ViLT(Vision-and-Language Transformer)是一种多模态模型，旨在通过Tran
 ALBeF（Align before Fuse），由 Salesforce Research提出，是一个多模态模型，专注于先对齐然后融合视觉和语言信息，以提升多模态任务的性能。ALBeF的主要特点是在多模态融合之前，分别对视觉和语言信息进行高效的对齐，从而实现更精确和深入的跨模态理解。这种方法在多种视觉-语言任务上表现出色，如图像标注、视觉问答和跨模态检索。
 ALBeF有两个创新点，
 
-1. **Align before Fuse**：模型架构。
-2. **Momentum Distillation**：关于数据清洗的，引入了一个蒸馏模型(momentun model)来给网上爬下来的数据做标注，该方法类似于自监督学习。
+1. **Align before Fuse**：提出新的模型架构。
+2. **Momentum Distillation**：动量蒸馏，这个方法是关于数据清洗的，引入了一个蒸馏模型(momentun model)来给网上爬下来的数据做标注，该方法类似于自训练模式。
+
+本文聚焦在模型架构的讲解，对动量蒸馏感兴趣的读者建议看原论文。随便提一下，可以把ALBeF的动量蒸馏结合BLIP模型中的CapFilter一起看，收获会更大。
 
 #### ALBeF架构
 
+下图是ALBeF的架构图
+
 ![MLLM_ALBeF_Arch.png](../images/MLLM_ALBeF_Arch.png)
 
-ALBeF 通过其创新的对齐-融合策略，在多模态学习领域实现了显著的进步。它为深入理解和处理视觉和语言信息提供了一种高效且精确的方法，特别适用于复杂的跨模态任务。
+一起来看一下这张图，VE模块是个12层的encoder，TE模块是6层的。在MI层虽然也是6层的，但是encoder内部比Embedding层要复杂一些。符合我们上个章节提到的$VE > MI > TE$这个描述。同时，在架构图里也能找到ITC，ITM和MLM这些算法。
+Tips：ALBeF的例子告诉我们，很多创新不是一蹴而就的，要善于总结别人的成果。
+
+我们一起来分析一下模型架构，先看一下VE层，如上图左下角所示，给定一张图片，根据ViT的做法，打成patch，然后通过patch embedding送给ViT，这是一个非常标准12层的ViT。输入的图像是256x256，那么Image Encoder输出的黄绿色部分，就是一个257x768的向量。再来看一下TE和MI层，如果把TE和MI看成一个整体，其实就是一个BERT的Transformer，只不过一劈为二，前六层做TE，后六层做MI。
+
+#### AlBeF的目标函数
+
+接下来，我们来具体讲解ALBeF的三个目标函数——ITC，ITM和MLM。
+
+##### ITC
+
+首先讲一下ITC Loss，回想一下CLIP章节讲过的对比学习大体流程。只要你能定义一个正样本对（Positive Sample Pair），接着定义很多负样本对，然后我们就可以去做对比学习了。训练的目标就是让正样本对的距离越来越近，让征服样本对之间的距离越来越远。按照这个思路，首先我们要做的就是先提取各个样本的全局特侦，然后在这个特征之间去做Embedding Space上的距离拉近和拉远的操作。
+回到架构图左下角的VE层，图片I先通过ViT后，得到一个257x768的向量，把其中CLS Token当作这个图片向量的全局特征，即768x1的向量。接着看VE层，文本T经过BERT前六层的Tokenization后，得到一系列768维的特征，我们也把CLS Token拿出来作为文本的全局特征，即768x1的向量。接下来的操作是直接Copy MoCo这个论文的，即先做downsample和normalization，就把768x1变成了256x1的向量。这个时候，正样本对的集合就构造好了。至于如何构造负样本集合，其实负样本都存在一个长度为65536的Queue里，这个Queue是由Momentum Model产生的。这个时候，正负样本都有了，就可以对这个模型进行第一阶段的对比学习了，这个过程就是论文里说的Align before Fuse中的Align过程。也就是说在做多模态融合（即MI层）之前就把图像特征和文本特征通过ITC Loss做对比学习了，让图像和文本特征尽可能的拉近距离，尽可能的在同一个Embedding Space里。
+
+##### ITM
+
+接下来我们来看一下架构图的上部分，即融合层。我们先来讨论一下Image-Text Matching。ITM其实很简单，就是给定一个图片I和一个文本T，在经过MI层之后，会有一个特征向量，在这个特征之后加上一个FC层做二分类（输出Ture/False），来判断输入的图片I和文本T是否为一对。我们知道判断正样本对可能还有点难度，判断负样本对是非常简单的任务，实际操作中发现，这个ITM的Loss function太简单了，很快ITM的准确度提升的非常快，在预训练过程中，ITM的Loss就收敛了。要想效果好，我们得增加正负样本对数据集的训练难度。
+接着，我们来看一下ALBeF是怎么做的吧。ALBeF就采用了最常用的做法hard negatives的技术。具体来说，通过某种方式去选择最难的负样本，即选择最接近于正样本的那个负样本。我们看一下架构图中的ITM，还有个虚线从ITC指向ITM。
+它就把这张图片和同一个batch（ALBeF的batchsize为512）里所有的文本都算一遍cosine similarity，然后悬着一个除了自己之外相似度最高的文本作为负样本。也就是说其实这个图像和作为负样本的文本是非常相识的，甚至都可以拿来做正样本用。想象一下，如果负样本都是这么难的数据，对ITM的Loss来说就非常有挑战了，这样训练出来的ITM就能更好的判断哪一个是真正的图像文本对了。
+
+##### MLM
+
+最后我们来讲MLM，就是BERT里的“完型填空”。在ALBeF中，MLM就是把原来的一个句子T，随机masked掉几个token变成T‘，然后把原先图片I和缺失几个token的文本T’，送给MI融合后，通过MLM来做预测，目标就是让模型把masked掉的几个token预测正确。对比传统的NLP中的MLM，还是有点不一样的。这里MLM其实也借助了图像这边的信息，来预测哪个token被masked掉。
+
+最后，有个细节需要讨论一下。ITC和ITM的输入都是原始图片和文字，即（I，T）。MLM的输入确实原始的图片和masked掉的文本，即（I，T'）。这就意味着，AlBeF模型在准备这两组数据的时候，做了2次前向传播（forward）。其实ViLT也是做多次前向传播。这也是多模态模型训练时间比传统单模态长的原因之一。
+
+总结一下，ALBeF的不论在训练速度上，还是在推理速度上，通用性和性能表现上都是非常的亮眼，在2021年，多模态邻域起到了一个承上启下的作用。
+
+#### 二论双塔模型
+
+##### 双塔模型 vs 单塔模型
+
+【用VLMo的abstract部分】
+
+双塔模型就介绍到这里，既然有双塔，那么就有另一种模型，就是单塔模型。
 
 ## 参考文献
 
