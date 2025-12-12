@@ -21,7 +21,7 @@ ViT是2020年Google团队提出的将Transformer应用在图像分类的模型�
 
 #### ViT架构
 
-我们先回顾一下Transformer结构，先把文本（Text）做Word Embedding，转化成Token，然后加上位置编码（Position Embedding）输入到MHA（Multi-Head Attention)。问题来了，如何把二维的图片转化成一维的Token呢？其实这个问题在传统的计算机图形学里有现成的解决方案。我们按照BMP图片格式为例，100x100的图片大小。因为宽度和高度都是100像素，加上RGB三个通道，这个BMP格式的图片存储在计算机磁盘里，就转化成一维的方式了，即3（通道）x100（高度）x100（宽度）。
+我们先回顾一下Transformer结构，先把文本（Text）做Word Embedding，转化成Token，然后加上位置编码（Position Embedding）输入到MSA（Multi-head Self Attention)。问题来了，如何把二维的图片转化成一维的Token呢？其实这个问题在传统的计算机图形学里有现成的解决方案。我们按照BMP图片格式为例，100x100的图片大小。因为宽度和高度都是100像素，加上RGB三个通道，这个BMP格式的图片存储在计算机磁盘里，就转化成一维的方式了，即3（通道）x100（高度）x100（宽度）。
 ViT也是借助这个思路，只是用像素点的分割力度太细了，改用16x16的小图片（Patch）作为最小单元。下图是ViT模型的总览图，图中Patch Embeddding部分就是描述了这个过程。
 
 ![MLLM_ViT.png](../images/MLLM_ViT.png)
@@ -78,7 +78,7 @@ ViT后续的处理，和标准Transformer Encoder模型基本上是一致的。�
 
 ![MLLM_two_tower.svg](../images/MLLM_two_tower.svg)
 
-随便提一下，上图这个模型也称为**双塔模型**，擅长处理VL Understanding问题。2021年，CLIP的出现，解决了这个问题。
+随便提一下，上图这个模型，两个腿（VE和TE层）很粗，头(MI层)比较小的，也称为**双塔模型(Dual Encoder)**，擅长处理VL Understanding问题。2021年，CLIP的出现，解决了这个问题。
 
 #### CLIP架构
 
@@ -107,7 +107,9 @@ CLIP，全名Contrastive Language-Image Pre-training，OpenAI团队提出的一�
 
 CLIP原理非常简单，很容易想到。在OpenAI团队做这个之前，就有人做一样的事情，但是效果远远没有CLIP好。其核心原因就是OpenAI喜欢大力出奇迹，又发挥了一把Scalling Law的威力。最后提一句，CLIP把Text和Image对比学习的办法，简称为ITC（Image-Text Constrastive），这个简称在后续章节中还会用到。
 
-#### CLIP架构的潜在问题
+#### 一问：怎么样的多模态模型结构才是理想的架构？
+
+CLIP架构的潜在问题
 
 我们再回顾下图中CLIP架构，CLIP的VE和TE用的都是Transformer，而融合层（MI）只是一个简单的点乘操作（consine相似度）。从模型结构来讲，就是VE层和TE层，要比MI层复杂的多，即
 
@@ -126,20 +128,23 @@ ViLT(Vision-and-Language Transformer)是一种多模态模型，旨在通过Tran
 
 ![MLLM_ViLT_1.png](../images/MLLM_ViLT_1.png)
 
-来看一下ViLT的架构图，一个典型的**双塔模型**，左下是典型的Lang/Text Embedding, 右下是Visual Embedding。MI层，用的是传统的Transformer Encoder。这边聊一下最上层的ITM（Image Text Matching）和MLM（Masked Language Modeling）方法。ITM方法就是对图像文本对（Image-Text Pair）做预测，如果图片和文字描述一致，就返回True。MLM就是BERT模型里采用方法一样，俗称“完型填空”。有兴趣的读者，请读一下《大语言模型：通往通用人工智能之路》，这里就不做过多的陈述了。
+来看一下ViLT的架构图，左下是典型的Lang/Text Embedding, 右下是Visual Embedding。MI层，用的是传统的Transformer Encoder。对比CLIP的MI层，显然ViLT要复杂的多。这种MI层用上Transformer Encoder架构的模型，看上去头重脚轻的，也称之为**单塔模型(Fusion Encoder)**。
+接着，聊一下最上层的ITM（Image Text Matching）和MLM（Masked Language Modeling）方法。ITM方法就是对图像文本对（Image-Text Pair）做预测，如果图片和文字描述一致，就返回True。MLM就是BERT模型里采用方法一样，俗称“完型填空”。有兴趣的读者，请读一下《大语言模型：通往通用人工智能之路》，这里就不做过多的陈述了。
 
 ![MLLM_ViLT_2.png](../images/MLLM_ViLT_2.png)
 
-#### 讨论双塔模型
+#### 二问：怎么样的多模态模型结构才是理想的架构？
 
-在ViLT论文里，有张图非常有名，就是把双塔模型分成四类。如下图所示：
+常见的多模态模型
+
+在ViLT论文里，有张图非常有名，就是把多模态模型分成四类。如下图所示：
 ![MLLM_two_tower_types.svg](../images/MLLM_two_tower_types.svg)
 
 我们在上一个CLIP章节里，讨论了一下CLIP对应的双塔模型，就是上图中的图(b)。CLIP的缺点就是MI层太小了，应付不了复杂的VL问题，但是其中的ITC很好用且高效。
 
 不管是ViLT还是CLIP，从技术上来说，都不复杂，只是把别的领域用的好的方法应用到VL这个领域。接下来要介绍的模型就开始啃硬骨头了，开始真正意义上去更改模型架构以达成较好的效果。再来看ViLT对应的图(d)，采用了Transformer encoder结构的MI层，VE和TE做的非常简单，总体效果就推理速度来说挺好。但是其他方面，比如训练时间耗时，特定任务的性能不够高。同时，ITM和MLM被ViLT论文里的消融实验证明是有效的方法。最后，我们来看一下ViLBERT和UNITER模型为代表的图(c),最终效果是不错的。证明双塔结构中，$VE>MI>TE$这样的模型结构是最好的。然后，为了处理OD，引入的WPA，在推理阶段性能成问题。那么问题来了，
 
-> 怎么样的双塔结构才是理想的架构？
+> 怎么样的多模态模型结构才是理想的架构？
 
 基于上面的分析，很容易得出结论。如下图所示：
 ![MLLM_two_tower_proposal.svg](../images/MLLM_two_tower_proposal.svg)
@@ -193,13 +198,91 @@ Tips：ALBeF的例子告诉我们，很多创新不是一蹴而就的，要善�
 
 总结一下，ALBeF的不论在训练速度上，还是在推理速度上，通用性和性能表现上都是非常的亮眼，在2021年，多模态邻域起到了一个承上启下的作用。
 
-#### 二论双塔模型
+#### 再论多模态模型架构
 
-##### 双塔模型 vs 单塔模型
+以下是多模态领域双塔模型（Dual Encoder）与单塔融合模型（Fusion Encoder）的典型代表，附核心特点与适用场景，便于快速区分与选型：
 
-【用VLMo的abstract部分】
+##### 双塔模型（Dual Encoder）
 
-双塔模型就介绍到这里，既然有双塔，那么就有另一种模型，就是单塔模型。
+核心特点：视觉与文本各自独立编码，仅在特征层对齐，推理高效，适合检索类任务。
+优点：对多模态中的检索任务非常高效。
+缺点：由于MI层太简单，在复杂任务，比如VQA等无法做到效果最好。
+
+| 模型            | 核心架构                                | 关键特性            | 适用场景      |
+| ------------- | ----------------------------------- | --------------- | --------- |
+| CLIP（OpenAI）  | 图像ViT+文本Transformer双编码器，对比学习对齐 | 零样本迁移强，特征可预计算存储 | 图文互检、图像分类 |
+| ALIGN（Google） | 图像ResNet/ViT+文本BERT，弱监督对比学习     | 依赖大规模噪声图文对，数据驱动 | 大规模图文检索   |
+| BriVL（智源）     | 视觉塔+文本塔，对比学习与动量蒸馏                 | 中文图文对齐优化，检索性能优  | 中文场景图文互检  |
+
+##### 单塔融合模型（Fusion Encoder）
+
+核心特点：视觉与文本在同一编码器内深度交互（交叉注意力），融合能力强，适合复杂理解与生成任务。
+优点：在做VL复杂任务，比如VL Classification，即VR/VE/VQA任务，效果最好。
+缺点：在做检索任务时，推理速度非常慢。
+
+| 模型        | 核心架构                                           | 关键特性               | 适用场景          |
+| --------- | ---------------------------------------------- | ------------------ | ------------- |
+| VL-BERT | 单Transformer编码器，图像区域特征与文本Token拼接，交叉注意力融合   | 早期单塔标杆，依赖目标检测区域特征  | VQA、图文匹配      |
+| UNITER    | 单Transformer，图像网格 / 区域特征与文本统一编码，多任务预训练        | 模态交互充分，下游任务泛化性好    | 视觉推理、图文分类     |
+| ViLT      | 无卷积单Transformer，图像Patch与文本Token统一处理，无区域监督 | 极简架构，速度快，摒弃卷积与目标检测 | 轻量化图文理解       |
+| ALBEF     | 单融合编码器+动量蒸馏，预训练阶段对齐与融合结合                     | 对齐与融合协同，性能与效率平衡    | 图文检索、VQA、图像描述 |
+| BLIP      | 单融合编码器-解码器，自举预训练（Bootstrapping）              | 兼顾理解与生成，适配多任务      | 图像描述、视觉对话     |
+
+既然单塔模型和双塔模型有着各自的优缺点和适用范围，一个很直接的想法，我能不能把这些放在同一个框架里呢？在做推理的时候，根据具体的下游任务，动态的选择单塔或者双塔模型。接下来要介绍的VLMo模型，提出了一种新的模型架构：MoME(Mixture of Modality Expert)实现了这个想法。
+
+### VLMo
+
+VLMo（Vision-Language pretrained Model）是微软亚洲研究院于 2021 年提出的统一视觉 - 语言预训练模型，核心是用 MoME（Mixture-of-Modality-Experts）Transformer 架构，在单一模型内同时支持双塔检索与单塔融合两种模式，兼顾效率与深度交互能力，适配检索、VQA、图文理解等多类任务。主要创新点有2个：
+
+1. 用**统一架构**实现双编码器与融合编码器的无缝切换，无需为不同任务单独训练模型。引入​**MoME机制**​，在Transformer块内动态激活模态专家，平衡单模态编码与跨模态融合。
+2. 采用​**分阶段预训练(Stagewise Pre-training Strategy)** ​，充分利用单模态与多模态数据，提升泛化与效率。
+
+简言之，就是这个自注意力层时所有模态共享的，但是在这个Feed Forward层是不一样的，每个模态就会对应自己不同的Expert，即负责视觉的Vision Expert，负责文本的Language Expert和负责多模态的Multi-model Expert。这样在训练的时候，哪个模态的数据来了，我就训练哪个模态的Expert。然后在推理阶段，也能根据输入的数据，去决定该使用什么样的模型结构。这样就非常优雅的解决了我们在上一章节末提到的单塔和双塔模型面临的难题。接下来，我们先一起来看一下VLMo的架构。
+
+#### VLMo架构
+
+![MLLM_VLMo_Arch.png](../images/MLLM_VLMo_Arch.png)
+
+首先，我们来看VLMo的核心部分，上图的左边MoME Transformer with Shared Parameters部分。这是一个Transformer encoder结构，但是VLMo对标准的encoder做了改动——改了FFN这一层。不像标准Transformer encoder只有一层FFN，MoME改成了3个。根据不同的模态，MoME会切换不同的FFN，即Vision FFN，Language FFN和Vision-Language FFN，就是虚线模块里说的Switching Modality Expert。
+这里有个比较有意思的点，3个FFN是不共享参数权重的，但是之前的MSA层是共享权重的。也就是说，不论你是图像，文本还是图+文，任何token sequence进来，MSA这一层都是一样处理的，通通都是shared weights的。从这个角度来说，也再次证明Transformer的self-attention是非常通用的架构。
+接着我们来看中间部分，VLMo也用了ITC，ITM和MLM，也从ALBeF模型借鉴了Hard Negative Mining的方法。具体做法我们在上一个章节已经详细阐述了，这里就不重复了。
+在训练阶段，如果是做ITC，直接就变成了CLIP模型。对应的就是右上角部分。针对图像，先做patch embedding，进去后，就是一个ViT做VE，FFN用的是Vision FFN。针对文本部分，就是个标准的Transformer encoder。一个标准的CLIP双塔模型。如果做ITM和MLM，就是一个单塔融合模型。这里要特别指出的右侧3个图中的MSA（Multi-head Self Attention）层都是一样的，shared weights的。原论文的训练时，取值是：$L=12; F=2$。
+
+接下来，我们介绍VLMo的另一个创新点，就是分阶段预训练策略。
+
+#### 分阶段预训练(Stagewise Pre-training Strategy)
+
+先说一下背景，在2021年，多模态邻域的公开数据集其实不像Unimodality里的公开数据集丰富的。作者想利用这些大量的图片和文本去做预训练，使得模型有更好的初始化。我们一起来看看整个训练过程，如下图所示：
+
+![MLLM_VLMo_Stagewise.png](../images/MLLM_VLMo_Stagewise.png)
+
+如图所示，先做了Vision Pre-Training，然后去做Language Pre-Training，最后才去做Vision-Language Pre-Training。在第一阶段Vision Pre-Training的时候，肯定是Unsupervised的，其实用了他们团队在BEiT论文里的方法Mask Image Modeling。在第二阶段Language Pre-Training的时候，用的就是传统的Masked Language Modeling。在第三阶段Vision-Language Pre-Training的时候，用的就是ITC+ITM+MLM三个目标函数
+另一个需要注意的一点，在训练过程中，MSA和FFN在各个阶段哪些是冻住(Frozen）的，哪些是放开的。在第一阶段，因为是刚刚开始训练，都是放开的。到了第二阶段，做文本预训练时，就不同了，L-FFN打开，把V-FFN和MSA层都冻住了。V-FFN是Vision Expert，冻住很好理解，毕竟这一阶段是训练文本嘛。值得注意的就是MSA冻住了，在第一阶段这个MSA训练数据可是Image Only啊，只在视觉Token sequence上训练好的一个自注意力模型，居然能直接用在文本上，都不需要fine tune就能做文本的“完型填空”，结果证明就是工作的很好。我当时看到这个的时候就想，如果反过来用文本训练MSA，然后直接用在Vision任务上行不行。查了一圈文档，还真有人这么做。结论是：只能是Vision训练好的MSA能直接用在Language任务上，反之则效果不好。到了第三阶段，就是我们想要的多模态融合了，就把所有都打开，让融合效果达到最好。
+
+#### 三问：怎么样的多模态模型结构才是理想的架构？
+
+现在聊一下VLMo的缺点，VLMo架构在解决了Dual Encoder和Fusion Encoder的问题之后，也引入了一些新的问题。简言之，就是太复杂了。
+
+1. 训练复杂度较高：分阶段预训练策略和动态路由机制增加了训练过程的复杂性和时间成本。模态专家模块的设计和动态路由机制的选择需要大量实验验证，增加了开发难度。
+2. 对大规模数据的依赖：需要大量的单模态和多模态数据进行预训练，数据质量对模型性能影响较大。对多模态融合也有依赖，模型性能在很大程度上依赖于多模态融合的效果，可能在模态间对齐较差的数据上表现不佳。
+3. 模型架构复杂：有多个目标函数，比如ITC+ITM+MLM，造成多次Feed Forward，训练慢。多个Loss function还有个问题就是调参很难，往往多个目标函数间的参数是相互影响的，有些还是互斥的，往往是压下葫芦起了瓢。
+
+如果，让我们动手改着VLMo架构，该怎么做？分析一下上面提到的3点，其实1和3是一样的，需要改模型架构。2的话，需要在多模态数据方面有所突破，也就是说数据不是越多越好，还需要提高数据质量。本文主要聚焦模型架构，其实多模态数据方法论也有很大的进展。从CLIP的self-learning到ALBeF的Momentum Distillation，再到BLIP模型的CapFilter，使得多模态数据越来越丰富，数据质量也越来越好。有兴趣的读者，仔细读一下刚刚提到的这些论文。
+回到改动模型这个话题，切入点其实很明显了，缺点3就已经指出来了，ITC+ITM+MLM这3个目标函数一起用，太复杂了。理想状态就是用一个目标函数来代替。同时，我们还希望这个理想模型在做完Pre-Training之后，推理阶段能应付所有下游任务，每个任务表现都很好。而输入端呢，既要能处理单独的图片和文本，也要能处理图片文本对。对于“怎么样的多模态模型结构才是理想的架构？”这个问题，我们给出了答案，如下图所示：
+
+![MLLM_Ideal_Arch.svg](../images/MLLM_Ideal_Arch.svg)
+
+接下来，我们一起来看看这帮聪明的脑袋是如何实现这个理想框架的。
+
+### BEiTv3
+
+BeitV3（BEIT Pretraining for All Vision and Vision-Language Tasks），作为一种通用多模态基础模型，通过单一架构处理视觉、语言和视觉-语言任务，代表了多模态模型的大融合趋势，其在多种视觉和视觉-语言任务上实现了最先进的迁移性能。
+
+BeitV3 通过其多向 Transformer 架构和创新的预训练方法，在多模态学习中实现了显著的进步。它不仅在视觉任务上展现出强大的性能，也在视觉-语言任务中表现出色，表明了这种融合视觉和语言预训练方法的巨大潜力和应用广度。BeitV3 的成功预示着多模态模型在处理更复杂、更细粒度跨模态任务中的巨大潜力。
+
+#### BEiTv3 架构
+
+![MLLM_BEiTv3_Arch.png](../images/MLLM_BEiTv3_Arch.png)
 
 ## 参考文献
 
@@ -208,4 +291,8 @@ Tips：ALBeF的例子告诉我们，很多创新不是一蹴而就的，要善�
 3. [ViLT: Vision-and-Language Transformer Without Convolution or Region Supervision](https://arxiv.org/pdf/2102.03334)
 4. [一文搞懂多模态：BeiT-3之前的14个多模态+4个周边原理解读](https://zhuanlan.zhihu.com/p/633946545)
 5. [Align before Fuse: Vision and Language Representation Learning with Momentum Distillation](https://arxiv.org/pdf/2107.07651)
+6. [VLMo: Unified Vision-Language Pre-Training with Mixture-of-Modality-Experts](https://arxiv.org/pdf/2111.02358)
+7. [Image as a Foreign Language: BEIT Pretraining for All Vision and Vision-Language Tasks](https://arxiv.org/pdf/2208.10442)
+8. [多模态论文串讲·上【论文精读】](https://www.youtube.com/watch?v=6pzBOQAXUB8)
+9. [多模态论文串讲·下【论文精读】](https://www.youtube.com/watch?v=S1le41J76lQ)
 
