@@ -274,15 +274,81 @@ VLMo（Vision-Language pretrained Model）是微软亚洲研究院于 2021 年�
 
 接下来，我们一起来看看这帮聪明的脑袋是如何实现这个理想框架的。
 
-### BEiTv3
+### BEiT-3
 
-BeitV3（BEIT Pretraining for All Vision and Vision-Language Tasks），作为一种通用多模态基础模型，通过单一架构处理视觉、语言和视觉-语言任务，代表了多模态模型的大融合趋势，其在多种视觉和视觉-语言任务上实现了最先进的迁移性能。
+BEiT-3（BEIT Pretraining for All Vision and Vision-Language Tasks），作为一种通用多模态基础模型，通过单一架构处理视觉、语言和视觉-语言任务，代表了多模态模型的大融合趋势，其在多种视觉和视觉-语言任务上实现了最先进的迁移性能。
 
-BeitV3 通过其多向 Transformer 架构和创新的预训练方法，在多模态学习中实现了显著的进步。它不仅在视觉任务上展现出强大的性能，也在视觉-语言任务中表现出色，表明了这种融合视觉和语言预训练方法的巨大潜力和应用广度。BeitV3 的成功预示着多模态模型在处理更复杂、更细粒度跨模态任务中的巨大潜力。
+BEiT-3 通过其多向 Transformer 架构和创新的预训练方法，在多模态学习中实现了显著的进步。它不仅在视觉任务上展现出强大的性能，也在视觉-语言任务中表现出色，表明了这种融合视觉和语言预训练方法的巨大潜力和应用广度。BeitV3 的成功预示着多模态模型在处理更复杂、更细粒度跨模态任务中的巨大潜力。
 
-#### BEiTv3 架构
+#### BEiT-3 架构
+
+相较于之前的模型，BEiT-3要简单的多，如下图所示：
 
 ![MLLM_BEiTv3_Arch.png](../images/MLLM_BEiTv3_Arch.png)
+
+先看输入和输出，和我们上一章节讨论的理想模型是一样的，即一个模型全部搞定。再看左侧模型部分，有个新名词Multiway Transformer，其实就是VLMo模型的MoME。同一个团队出品的，只是改了名字而已。上个章节里还提到ITC+ITM+MLM的方法太复杂，这里直接用了一个方法MDM（Masked Data Modeling），其实就是MLM方法。因为这边既支持Text也支持Image，所以把MLM中的L（Language）改成D（Data），即改名叫MDM。架构介绍完了，就这么简单，多模态VL模型的集大成者。
+Tips：读书的时候，老师经常说，要把一本书先读“厚”，然后再读“薄”。VL大模型的发展，完美的诠释了这个过程。
+
+既然这么简单的架构就能成为VL模型的集大成者，为什么在BEiT-3前，别的团队就没有想到呢？那我们现在就开始拨开BEiT-3的神秘面纱，一起讨论BEiT-3的创新点。
+
+#### BEiT-3 Multiway Transformer
+
+我们先来介绍一下BEiT-3是如何做到应对各类不同的下游任务。按照我们上一章节讨论的理想模型，最理想的情况就是一个输出处理所有场景，可惜还做不到。BEiT-3做了个折中方案，引入了开关机制，用户可以根据下游任务来打开开关，处理对应的下游任务。BEiT-3把下游任务分成了五类，同时对应五路推理模型：
+(a) 传统视觉任务，比如图像分类/图像分割/对象检测。对应的模型就是Vision Encoder
+(b) 传统的NLP任务。对应的模型就是Language Encoder
+(c) VL类任务，比如VQA/VR等。对应的模型就是Fusion Encoder
+(d) 图像文本检索类任务。对应的模型就是Dual Encoder
+(e) 图像文本生成类任务，比如图生文。对应的模型就是Image-to-Text Generation
+
+大家对着下面这张图看一下。打个比方，装修房子，铺电线的时候，入户一个总开关，每个房间都有独立的开关。如果人在卧室，可以只开卧室的灯。
+
+![MLLM_BEiTv3_Multiway.png](../images/MLLM_BEiTv3_Multiway.png)
+
+用不同的开关处理不同的下游任务，这个是很容易想到的。难的是如何预训练这个模型，做到只预训练一次，然后通过不同的开关处理各类下游任务。20多年前，Java就是通过“Write Once, Run Anywhere.”的口号取得巨大的成功的。
+
+#### BEiT-3 预训练
+
+其实BEiT-3最值得学习的地方就是预训练的思路。我们先讨论一下模型训练，主要就是2个方面。
+
+1. 模型训练方法，比如有监督微调(SFT)，强化学习(RL)等；
+2. 训练数据
+
+对于训练方法，我们讨论的比较多，暂时按下不表。我们先看一下数据，对于模型来说，数据质量越高越好，数据规模越大越好。这个问题其实是相互矛盾的，质量越高，就需要人工标记。这样的采用人工标注的方式，规模一定受限。在CNN时代（以处理图像为主），业界流行的方式就是采用人工标注来产生数据，诞生了很多很有影响力的数据集，比如ImageNet。但是，到了NLP阶段，特别是LLM流行起来后，Scalling Law成为很多模型的不二选择。这样数据规模就成了瓶颈。摆在业界面前的难题就是需要在数据规模和数据质量中间取一个平衡点。这样，自监督学习(Self-survised Learning)就孕育而生了，说白了，思路也很简单——让机器代替人来对数据做标注。
+用自监督学习解决了训练规模的问题后，离激活Scalling Law又迈进一步。BEiT-3还需要在模型训练方法论有所创新。上个章节提到VLMo的一个痛点就是ITC+ITM+MLM的联合训练太难了，不利于激活Scalling Law。现在我们就来看BEiT-3是如何简化这个Loss function。一般来说，简化原来的方法，要么提出一种全新的方法代替原方法，要么在原来基础上做减法，而BEiT-3采用了后一种方法。
+只要分析一下ITC+ITM，其实这两种方法还相互依赖，中间还穿插着一个hard negitive sampling。在反观NLP领域，也没有相对应的方法，换句话说，ITC+ITM也不大适合纯文字的领域。这样就剩下来MLM了，第一感觉，可行！再回头看看ITC+ITM工作的比较好的地方，就是处理输入类型为Text-Image Pair这类数据。如果我们能用MLM的方法，能处理Text-Image Pair类型数据，那么就可以放心大胆的抛弃ITC+ITM了。接着，我们来看一下BEiT团队是如何解决这个问题的。
+
+#### BEiT-3的多模态掩码建模（MDM）
+
+BEiT团队处理这个问题的思路堪称革命性的。BEiT-3的核心是通过 “图像即外语（Imglish）” 理念，以统一的**多模态掩码建模（MDM，Masked Data Modeling）** 任务替代ITC+ITM，再配合Multiway Transformer架构，实现单任务驱动的图文对统一建模，彻底抛弃传统多目标联合训练范式。
+
+##### MDM处理Text-Image Pair的完整流程
+
+BEiT-3将图文对视为 “平行句（Parallel Sentences）”，用统一的掩码-预测流程完成建模，核心分四步：
+
+1. **输入统一Token化**
+   
+   * 图像：用BEiT-2的离散tokenizer将图像切分为16×16patch，转化为视觉token（Imglish），与文本token 同空间表示。
+   * 文本：用SentencePiece分词器生成文本token。
+   * 图文对拼接：以`<Img>`和`<Text>`分隔符拼接视觉token序列与文本token序列，形成单条混合token序列，无独立视觉/文本编码器。
+2. **统一掩码策略**
+   
+   * 随机掩码40%的视觉token块与15%的文本token（遵循BERT的80-10-10掩码规则），掩码同时覆盖单模态与跨模态边界token，强制模型学习全局上下文关联。
+   * 图文对中的掩码不区分模态，统一视为待恢复的 “缺失 token”，无需区分视觉 / 文本掩码类型。
+3. **Multiway Transformer 深度交互**
+   采用多路专家（MoME）架构，每层含视觉专家、语言专家，顶层3层额外加入视觉-语言融合专家，共享自注意力层，按模态动态激活对应专家，实现跨模态信息深度融合而非简单拼接。
+   
+   * 自注意力机制让视觉与文本token双向互看，解决ITC仅全局对齐、无细粒度交互的问题。
+   * 融合专家强化图文token的跨模态依赖建模，替代ITM的匹配判断逻辑。
+4. **MDM 单损失优化**
+   模型仅用交叉熵损失训练，目标是恢复所有被掩码的视觉/文本token，无需ITC的对比损失和ITM的匹配损失。该损失迫使模型同时学习：
+   
+   * 视觉局部与全局结构（如物体形态、场景布局）。
+   * 文本语义与句法。
+   * 图文间的细粒度对应（如 “红色苹果” 与图像中红色果实区域的关联）。
+
+下图讲我们上一个章节讨论的理想MLLM架构和这一章节讨论的BEiT-3模型实现的对照图。
+
+![MLLM_BEiTv3_Overview.svg](../images/MLLM_BEiTv3_Overview.svg)
 
 ## 参考文献
 
@@ -293,6 +359,6 @@ BeitV3 通过其多向 Transformer 架构和创新的预训练方法，在多模
 5. [Align before Fuse: Vision and Language Representation Learning with Momentum Distillation](https://arxiv.org/pdf/2107.07651)
 6. [VLMo: Unified Vision-Language Pre-Training with Mixture-of-Modality-Experts](https://arxiv.org/pdf/2111.02358)
 7. [Image as a Foreign Language: BEIT Pretraining for All Vision and Vision-Language Tasks](https://arxiv.org/pdf/2208.10442)
-8. [多模态论文串讲·上【论文精读】](https://www.youtube.com/watch?v=6pzBOQAXUB8)
-9. [多模态论文串讲·下【论文精读】](https://www.youtube.com/watch?v=S1le41J76lQ)
+8. [多模态论文串讲·上【论文精读】]https://www.youtube.com/watch?v=6pzBOQAXUB8
+9. [多模态论文串讲·下【论文精读】]https://www.youtube.com/watch?v=S1le41J76lQ
 
