@@ -319,7 +319,7 @@ Tips：读书的时候，老师经常说，要把一本书先读“厚”，然�
 
 #### BEiT-3的多模态掩码建模（MDM）
 
-BEiT团队处理这个问题的思路堪称革命性的。BEiT-3的核心是通过 “图像即外语（Imglish）” 理念，以统一的**多模态掩码建模（MDM，Masked Data Modeling）** 任务替代ITC+ITM，再配合Multiway Transformer架构，实现单任务驱动的图文对统一建模，彻底抛弃传统多目标联合训练范式。
+BEiT团队处理这个问题的思路堪称革命性的，也是最值得学习的地方。BEiT-3的核心是通过 “图像即外语（Imglish）” 理念，以统一的**多模态掩码建模（MDM，Masked Data Modeling）** 任务替代ITC+ITM，再配合Multiway Transformer架构，实现单任务驱动的图文对统一建模，彻底抛弃传统多目标联合训练范式。
 
 ##### MDM处理Text-Image Pair的完整流程
 
@@ -346,7 +346,7 @@ BEiT-3将图文对视为 “平行句（Parallel Sentences）”，用统一的�
    * 文本语义与句法。
    * 图文间的细粒度对应（如 “红色苹果” 与图像中红色果实区域的关联）。
 
-下图讲我们上一个章节讨论的理想MLLM架构和这一章节讨论的BEiT-3模型实现的对照图。
+下图将我们上一个章节讨论的理想MLLM架构和这一章节讨论的BEiT-3模型实现的对照图。
 
 ![MLLM_BEiTv3_Overview.svg](../images/MLLM_BEiTv3_Overview.svg)
 
