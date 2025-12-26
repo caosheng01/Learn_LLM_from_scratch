@@ -390,5 +390,4 @@ BEiT-3将图文对视为 “平行句（Parallel Sentences）”，用统一的�
 5. [Align before Fuse: Vision and Language Representation Learning with Momentum Distillation](https://arxiv.org/pdf/2107.07651)
 6. [VLMo: Unified Vision-Language Pre-Training with Mixture-of-Modality-Experts](https://arxiv.org/pdf/2111.02358)
 7. [Image as a Foreign Language: BEIT Pretraining for All Vision and Vision-Language Tasks](https://arxiv.org/pdf/2208.10442)
-8. [多模态论文串讲·上【论文精读】]https://www.youtube.com/watch?v=6pzBOQAXUB8
-9. [多模态论文串讲·下【论文精读】]https://www.youtube.com/watch?v=S1le41J76lQ
+8. 李沐 多模态论文串讲[论文精读]
